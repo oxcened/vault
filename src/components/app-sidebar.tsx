@@ -24,12 +24,34 @@ const data = {
       url: "#",
       items: [
         {
-          title: "Net Worth",
-          url: "#",
+          title: "Overview",
+          url: "/dashboard/net-worth",
+        },
+        {
+          title: "Assets",
+          url: "/dashboard/assets",
+        },
+        {
+          title: "Debts",
+          url: "/dashboard/debts",
         },
         {
           title: "History",
-          url: "#",
+          url: "/dashboard/nw-history",
+        },
+      ],
+    },
+    {
+      title: "Other",
+      url: "#",
+      items: [
+        {
+          title: "Exchange rates",
+          url: "/dashboard/exchange-rates",
+        },
+        {
+          title: "Stock prices",
+          url: "/dashboard/stock-prices",
         },
       ],
     },
