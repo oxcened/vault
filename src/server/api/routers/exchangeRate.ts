@@ -50,7 +50,7 @@ export const exchangeRateRouter = createTRPCRouter({
           },
         });
 
-        const earliest = await tx.netWorthQuantityHistory.findFirst({
+        const earliest = await tx.netWorthAssetQuantity.findFirst({
           where: {
             netWorthAsset: {
               currency: updated.baseCurrency,

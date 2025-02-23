@@ -2,10 +2,10 @@ WITH latest_quantities AS (
   SELECT
     q.netWorthAssetId,
     q.quantity
-  FROM NetWorthQuantityHistory q
+  FROM NetWorthAssetQuantity q
   WHERE q.timestamp = (
     SELECT MAX(q2.timestamp)
-    FROM NetWorthQuantityHistory q2
+    FROM NetWorthAssetQuantity q2
     WHERE q2.netWorthAssetId = q.netWorthAssetId
       AND q2.timestamp < DATE_ADD(?, INTERVAL 1 DAY)
   )

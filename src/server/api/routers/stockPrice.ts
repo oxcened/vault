@@ -51,7 +51,7 @@ export const stockPriceRouter = createTRPCRouter({
           include: { ticker: true },
         });
 
-        const earliest = await tx.netWorthQuantityHistory.findFirst({
+        const earliest = await tx.netWorthAssetQuantity.findFirst({
           where: {
             netWorthAsset: {
               tickerId: updated.tickerId,
