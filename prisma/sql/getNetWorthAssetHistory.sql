@@ -16,7 +16,7 @@ date_series AS (
     WHERE sp.tickerId = (SELECT tickerId FROM asset_info)
     UNION ALL
     SELECT q.timestamp AS ts
-    FROM NetWorthQuantityHistory q
+    FROM NetWorthAssetQuantity q
     WHERE q.netWorthAssetId = (SELECT id FROM asset_info)
   ) t
 ),
@@ -66,7 +66,7 @@ daily_data AS (
     -- For each day, get the latest available quantity record (its value, id, and timestamp) with timestamp ≤ the day.
     (
       SELECT q.quantity
-      FROM NetWorthQuantityHistory q
+      FROM NetWorthAssetQuantity q
       WHERE q.netWorthAssetId = (SELECT id FROM asset_info)
         AND q.timestamp <= ds.day
       ORDER BY q.timestamp DESC
@@ -74,7 +74,7 @@ daily_data AS (
     ) AS lastQuantity,
     (
       SELECT q.id
-      FROM NetWorthQuantityHistory q
+      FROM NetWorthAssetQuantity q
       WHERE q.netWorthAssetId = (SELECT id FROM asset_info)
         AND q.timestamp <= ds.day
       ORDER BY q.timestamp DESC
@@ -82,7 +82,7 @@ daily_data AS (
     ) AS quantityId,
     (
       SELECT q.timestamp
-      FROM NetWorthQuantityHistory q
+      FROM NetWorthAssetQuantity q
       WHERE q.netWorthAssetId = (SELECT id FROM asset_info)
         AND q.timestamp <= ds.day
       ORDER BY q.timestamp DESC

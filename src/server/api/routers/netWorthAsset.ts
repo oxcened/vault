@@ -85,7 +85,7 @@ export const netWorthAssetRouter = createTRPCRouter({
         });
 
         // Create the initial quantity record.
-        const quantityRecord = await tx.netWorthQuantityHistory.create({
+        const quantityRecord = await tx.netWorthAssetQuantity.create({
           data: {
             netWorthAssetId: assetRecord.id,
             quantity: input.initialQuantity,
