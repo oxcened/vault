@@ -345,7 +345,7 @@ const SidebarInput = React.forwardRef<
         className
       )}
       {...props}
-    />
+   />
   )
 })
 SidebarInput.displayName = "SidebarInput"
