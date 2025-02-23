@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["typedSql"]
 }
 
 datasource db {
@@ -12,18 +13,6 @@ datasource db {
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
-}
-
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
 }
 
 // Necessary for Next auth
@@ -62,7 +51,6 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
 }
 
 model VerificationToken {
@@ -71,4 +59,94 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model NetWorth {
+    id        String   @id @default(cuid())
+    value     Decimal  @db.Decimal(38, 18)
+    timestamp DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([timestamp])
+    @@index([timestamp])
+}
+
+model NetWorthAsset {
+    id         String                  @id @default(cuid())
+    name       String
+    type       String
+    tickerId   String?
+    currency   String
+    createdAt  DateTime                @default(now())
+    updatedAt  DateTime                @updatedAt
+    ticker     StockTicker?            @relation(fields: [tickerId], references: [id])
+    quantities NetWorthAssetQuantity[]
+}
+
+model NetWorthAssetQuantity {
+    id              String        @id @default(cuid())
+    quantity        Decimal       @db.Decimal(38, 18) // e.g., 10.5 BTC, 1200 USD balance
+    quantityFormula String?
+    timestamp       DateTime
+    netWorthAssetId String
+    netWorthAsset   NetWorthAsset @relation(fields: [netWorthAssetId], references: [id], onDelete: Cascade)
+
+    @@unique([netWorthAssetId, timestamp])
+    @@index([netWorthAssetId, timestamp])
+}
+
+model NetWorthDebt {
+    id                   String                 @id @default(cuid())
+    name                 String
+    type                 String
+    currency             String
+    createdAt            DateTime               @default(now())
+    updatedAt            DateTime               @updatedAt
+    NetWorthDebtQuantity NetWorthDebtQuantity[]
+}
+
+model NetWorthDebtQuantity {
+    id              String       @id @default(cuid())
+    quantity        Decimal      @db.Decimal(38, 18) // e.g., 10.5 BTC, 1200 USD balance
+    quantityFormula String?
+    timestamp       DateTime
+    netWorthDebtId  String
+    netWorthDebt    NetWorthDebt @relation(fields: [netWorthDebtId], references: [id], onDelete: Cascade)
+
+    @@unique([netWorthDebtId, timestamp])
+    @@index([netWorthDebtId, timestamp])
+}
+
+model StockTicker {
+    id             String              @id @default(cuid())
+    ticker         String // e.g., 'AAPL', 'BTC'
+    exchange       String // e.g., 'NASDAQ', 'NYSE', 'BINANCE'
+    name           String // 'Apple Inc.'
+    netWorthAssets NetWorthAsset[]
+    prices         StockPriceHistory[]
+
+    @@unique([ticker, exchange], name: "ticker_exchange") // Prevents duplicate tickers across different exchanges
+}
+
+model StockPriceHistory {
+    id        String      @id @default(cuid())
+    tickerId  String
+    price     Decimal     @db.Decimal(38, 18)
+    timestamp DateTime
+    ticker    StockTicker @relation(fields: [tickerId], references: [id])
+
+    @@unique([tickerId, timestamp], name: "ticker_timestamp") // Ensures one price per ticker per timestamp
+    @@index([tickerId, timestamp])
+}
+
+model ExchangeRate {
+    id            Int      @id @default(autoincrement())
+    baseCurrency  String   @db.VarChar(3)
+    quoteCurrency String   @db.VarChar(3)
+    rate          Decimal  @db.Decimal(38, 18)
+    timestamp     DateTime
+
+    @@unique([baseCurrency, quoteCurrency, timestamp], name: "base_quote_timestamp")
+    @@index([baseCurrency, quoteCurrency, timestamp])
 }
