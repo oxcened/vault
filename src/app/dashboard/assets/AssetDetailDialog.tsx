@@ -118,7 +118,7 @@ export function AssetDetailDialog({
                 <Input
                   id="quantity"
                   placeholder="Quantity/Value"
-                  defaultValue={Number(data?.latestQuantity?.quantity)}
+                  defaultValue={Number(data?.latestQuantity?.quantity ?? 0)}
                 />
               </div>
             </form>

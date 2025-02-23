@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,9 +30,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Decimal } from "decimal.js";
+import { AssetDetailDialog } from "../assets/AssetDetailDialog";
+import { NetWorthAsset } from "@prisma/client";
+import { formatNumber } from "~/utils/number";
 
 function getTypeLabel(type: string) {
   switch (type) {
@@ -57,6 +60,9 @@ export default function AssetsPage() {
       refetch();
     },
   });
+
+  const [detailsDialog, setDetailsDialog] = useState<NetWorthAsset["id"]>();
+  const [newDialog, setNewDialog] = useState(false);
 
   // Group assets by type.
   const types = [...new Set(data.map((item) => item.type))];
@@ -99,6 +105,15 @@ export default function AssetsPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={() => setNewDialog(true)}
+        >
+          <Plus />
+          Asset
+        </Button>
       </header>
 
       <div className="p-5">
@@ -116,7 +131,7 @@ export default function AssetsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Asset</TableHead>
-                    <TableHead className="text-right">Value (EUR)</TableHead>
+                    <TableHead className="text-right">Value</TableHead>
                     <TableHead className="w-0"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -127,12 +142,13 @@ export default function AssetsPage() {
                         <div>{row.name}</div>
                         {row.type.toLowerCase() === "stock" && (
                           <div className="text-xs text-neutral-500">
-                            {row.ticker} &middot; Qty {Number(row.quantity)}
+                            {row.ticker} &middot; Qty&nbsp;
+                            {formatNumber({ value: row.quantity ?? 0 })}
                           </div>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency({ value: row.convertedValue })}
+                        {formatCurrency({ value: row.convertedValue ?? 0 })}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -144,6 +160,11 @@ export default function AssetsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() => setDetailsDialog(row.id)}
+                            >
+                              Details
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => deleteAsset(row)}>
                               Delete
                             </DropdownMenuItem>
@@ -167,6 +188,18 @@ export default function AssetsPage() {
           </Fragment>
         ))}
       </div>
+
+      <NewAssetDialog
+        isOpen={newDialog}
+        onOpenChange={setNewDialog}
+        onSuccess={refetch}
+      />
+
+      <AssetDetailDialog
+        isOpen={!!detailsDialog}
+        assetId={detailsDialog}
+        onOpenChange={() => setDetailsDialog(undefined)}
+      />
     </>
   );
 }
