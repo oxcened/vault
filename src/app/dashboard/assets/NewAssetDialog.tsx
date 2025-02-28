@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { evaluate } from "mathjs";
-import { ASSET_TYPES } from "~/constants";
+import { ASSET_TYPES, STOCK_TYPE } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 
@@ -128,7 +128,7 @@ export default function NewAssetDialog({
               {...register("name", { required: true })}
             />
 
-            {watchType !== "stock" && (
+            {watchType !== STOCK_TYPE && (
               <>
                 <Input
                   placeholder="Initial Quantity/Value"
@@ -148,7 +148,7 @@ export default function NewAssetDialog({
               </>
             )}
 
-            {watchType === "stock" && (
+            {watchType === STOCK_TYPE && (
               <>
                 <Input
                   placeholder="Ticker"

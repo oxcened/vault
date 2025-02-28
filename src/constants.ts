@@ -29,3 +29,5 @@ export const DEBT_TYPES = [
   "Short-term Debt",
   "Other",
 ] as const;
+
+export const STOCK_TYPE = "Stocks";

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
-import { APP_CURRENCY } from "~/constants";
+import { APP_CURRENCY, STOCK_TYPE } from "~/constants";
 import { updateFromDate } from "./netWorth";
 import { ExchangeRate, StockPriceHistory, StockTicker } from "@prisma/client";
 
@@ -30,7 +30,7 @@ export const netWorthAssetRouter = createTRPCRouter({
 
         let tickerRecord: StockTicker | null = null;
 
-        if (type.toLowerCase() === "stock") {
+        if (type === STOCK_TYPE) {
           if (!input.ticker || !input.exchange || !input.stockName) {
             throw new Error(
               'For stock assets, "ticker", "exchange", and "stockName" are required.',
@@ -76,7 +76,7 @@ export const netWorthAssetRouter = createTRPCRouter({
 
         // For stock assets, create a stock price history record.
         let priceRecord: StockPriceHistory | null = null;
-        if (type.toLowerCase() === "stock") {
+        if (type === STOCK_TYPE) {
           const stockPrice = 0;
           priceRecord = await tx.stockPriceHistory.upsert({
             where: {
