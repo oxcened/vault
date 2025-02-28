@@ -44,18 +44,18 @@ SELECT
   lq.quantity AS quantity,
   lsp.price as stockPrice,
   CASE
-    WHEN LOWER(a.type) = 'stock' THEN lq.quantity * IFNULL(lsp.price, 0)
+    WHEN LOWER(a.type) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
     ELSE lq.quantity
   END AS nativeValue,
   CASE 
     WHEN UPPER(a.currency) <> UPPER(?) THEN 
       (CASE 
-         WHEN LOWER(a.type) = 'stock' THEN lq.quantity * IFNULL(lsp.price, 0)
+         WHEN LOWER(a.type) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
          ELSE lq.quantity
        END) * IFNULL(ler.rate, 1)
     ELSE 
       CASE 
-        WHEN LOWER(a.type) = 'stock' THEN lq.quantity * IFNULL(lsp.price, 0)
+        WHEN LOWER(a.type) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
         ELSE lq.quantity
       END
   END AS convertedValue
