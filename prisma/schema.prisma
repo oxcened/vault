@@ -62,11 +62,13 @@ model VerificationToken {
 }
 
 model NetWorth {
-    id        String   @id @default(cuid())
-    value     Decimal  @db.Decimal(38, 18)
-    timestamp DateTime
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id          String   @id @default(cuid())
+    totalAssets Decimal  @db.Decimal(38, 18)
+    totalDebts  Decimal  @db.Decimal(38, 18)
+    netValue    Decimal  @db.Decimal(38, 18) // computed as totalAssets - totalDebts
+    timestamp   DateTime
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     @@unique([timestamp])
     @@index([timestamp])
@@ -97,13 +99,13 @@ model NetWorthAssetQuantity {
 }
 
 model NetWorthDebt {
-    id                   String                 @id @default(cuid())
-    name                 String
-    type                 String
-    currency             String
-    createdAt            DateTime               @default(now())
-    updatedAt            DateTime               @updatedAt
-    NetWorthDebtQuantity NetWorthDebtQuantity[]
+    id         String                 @id @default(cuid())
+    name       String
+    type       String
+    currency   String
+    createdAt  DateTime               @default(now())
+    updatedAt  DateTime               @updatedAt
+    quantities NetWorthDebtQuantity[]
 }
 
 model NetWorthDebtQuantity {
