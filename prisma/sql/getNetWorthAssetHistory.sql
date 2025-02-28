@@ -40,7 +40,7 @@ daily_data AS (
     ds.day,
     -- For stock assets, get the latest price record (price and its id) with timestamp ≤ the day.
     CASE 
-      WHEN (SELECT LOWER(type) FROM asset_info) = 'stock'
+      WHEN (SELECT LOWER(type) FROM asset_info) = 'stocks'
       THEN (
         SELECT sp.price
         FROM StockPriceHistory sp
@@ -52,7 +52,7 @@ daily_data AS (
       ELSE NULL
     END AS stockPrice,
     CASE 
-      WHEN (SELECT LOWER(type) FROM asset_info) = 'stock'
+      WHEN (SELECT LOWER(type) FROM asset_info) = 'stocks'
       THEN (
         SELECT sp.id
         FROM StockPriceHistory sp
@@ -99,7 +99,7 @@ SELECT
   dd.quantityTimestamp,
   -- Native computed value: for stocks, quantity * stockPrice; for others, just quantity.
   CASE 
-    WHEN (SELECT LOWER(type) FROM asset_info) = 'stock'
+    WHEN (SELECT LOWER(type) FROM asset_info) = 'stocks'
       THEN IFNULL(dd.lastQuantity, 0) * IFNULL(dd.stockPrice, 0)
     ELSE IFNULL(dd.lastQuantity, 0)
   END AS nativeComputedValue,
@@ -109,14 +109,14 @@ SELECT
     WHEN UPPER((SELECT currency FROM asset_info)) <> UPPER(?)
       THEN (
           CASE 
-            WHEN (SELECT LOWER(type) FROM asset_info) = 'stock'
+            WHEN (SELECT LOWER(type) FROM asset_info) = 'stocks'
               THEN IFNULL(dd.lastQuantity, 0) * IFNULL(dd.stockPrice, 0)
             ELSE IFNULL(dd.lastQuantity, 0)
           END
         ) * IFNULL(de.exRate, 1)
     ELSE 
       CASE 
-          WHEN (SELECT LOWER(type) FROM asset_info) = 'stock'
+          WHEN (SELECT LOWER(type) FROM asset_info) = 'stocks'
             THEN IFNULL(dd.lastQuantity, 0) * IFNULL(dd.stockPrice, 0)
           ELSE IFNULL(dd.lastQuantity, 0)
       END
