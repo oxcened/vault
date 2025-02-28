@@ -4,6 +4,7 @@ import { netWorthRouter } from "./routers/netWorth";
 import { exchangeRateRouter } from "./routers/exchangeRate";
 import { stockPriceRouter } from "./routers/stockPrice";
 import { netWorthOverviewRouter } from "./routers/netWorthOverview";
+import { netWorthDebtRouter } from "./routers/netWorthDebt";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ import { netWorthOverviewRouter } from "./routers/netWorthOverview";
  */
 export const appRouter = createTRPCRouter({
   netWorthAsset: netWorthAssetRouter,
+  netWorthDebt: netWorthDebtRouter,
   netWorth: netWorthRouter,
   exchangeRate: exchangeRateRouter,
   stockPrice: stockPriceRouter,

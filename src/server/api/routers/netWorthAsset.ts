@@ -1,32 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import {
-  aggregateNetWorthAssets,
-  getNetWorthAssetHistory,
-  getNetWorthAssets,
-} from "@prisma/client/sql";
+import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { updateFromDate } from "./netWorth";
-import {
-  ExchangeRate,
-  PrismaClient,
-  StockPriceHistory,
-  StockTicker,
-} from "@prisma/client";
-
-function getMockStockPrice(ticker: string): number {
-  // Returns a mock stock price between 100 and 150
-  return parseFloat((100 + Math.random() * 50).toFixed(2));
-}
-
-function getMockExchangeRate(base: string, quote: string): number {
-  // Returns a mock exchange rate between 1 and 1.5
-  return parseFloat((1 + Math.random() * 0.5).toFixed(4));
-}
-
-export function aggregateAll(db: Pick<PrismaClient, "$queryRawTyped">) {
-  return db.$queryRawTyped(aggregateNetWorthAssets(APP_CURRENCY, APP_CURRENCY));
-}
+import { ExchangeRate, StockPriceHistory, StockTicker } from "@prisma/client";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
@@ -34,6 +11,7 @@ export const netWorthAssetRouter = createTRPCRouter({
       z.object({
         name: z.string().nonempty(),
         type: z.string().nonempty(), // e.g., "stock" or another asset type
+        customType: z.string().optional(),
         currency: z.string().nonempty(),
         initialQuantity: z.number().nonnegative(),
         quantityFormula: z.string().optional(),
@@ -48,9 +26,11 @@ export const netWorthAssetRouter = createTRPCRouter({
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
+        const type = input.customType || input.type;
+
         let tickerRecord: StockTicker | null = null;
 
-        if (input.type.toLowerCase() === "stock") {
+        if (type.toLowerCase() === "stock") {
           if (!input.ticker || !input.exchange || !input.stockName) {
             throw new Error(
               'For stock assets, "ticker", "exchange", and "stockName" are required.',
@@ -78,7 +58,7 @@ export const netWorthAssetRouter = createTRPCRouter({
         const assetRecord = await tx.netWorthAsset.create({
           data: {
             name: input.name,
-            type: input.type,
+            type,
             currency: input.currency,
             tickerId: tickerRecord ? tickerRecord.id : null,
           },
@@ -96,8 +76,8 @@ export const netWorthAssetRouter = createTRPCRouter({
 
         // For stock assets, create a stock price history record.
         let priceRecord: StockPriceHistory | null = null;
-        if (input.type.toLowerCase() === "stock") {
-          const stockPrice = getMockStockPrice(input.ticker!);
+        if (type.toLowerCase() === "stock") {
+          const stockPrice = 0;
           priceRecord = await tx.stockPriceHistory.upsert({
             where: {
               ticker_timestamp: {
@@ -105,9 +85,7 @@ export const netWorthAssetRouter = createTRPCRouter({
                 timestamp: date,
               },
             },
-            update: {
-              price: stockPrice,
-            },
+            update: {},
             create: {
               tickerId: tickerRecord!.id,
               price: stockPrice,
@@ -119,10 +97,7 @@ export const netWorthAssetRouter = createTRPCRouter({
         // If the asset's currency isn't BASE_CURRENCY, update or create an exchange rate record.
         let exchangeRateRecord: ExchangeRate | null = null;
         if (input.currency.toUpperCase() !== APP_CURRENCY) {
-          const newRate = getMockExchangeRate(
-            APP_CURRENCY,
-            input.currency.toUpperCase(),
-          );
+          const newRate = 1;
 
           exchangeRateRecord = await tx.exchangeRate.upsert({
             where: {
@@ -132,7 +107,7 @@ export const netWorthAssetRouter = createTRPCRouter({
                 timestamp: date,
               },
             },
-            update: { rate: newRate },
+            update: {},
             create: {
               baseCurrency: input.currency.toUpperCase(),
               quoteCurrency: APP_CURRENCY,
@@ -188,9 +163,6 @@ export const netWorthAssetRouter = createTRPCRouter({
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.$queryRawTyped(getNetWorthAssets(APP_CURRENCY, APP_CURRENCY));
-  }),
-  aggregateAll: protectedProcedure.query(async ({ ctx }) => {
-    return aggregateAll(ctx.db);
   }),
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))

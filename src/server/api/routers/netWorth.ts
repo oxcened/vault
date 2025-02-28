@@ -15,7 +15,15 @@ export async function computeByDate({
   date.setUTCHours(0, 0, 0, 0);
 
   return db.$queryRawTyped(
-    getNetWorth(date, date, APP_CURRENCY, date, APP_CURRENCY),
+    getNetWorth(
+      date,
+      date,
+      date,
+      APP_CURRENCY,
+      date,
+      APP_CURRENCY,
+      APP_CURRENCY,
+    ),
   );
 }
 
@@ -57,17 +65,27 @@ export async function updateByDate({
   date.setUTCHours(0, 0, 0, 0);
 
   const netWorthResult = await db.$queryRawTyped(
-    getNetWorth(date, date, APP_CURRENCY, date, APP_CURRENCY),
+    getNetWorth(
+      date,
+      date,
+      date,
+      APP_CURRENCY,
+      date,
+      APP_CURRENCY,
+      APP_CURRENCY,
+    ),
   );
 
   // Extract the computed net worth (defaulting to 0 if no value is returned)
-  const netWorth = netWorthResult[0]?.netWorth ?? 0;
+  const netValue = netWorthResult[0]?.netWorth ?? 0;
+  const totalAssets = netWorthResult[0]?.totalAssets ?? 0;
+  const totalDebts = netWorthResult[0]?.totalDebts ?? 0;
 
   // Upsert a NetWorth record using the unique timestamp.
   return db.netWorth.upsert({
     where: { timestamp: date },
-    update: { value: netWorth },
-    create: { value: netWorth, timestamp: date },
+    update: { netValue, totalAssets, totalDebts },
+    create: { netValue, totalAssets, totalDebts, timestamp: date },
   });
 }
 
@@ -75,46 +93,10 @@ export async function updateFromDate({
   db,
   date,
 }: {
-  db: Pick<PrismaClient, "$queryRawTyped" | "netWorth">;
+  db: Pick<PrismaClient, "$queryRaw" | "netWorth">;
   date: Date;
 }) {
-  // Normalize the provided date to midnight.
-  const startDate = new Date(date);
-  startDate.setUTCHours(0, 0, 0, 0);
-
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-
-  const results: NetWorth[] = [];
-
-  // Loop over each day from startDate to today (inclusive).
-  for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-    // Create a copy of the current day.
-    const currentDay = new Date(d);
-
-    // Query net worth computed from data available up to the current day.
-    const netWorthResult = await db.$queryRawTyped(
-      getNetWorth(
-        currentDay,
-        currentDay,
-        APP_CURRENCY,
-        currentDay,
-        APP_CURRENCY,
-      ),
-    );
-    const netWorth = netWorthResult[0]?.netWorth ?? 0;
-
-    // Upsert the NetWorth record for the current day.
-    const record = await db.netWorth.upsert({
-      where: { timestamp: currentDay },
-      update: { value: netWorth },
-      create: { value: netWorth, timestamp: currentDay },
-    });
-
-    results.push(record);
-  }
-
-  return results;
+  return db.$queryRaw`CALL updateFromDate(${date}, 'EUR')`;
 }
 
 export const netWorthRouter = createTRPCRouter({
