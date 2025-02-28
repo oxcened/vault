@@ -96,7 +96,7 @@ export async function updateFromDate({
   db: Pick<PrismaClient, "$queryRaw" | "netWorth">;
   date: Date;
 }) {
-  return db.$queryRaw`CALL updateFromDate(${date}, 'EUR')`;
+  return db.$queryRaw`CALL updateFromDate(${date}, ${APP_CURRENCY})`;
 }
 
 export const netWorthRouter = createTRPCRouter({
