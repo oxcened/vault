@@ -46,11 +46,11 @@ export default function NetWorthPage() {
         Hey, Alen
       </p>
 
-      <div className="flex flex-wrap gap-5 p-5">
+      <div className="grid gap-5 p-5 sm:grid-cols-3">
         <Card className="flex-grow">
           <CardHeader>
             <CardTitle>
-              {formatCurrency({ value: data?.netWorth?.value ?? 0 })}
+              {formatCurrency({ value: data?.netValue ?? 0 })}
             </CardTitle>
             <CardDescription>Net Worth</CardDescription>
           </CardHeader>
@@ -60,7 +60,7 @@ export default function NetWorthPage() {
           <CardHeader>
             <CardTitle>
               {formatCurrency({
-                value: data?.netWorthAssets?.totalConvertedValue ?? 0,
+                value: data?.totalAssets ?? 0,
               })}
             </CardTitle>
             <CardDescription>Assets</CardDescription>
@@ -69,15 +69,10 @@ export default function NetWorthPage() {
 
         <Card className="flex-grow">
           <CardHeader>
-            <CardTitle>{formatCurrency({ value: 0 })}</CardTitle>
+            <CardTitle>
+              {formatCurrency({ value: data?.totalDebts ?? 0 })}
+            </CardTitle>
             <CardDescription>Debts</CardDescription>
-          </CardHeader>
-        </Card>
-
-        <Card className="flex-grow">
-          <CardHeader>
-            <CardTitle>{formatCurrency({ value: 0 })}</CardTitle>
-            <CardDescription>Saved in Feb</CardDescription>
           </CardHeader>
         </Card>
       </div>
