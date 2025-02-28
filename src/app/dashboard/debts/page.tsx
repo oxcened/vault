@@ -22,7 +22,7 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { formatCurrency } from "~/utils/currency";
-import NewAssetDialog from "../assets/NewAssetDialog";
+import NewDebtDialog from "./NewDebtDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,26 +36,14 @@ import { Decimal } from "decimal.js";
 import { AssetDetailDialog } from "../assets/AssetDetailDialog";
 import { NetWorthAsset } from "@prisma/client";
 import { formatNumber } from "~/utils/number";
-
-function getTypeLabel(type: string) {
-  switch (type) {
-    case "stock":
-      return "Stocks";
-    case "account":
-      return "Accounts";
-    case "miscellaneous":
-      return "Miscellaneous";
-    default:
-      return type;
-  }
-}
+import { DebtDetailDialog } from "./DebtDetailDialog";
 
 export default function AssetsPage() {
   // Query all assets using the new getAll route.
-  const { data = [], refetch } = api.netWorthAsset.getAll.useQuery();
+  const { data = [], refetch } = api.netWorthDebt.getAll.useQuery();
 
   // Assuming a delete mutation remains available (adjust endpoint if needed)
-  const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
+  const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
     onSuccess: () => {
       refetch();
     },
@@ -101,7 +89,7 @@ export default function AssetsPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
-              <BreadcrumbPage>Assets</BreadcrumbPage>
+              <BreadcrumbPage>Debts</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -112,7 +100,7 @@ export default function AssetsPage() {
           onClick={() => setNewDialog(true)}
         >
           <Plus />
-          Asset
+          Debt
         </Button>
       </header>
 
@@ -123,9 +111,7 @@ export default function AssetsPage() {
 
         {dataByType.map(({ type, results, total }) => (
           <Fragment key={type}>
-            <p className="mt-5 text-sm font-medium first:mt-0">
-              {getTypeLabel(type)}
-            </p>
+            <p className="mt-5 text-sm font-medium first:mt-0">{type}</p>
             <div className="mt-5 rounded-md border">
               <Table>
                 <TableHeader>
@@ -140,12 +126,6 @@ export default function AssetsPage() {
                     <TableRow key={row.id}>
                       <TableCell>
                         <div>{row.name}</div>
-                        {row.type.toLowerCase() === "stock" && (
-                          <div className="text-xs text-neutral-500">
-                            {row.ticker} &middot; Qty&nbsp;
-                            {formatNumber({ value: row.quantity ?? 0 })}
-                          </div>
-                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency({ value: row.convertedValue ?? 0 })}
@@ -165,7 +145,7 @@ export default function AssetsPage() {
                             >
                               Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => deleteAsset(row)}>
+                            <DropdownMenuItem onClick={() => deleteDebt(row)}>
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -189,15 +169,15 @@ export default function AssetsPage() {
         ))}
       </div>
 
-      <NewAssetDialog
+      <NewDebtDialog
         isOpen={newDialog}
         onOpenChange={setNewDialog}
         onSuccess={refetch}
       />
 
-      <AssetDetailDialog
+      <DebtDetailDialog
         isOpen={!!detailsDialog}
-        assetId={detailsDialog}
+        debtId={detailsDialog}
         onOpenChange={() => setDetailsDialog(undefined)}
       />
     </>
