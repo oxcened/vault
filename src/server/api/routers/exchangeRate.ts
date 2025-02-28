@@ -1,6 +1,14 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { updateFromDate } from "./netWorth";
+import { evalManifestWithRetries } from "next/dist/server/load-components";
+
+function earliestDateOptional(date1?: Date, date2?: Date): Date | undefined {
+  if (!date1 && !date2) return undefined;
+  if (!date1) return date2;
+  if (!date2) return date1;
+  return date1 < date2 ? date1 : date2;
+}
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -29,7 +37,6 @@ export const exchangeRateRouter = createTRPCRouter({
         },
       });
     }),
-
   update: protectedProcedure
     .input(
       z.object({
@@ -50,21 +57,38 @@ export const exchangeRateRouter = createTRPCRouter({
           },
         });
 
-        const earliest = await tx.netWorthAssetQuantity.findFirst({
-          where: {
-            netWorthAsset: {
-              currency: updated.baseCurrency,
+        const [earliestAsset, earliestDebt] = await Promise.all([
+          tx.netWorthAssetQuantity.findFirst({
+            where: {
+              netWorthAsset: {
+                currency: updated.baseCurrency,
+              },
             },
-          },
-          orderBy: {
-            timestamp: "asc",
-          },
-        });
+            orderBy: {
+              timestamp: "asc",
+            },
+          }),
+          tx.netWorthDebtQuantity.findFirst({
+            where: {
+              netWorthDebt: {
+                currency: updated.baseCurrency,
+              },
+            },
+            orderBy: {
+              timestamp: "asc",
+            },
+          }),
+        ]);
+
+        const earliest = earliestDateOptional(
+          earliestAsset?.timestamp,
+          earliestDebt?.timestamp,
+        );
 
         if (earliest) {
           await updateFromDate({
             db: tx,
-            date: earliest.timestamp,
+            date: earliest,
           });
         }
 
