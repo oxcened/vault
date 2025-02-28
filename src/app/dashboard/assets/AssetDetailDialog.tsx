@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { formatDate } from "~/utils/date";
-import { APP_CURRENCY } from "~/constants";
+import { APP_CURRENCY, STOCK_TYPE } from "~/constants";
 import { formatNumber } from "~/utils/number";
 
 export type AssetDetailDialogProps = {
@@ -69,14 +69,14 @@ export function AssetDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="stock">
+        <Tabs defaultValue="main">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="main">{data?.type}</TabsTrigger>
             <TabsTrigger value="value">Value</TabsTrigger>
           </TabsList>
 
           <TabsContent value="main">
-            {data?.type === "stock" && (
+            {data?.type === STOCK_TYPE && (
               <div className="flex items-center justify-between rounded-lg border bg-neutral-100 p-5 text-sm">
                 <div>
                   <p>{data?.ticker?.name}</p>
@@ -132,7 +132,7 @@ export function AssetDetailDialog({
                             value: row.computedValue ?? 0,
                           })}
                         </p>
-                        {data?.type?.toLowerCase() === "stock" && (
+                        {data?.type === STOCK_TYPE && (
                           <p className="text-xs text-neutral-500">
                             Qty {formatNumber({ value: row.quantity ?? 0 })}
                           </p>

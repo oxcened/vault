@@ -36,19 +36,7 @@ import { Decimal } from "decimal.js";
 import { AssetDetailDialog } from "./AssetDetailDialog";
 import { NetWorthAsset } from "@prisma/client";
 import { formatNumber } from "~/utils/number";
-
-function getTypeLabel(type: string) {
-  switch (type) {
-    case "stock":
-      return "Stocks";
-    case "account":
-      return "Accounts";
-    case "miscellaneous":
-      return "Miscellaneous";
-    default:
-      return type;
-  }
-}
+import { STOCK_TYPE } from "~/constants";
 
 export default function AssetsPage() {
   // Query all assets using the new getAll route.
@@ -123,9 +111,7 @@ export default function AssetsPage() {
 
         {dataByType.map(({ type, results, total }) => (
           <Fragment key={type}>
-            <p className="mt-5 text-sm font-medium first:mt-0">
-              {getTypeLabel(type)}
-            </p>
+            <p className="mt-5 text-sm font-medium first:mt-0">{type}</p>
             <div className="mt-5 rounded-md border">
               <Table>
                 <TableHeader>
@@ -140,7 +126,7 @@ export default function AssetsPage() {
                     <TableRow key={row.id}>
                       <TableCell>
                         <div>{row.name}</div>
-                        {row.type.toLowerCase() === "stock" && (
+                        {row.type === STOCK_TYPE && (
                           <div className="text-xs text-neutral-500">
                             {row.ticker} &middot; Qty&nbsp;
                             {formatNumber({ value: row.quantity ?? 0 })}
