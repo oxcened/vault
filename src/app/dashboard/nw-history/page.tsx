@@ -25,7 +25,7 @@ import { formatDate } from "~/utils/date";
 
 export default function NwHistoryPage() {
   const { data = [] } = api.netWorth.getAll.useQuery();
-  const allTimeHigh = Math.max(...data.map((item) => Number(item.value)));
+  const allTimeHigh = Math.max(...data.map((item) => Number(item.netValue)));
 
   return (
     <>
@@ -60,7 +60,7 @@ export default function NwHistoryPage() {
                 <TableRow key={row.id}>
                   <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency({ value: row.value })}
+                    {formatCurrency({ value: row.netValue })}
                   </TableCell>
                 </TableRow>
               ))}
