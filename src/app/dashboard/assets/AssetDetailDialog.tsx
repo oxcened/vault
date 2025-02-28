@@ -22,19 +22,6 @@ import { formatDate } from "~/utils/date";
 import { APP_CURRENCY } from "~/constants";
 import { formatNumber } from "~/utils/number";
 
-function getTypeLabel(type: string) {
-  switch (type) {
-    case "stock":
-      return "Stock";
-    case "account":
-      return "Account";
-    case "miscellaneous":
-      return "Miscellaneous";
-    default:
-      return "Asset";
-  }
-}
-
 export type AssetDetailDialogProps = {
   isOpen: boolean;
   assetId?: string;
@@ -84,9 +71,7 @@ export function AssetDetailDialog({
 
         <Tabs defaultValue="stock">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="main">
-              {getTypeLabel(data?.type ?? "")}
-            </TabsTrigger>
+            <TabsTrigger value="main">{data?.type}</TabsTrigger>
             <TabsTrigger value="value">Value</TabsTrigger>
           </TabsList>
 
@@ -145,7 +130,6 @@ export function AssetDetailDialog({
                         <p>
                           {formatCurrency({
                             value: row.computedValue ?? 0,
-                            options: {},
                           })}
                         </p>
                         {data?.type?.toLowerCase() === "stock" && (
