@@ -22,10 +22,11 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { evaluate } from "mathjs";
+import { ASSET_TYPES } from "~/constants";
+import { Switch } from "~/components/ui/switch";
+import { Label } from "~/components/ui/label";
 
-type Form = RouterInputs["netWorthAsset"]["create"] & {
-  quantityFormula?: string;
-};
+type Form = RouterInputs["netWorthAsset"]["create"];
 
 export type NewAssetDialogProps = {
   isOpen: boolean;
@@ -38,13 +39,13 @@ export default function NewAssetDialog({
   onOpenChange,
   onSuccess,
 }: NewAssetDialogProps) {
-  const [closeOnSubmit, setCloseOnSubmit] = useState(true);
+  const [createMore, setCreateMore] = useState(false);
   const { mutate, isPending } = api.netWorthAsset.create.useMutation({
     onSuccess: () => {
-      if (closeOnSubmit) {
-        onOpenChange(false);
-      } else {
+      if (createMore) {
         reset();
+      } else {
+        onOpenChange(false);
       }
       onSuccess();
     },
@@ -82,7 +83,7 @@ export default function NewAssetDialog({
   useEffect(() => {
     if (!isOpen) return;
     reset();
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -107,13 +108,21 @@ export default function NewAssetDialog({
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="account">Accounts</SelectItem>
-                    <SelectItem value="stock">Stocks</SelectItem>
-                    <SelectItem value="miscellaneous">Miscellaneous</SelectItem>
+                    {ASSET_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
             />
+            {watchType === "Other" && (
+              <Input
+                placeholder="Custom type"
+                {...register("customType", { required: true })}
+              />
+            )}
             <Input
               placeholder="Name"
               {...register("name", { required: true })}
@@ -174,27 +183,17 @@ export default function NewAssetDialog({
               {...register("currency", { required: true })}
             />
           </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              disabled={isPending}
-              onClick={() => setCloseOnSubmit(true)}
-            >
-              {isPending && closeOnSubmit && (
-                <Loader2 className="animate-spin" />
-              )}
+          <DialogFooter className="gap-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="airplane-mode"
+                onCheckedChange={(checked) => setCreateMore(checked)}
+              />
+              <Label htmlFor="airplane-mode">Create more</Label>
+            </div>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="animate-spin" />}
               Save
-            </Button>
-            <Button
-              type="submit"
-              variant="secondary"
-              disabled={isPending}
-              onClick={() => setCloseOnSubmit(false)}
-            >
-              {isPending && !closeOnSubmit && (
-                <Loader2 className="animate-spin" />
-              )}
-              Save & Add Another
             </Button>
           </DialogFooter>
         </form>
