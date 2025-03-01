@@ -31,3 +31,4 @@ export const DEBT_TYPES = [
 ] as const;
 
 export const STOCK_TYPE = "Stocks";
+export const OTHER_TYPE = "Other";

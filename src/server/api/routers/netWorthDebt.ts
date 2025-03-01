@@ -4,19 +4,11 @@ import { getNetWorthDebtHistory, getNetWorthDebts } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { updateFromDate } from "./netWorth";
 import { ExchangeRate } from "@prisma/client";
+import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().nonempty(),
-        type: z.string().nonempty(), // e.g., "stock" or another asset type
-        customType: z.string().optional(),
-        currency: z.string().nonempty(),
-        initialQuantity: z.number().nonnegative(),
-        quantityFormula: z.string().optional(),
-      }),
-    )
+    .input(createNetWorthDebtSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.$transaction(async (tx) => {
         const date = new Date();

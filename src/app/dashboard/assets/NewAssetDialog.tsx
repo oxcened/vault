@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { evaluate } from "mathjs";
-import { APP_CURRENCY, ASSET_TYPES, STOCK_TYPE } from "~/constants";
+import { APP_CURRENCY, ASSET_TYPES, OTHER_TYPE, STOCK_TYPE } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 
@@ -34,7 +34,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { createNetWorthSchema } from "~/trpc/schemas/netWorthAsset";
+import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 
 export type NewAssetDialogProps = {
   isOpen: boolean;
@@ -67,7 +67,7 @@ export default function NewAssetDialog({
       quantityFormula: "",
       tickerId: "",
     },
-    resolver: yupResolver(createNetWorthSchema),
+    resolver: yupResolver(createNetWorthAssetSchema),
   });
 
   const watchType = form.watch("type");
@@ -133,7 +133,7 @@ export default function NewAssetDialog({
                 )}
               />
 
-              {watchType === "Other" && (
+              {watchType === OTHER_TYPE && (
                 <FormField
                   control={form.control}
                   name="customType"
