@@ -1,6 +1,6 @@
 export const APP_CURRENCY = "EUR";
 
-export const ASSET_TYPES = [
+export const ASSET_CATEGORIES = [
   "Cash",
   "Bank Accounts",
   "Stocks",
@@ -14,7 +14,7 @@ export const ASSET_TYPES = [
   "Other",
 ] as const;
 
-export const DEBT_TYPES = [
+export const DEBT_CATEGORIES = [
   "Mortgage",
   "Home Equity Loans/HELOC",
   "Car Loans",
@@ -30,5 +30,5 @@ export const DEBT_TYPES = [
   "Other",
 ] as const;
 
-export const STOCK_TYPE = "Stocks";
-export const OTHER_TYPE = "Other";
+export const STOCK_CATEGORY = "Stocks";
+export const OTHER_CATEGORY = "Other";

@@ -15,13 +15,14 @@ export const netWorthDebtRouter = createTRPCRouter({
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
-        const type = sanitizeOptionalString(input.customType) ?? input.type;
+        const category =
+          sanitizeOptionalString(input.customCategory) ?? input.category;
 
         // Create the debt record
         const debtRecord = await tx.netWorthDebt.create({
           data: {
             name: input.name,
-            type,
+            category,
             currency: input.currency,
           },
         });

@@ -21,7 +21,12 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { evaluate } from "mathjs";
-import { APP_CURRENCY, ASSET_TYPES, OTHER_TYPE, STOCK_TYPE } from "~/constants";
+import {
+  APP_CURRENCY,
+  ASSET_CATEGORIES,
+  OTHER_CATEGORY,
+  STOCK_CATEGORY,
+} from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 
@@ -60,9 +65,9 @@ export default function NewAssetDialog({
   });
   const form = useForm({
     defaultValues: {
-      type: "",
+      category: "",
       currency: APP_CURRENCY,
-      customType: "",
+      customCategory: "",
       name: "",
       quantityFormula: "",
       tickerId: "",
@@ -70,7 +75,7 @@ export default function NewAssetDialog({
     resolver: yupResolver(createNetWorthAssetSchema),
   });
 
-  const watchType = form.watch("type");
+  const watchCategory = form.watch("category");
   const quantityFormulaValue = form.watch("quantityFormula");
 
   // Evaluate the quantity formula on the fly without showing errors.
@@ -110,21 +115,21 @@ export default function NewAssetDialog({
             <div className="flex flex-col gap-2">
               <FormField
                 control={form.control}
-                name="type"
+                name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Type</FormLabel>
+                    <FormLabel>Category</FormLabel>
 
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a type" />
+                          <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {ASSET_TYPES.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {ASSET_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -135,15 +140,15 @@ export default function NewAssetDialog({
                 )}
               />
 
-              {watchType === OTHER_TYPE && (
+              {watchCategory === OTHER_CATEGORY && (
                 <FormField
                   control={form.control}
-                  name="customType"
+                  name="customCategory"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Custom type</FormLabel>
+                      <FormLabel>Custom category</FormLabel>
                       <FormControl>
-                        <Input placeholder="Custom type" {...field} />
+                        <Input placeholder="Custom category" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -165,7 +170,7 @@ export default function NewAssetDialog({
                 )}
               />
 
-              {watchType === STOCK_TYPE && (
+              {watchCategory === STOCK_CATEGORY && (
                 <FormField
                   control={form.control}
                   name="tickerId"

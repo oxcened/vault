@@ -1,7 +1,7 @@
 WITH debt_info AS (
   SELECT 
     id, 
-    type, 
+    category, 
     currency
   FROM NetWorthDebt
   WHERE id = ?

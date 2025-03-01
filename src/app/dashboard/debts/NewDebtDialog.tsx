@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { evaluate } from "mathjs";
-import { APP_CURRENCY, DEBT_TYPES, OTHER_TYPE } from "~/constants";
+import { APP_CURRENCY, DEBT_CATEGORIES, OTHER_CATEGORY } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -59,17 +59,17 @@ export default function NewDebtDialog({
   });
   const form = useForm({
     defaultValues: {
-      type: "",
+      category: "",
       currency: APP_CURRENCY,
-      customType: "",
+      customCategory: "",
       name: "",
       quantityFormula: "",
     },
     resolver: yupResolver(createNetWorthDebtSchema),
   });
 
-  const watchType = form.watch("type");
-  const [isFormulaValid, setFormulaValid] = useState(true);
+  const watchCategory = form.watch("category");
+
   const quantityFormulaValue = form.watch("quantityFormula");
 
   // Evaluate the quantity formula on the fly without showing errors.
@@ -85,10 +85,8 @@ export default function NewDebtDialog({
       form.setValue("initialQuantity", Number(computed), {
         shouldValidate: true,
       });
-      setFormulaValid(true);
     } catch {
       // Silently ignore errors while the user is typing.
-      setFormulaValid(false);
     }
   }, [quantityFormulaValue, form.setValue]);
 
@@ -111,21 +109,21 @@ export default function NewDebtDialog({
             <div className="flex flex-col gap-2">
               <FormField
                 control={form.control}
-                name="type"
+                name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Type</FormLabel>
+                    <FormLabel>Category</FormLabel>
 
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a type" />
+                          <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {DEBT_TYPES.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
+                        {DEBT_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -136,15 +134,15 @@ export default function NewDebtDialog({
                 )}
               />
 
-              {watchType === OTHER_TYPE && (
+              {watchCategory === OTHER_CATEGORY && (
                 <FormField
                   control={form.control}
-                  name="customType"
+                  name="customCategory"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Custom type</FormLabel>
+                      <FormLabel>Custom category</FormLabel>
                       <FormControl>
-                        <Input placeholder="Custom type" {...field} />
+                        <Input placeholder="Custom category" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -57,7 +57,7 @@ FROM (
     COALESCE(SUM(
       (
         CASE 
-          WHEN LOWER(a.type) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
+          WHEN LOWER(a.category) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
           ELSE lq.quantity
         END
       ) *

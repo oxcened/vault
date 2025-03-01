@@ -32,8 +32,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Decimal } from "decimal.js";
-import { NetWorthAsset } from "@prisma/client";
+import { NetWorthAsset, Prisma } from "@prisma/client";
 import { DebtDetailDialog } from "./DebtDetailDialog";
 import { Skeleton } from "~/components/ui/skeleton";
 import { TableSkeleton } from "~/components/table-skeleton";
@@ -53,18 +52,18 @@ export default function AssetsPage() {
   const [newDialog, setNewDialog] = useState(false);
 
   // Group assets by type.
-  const types = [...new Set(data.map((item) => item.type))];
+  const categories = [...new Set(data.map((item) => item.category))];
 
   // Compute totals per category using the returned convertedValue field.
-  const dataByType = types.map((type) => {
-    const results = data.filter((item) => item.type === type);
+  const dataByCategory = categories.map((category) => {
+    const results = data.filter((item) => item.category === category);
     return {
-      type,
+      category,
       results,
       total: results.reduce(
         (prev, curr) =>
           curr.convertedValue ? prev.plus(curr.convertedValue) : prev,
-        new Decimal(0),
+        new Prisma.Decimal(0),
       ),
     };
   });
@@ -72,7 +71,7 @@ export default function AssetsPage() {
   const total = data.reduce(
     (prev, curr) =>
       curr.convertedValue ? prev.plus(curr.convertedValue) : prev,
-    new Decimal(0),
+    new Prisma.Decimal(0),
   );
 
   return (
@@ -120,9 +119,9 @@ export default function AssetsPage() {
           </p>
         )}
 
-        {dataByType.map(({ type, results, total }) => (
-          <Fragment key={type}>
-            <p className="mt-5 text-sm font-medium first:mt-0">{type}</p>
+        {dataByCategory.map(({ category, results, total }) => (
+          <Fragment key={category}>
+            <p className="mt-5 text-sm font-medium first:mt-0">{category}</p>
             <div className="mt-5 rounded-md border">
               <Table>
                 <TableHeader>

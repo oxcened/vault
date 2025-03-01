@@ -77,7 +77,7 @@ model NetWorth {
 model NetWorthAsset {
     id         String                  @id @default(cuid())
     name       String
-    type       String
+    category   String
     tickerId   String?
     currency   String
     createdAt  DateTime                @default(now())
@@ -101,7 +101,7 @@ model NetWorthAssetQuantity {
 model NetWorthDebt {
     id         String                 @id @default(cuid())
     name       String
-    type       String
+    category   String
     currency   String
     createdAt  DateTime               @default(now())
     updatedAt  DateTime               @updatedAt
