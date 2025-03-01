@@ -3,56 +3,19 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
 import { APP_CURRENCY, STOCK_TYPE } from "~/constants";
 import { updateFromDate } from "./netWorth";
-import { ExchangeRate, StockPriceHistory, StockTicker } from "@prisma/client";
+import { ExchangeRate, StockPriceHistory } from "@prisma/client";
+import { createNetWorthSchema } from "~/trpc/schemas/netWorthAsset";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().nonempty(),
-        type: z.string().nonempty(), // e.g., "stock" or another asset type
-        customType: z.string().optional(),
-        currency: z.string().nonempty(),
-        initialQuantity: z.number().nonnegative(),
-        quantityFormula: z.string().optional(),
-        // These fields are required for stock assets.
-        ticker: z.string().optional(),
-        exchange: z.string().optional(),
-        stockName: z.string().optional(),
-      }),
-    )
+    .input(createNetWorthSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.$transaction(async (tx) => {
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
         const type = input.customType || input.type;
-
-        let tickerRecord: StockTicker | null = null;
-
-        if (type === STOCK_TYPE) {
-          if (!input.ticker || !input.exchange || !input.stockName) {
-            throw new Error(
-              'For stock assets, "ticker", "exchange", and "stockName" are required.',
-            );
-          }
-
-          // Use upsert to either get or create the ticker record based on the composite unique key.
-          tickerRecord = await tx.stockTicker.upsert({
-            where: {
-              ticker_exchange: {
-                ticker: input.ticker,
-                exchange: input.exchange,
-              },
-            },
-            update: {},
-            create: {
-              ticker: input.ticker,
-              exchange: input.exchange,
-              name: input.stockName,
-            },
-          });
-        }
+        const tickerId = input.tickerId || null;
 
         // Create the asset record; assign tickerId if a tickerRecord exists.
         const assetRecord = await tx.netWorthAsset.create({
@@ -60,7 +23,7 @@ export const netWorthAssetRouter = createTRPCRouter({
             name: input.name,
             type,
             currency: input.currency,
-            tickerId: tickerRecord ? tickerRecord.id : null,
+            tickerId: tickerId,
           },
         });
 
@@ -81,13 +44,13 @@ export const netWorthAssetRouter = createTRPCRouter({
           priceRecord = await tx.stockPriceHistory.upsert({
             where: {
               ticker_timestamp: {
-                tickerId: tickerRecord!.id,
+                tickerId: tickerId!,
                 timestamp: date,
               },
             },
             update: {},
             create: {
-              tickerId: tickerRecord!.id,
+              tickerId: tickerId!,
               price: stockPrice,
               timestamp: date,
             },
@@ -124,7 +87,6 @@ export const netWorthAssetRouter = createTRPCRouter({
 
         return {
           asset: assetRecord,
-          ticker: tickerRecord,
           quantity: quantityRecord,
           price: priceRecord,
           exchangeRate: exchangeRateRecord,
