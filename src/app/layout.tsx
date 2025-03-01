@@ -23,12 +23,7 @@ export default function RootLayout({
     >
       <body>
         <TRPCReactProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider attribute="class" disableTransitionOnChange>
             {children}
           </ThemeProvider>
         </TRPCReactProvider>
