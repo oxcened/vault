@@ -1,11 +1,11 @@
-import { Decimal } from "decimal.js";
+import { Prisma } from "@prisma/client";
 
 export const defaultNumberOptions: Intl.NumberFormatOptions = {
   maximumFractionDigits: 0,
 };
 
 export type FormatNumberOptions = {
-  value: Decimal | number;
+  value: Prisma.Decimal | number;
   options?: Intl.NumberFormatOptions;
 };
 
