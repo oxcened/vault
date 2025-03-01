@@ -33,10 +33,11 @@ import { MoreHorizontal } from "lucide-react";
 import EditExchangeRateDialog from "./EditExchangeRateDialog";
 import { ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
+import { TableSkeleton } from "~/components/table-skeleton";
 
 export default function ExchangeRatesPage() {
   // Query all exchange rates.
-  const { data = [], refetch } = api.exchangeRate.getAll.useQuery();
+  const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
 
   // Delete mutation.
   const { mutate: deleteExchangeRate } = api.exchangeRate.delete.useMutation({
@@ -69,50 +70,53 @@ export default function ExchangeRatesPage() {
       </header>
 
       <div className="m-5 rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Base Currency</TableHead>
-              <TableHead>Quote Currency</TableHead>
-              <TableHead className="text-right">Rate</TableHead>
-              <TableHead>Timestamp</TableHead>
-              <TableHead className="w-0"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((rate) => (
-              <TableRow key={rate.id}>
-                <TableCell>{rate.baseCurrency}</TableCell>
-                <TableCell>{rate.quoteCurrency}</TableCell>
-                <TableCell className="text-right">
-                  {rate.rate.toString()}
-                </TableCell>
-                <TableCell>{formatDate({ date: rate.timestamp })}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => setEditingRate(rate)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => deleteExchangeRate({ id: rate.id })}
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+        {isPending && <TableSkeleton />}
+        {!isPending && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Base Currency</TableHead>
+                <TableHead>Quote Currency</TableHead>
+                <TableHead className="text-right">Rate</TableHead>
+                <TableHead>Timestamp</TableHead>
+                <TableHead className="w-0"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {data.map((rate) => (
+                <TableRow key={rate.id}>
+                  <TableCell>{rate.baseCurrency}</TableCell>
+                  <TableCell>{rate.quoteCurrency}</TableCell>
+                  <TableCell className="text-right">
+                    {rate.rate.toString()}
+                  </TableCell>
+                  <TableCell>{formatDate({ date: rate.timestamp })}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => setEditingRate(rate)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => deleteExchangeRate({ id: rate.id })}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       {editingRate && (
