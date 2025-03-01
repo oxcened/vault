@@ -42,13 +42,11 @@ export default function StockPricesPage() {
 
   // Delete mutation.
   const { mutate: deleteStockPrice } = api.stockPrice.delete.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => void refetch(),
   });
 
   // State for editing a stock price.
-  const [editingPrice, setEditingPrice] = useState<StockPriceHistory | null>(
-    null,
-  );
+  const [editingPrice, setEditingPrice] = useState<StockPriceHistory>();
   // State for creating a new stock price.
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
 
@@ -134,7 +132,7 @@ export default function StockPricesPage() {
         isOpen={isNewDialogOpen}
         onSuccess={() => {
           setNewDialogOpen(false);
-          refetch();
+          void refetch();
         }}
         onClose={() => setNewDialogOpen(false)}
       />
@@ -142,10 +140,10 @@ export default function StockPricesPage() {
       {editingPrice && (
         <EditStockPriceDialog
           initialData={editingPrice}
-          onClose={() => setEditingPrice(null)}
+          onClose={() => setEditingPrice(undefined)}
           onSuccess={() => {
-            setEditingPrice(null);
-            refetch();
+            setEditingPrice(undefined);
+            void refetch();
           }}
         />
       )}

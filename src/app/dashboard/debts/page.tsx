@@ -45,7 +45,7 @@ export default function AssetsPage() {
   // Assuming a delete mutation remains available (adjust endpoint if needed)
   const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
     },
   });
 

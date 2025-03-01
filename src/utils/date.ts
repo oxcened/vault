@@ -1,4 +1,4 @@
-let defaultDateOptions: Intl.DateTimeFormatOptions = {
+const defaultDateOptions: Intl.DateTimeFormatOptions = {
   day: "numeric",
   month: "short",
   year: "numeric",

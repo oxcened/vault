@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,7 +30,9 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import EditExchangeRateDialog from "./EditExchangeRateDialog";
+import EditExchangeRateDialog, {
+  EditExchangeRateDialogProps,
+} from "./EditExchangeRateDialog";
 import { ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
@@ -45,7 +47,15 @@ export default function ExchangeRatesPage() {
   });
 
   // State for editing exchange rate.
-  const [editingRate, setEditingRate] = useState<ExchangeRate | null>(null);
+  const [editingRate, setEditingRate] =
+    useState<EditExchangeRateDialogProps["initialData"]>();
+
+  function handleEditClick(rate: ExchangeRate) {
+    setEditingRate({
+      ...rate,
+      rate: rate.rate.toNumber(),
+    });
+  }
 
   return (
     <>
@@ -101,7 +111,7 @@ export default function ExchangeRatesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => setEditingRate(rate)}>
+                        <DropdownMenuItem onClick={() => handleEditClick(rate)}>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -122,10 +132,10 @@ export default function ExchangeRatesPage() {
       {editingRate && (
         <EditExchangeRateDialog
           initialData={editingRate}
-          onClose={() => setEditingRate(null)}
+          onClose={() => setEditingRate(undefined)}
           onSuccess={() => {
-            setEditingRate(null);
-            refetch();
+            setEditingRate(undefined);
+            void refetch();
           }}
         />
       )}

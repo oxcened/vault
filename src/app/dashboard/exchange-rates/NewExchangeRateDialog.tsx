@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -39,6 +39,11 @@ export default function NewExchangeRateDialog({
 
   const { register, handleSubmit, reset, control } = useForm<Form>();
   const [isOpen, setOpen] = useState(false);
+
+  function handleSelectDate(field: ControllerRenderProps<Form>, date?: Date) {
+    if (!date) return;
+    field.onChange(localTimeToUTCTime({ date }));
+  }
 
   return (
     <Dialog
@@ -105,9 +110,7 @@ export default function NewExchangeRateDialog({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={(date) =>
-                        field.onChange(localTimeToUTCTime({ date }))
-                      }
+                      onSelect={(date) => handleSelectDate(field, date)}
                       disabled={(date) => date > new Date()}
                       initialFocus
                     />

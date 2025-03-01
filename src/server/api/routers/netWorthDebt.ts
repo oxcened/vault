@@ -5,6 +5,7 @@ import { APP_CURRENCY } from "~/constants";
 import { updateFromDate } from "./netWorth";
 import { ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
+import { sanitizeOptionalString } from "~/server/utils/sanitize";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
@@ -14,7 +15,7 @@ export const netWorthDebtRouter = createTRPCRouter({
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
-        const type = input.customType || input.type;
+        const type = sanitizeOptionalString(input.customType) ?? input.type;
 
         // Create the debt record
         const debtRecord = await tx.netWorthDebt.create({

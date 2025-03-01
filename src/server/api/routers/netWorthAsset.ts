@@ -5,6 +5,7 @@ import { APP_CURRENCY, STOCK_TYPE } from "~/constants";
 import { updateFromDate } from "./netWorth";
 import { ExchangeRate, StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
+import { sanitizeOptionalString } from "~/server/utils/sanitize";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
@@ -14,8 +15,8 @@ export const netWorthAssetRouter = createTRPCRouter({
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
-        const type = input.customType || input.type;
-        const tickerId = input.tickerId || null;
+        const type = sanitizeOptionalString(input.customType) ?? input.type;
+        const tickerId = sanitizeOptionalString(input.tickerId);
 
         // Create the asset record; assign tickerId if a tickerRecord exists.
         const assetRecord = await tx.netWorthAsset.create({

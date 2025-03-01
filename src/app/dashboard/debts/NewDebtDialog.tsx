@@ -77,7 +77,9 @@ export default function NewDebtDialog({
     if (!quantityFormulaValue?.trim()) return;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const computed = evaluate(quantityFormulaValue);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (isNaN(computed)) return;
 
       form.setValue("initialQuantity", Number(computed), {

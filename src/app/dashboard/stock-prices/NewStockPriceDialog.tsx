@@ -1,6 +1,6 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -40,6 +40,11 @@ export default function NewStockPriceDialog({
       onClose();
     },
   });
+
+  function handleSelectDate(field: ControllerRenderProps<Form>, date?: Date) {
+    if (!date) return;
+    field.onChange(localTimeToUTCTime({ date }));
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -89,9 +94,7 @@ export default function NewStockPriceDialog({
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={(date) =>
-                      field.onChange(localTimeToUTCTime({ date }))
-                    }
+                    onSelect={(date) => handleSelectDate(field, date)}
                     disabled={(date) => date > new Date()}
                     initialFocus
                   />

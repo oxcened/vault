@@ -34,11 +34,11 @@ export default function EditStockPriceDialog({
   } = useForm<Form>({
     defaultValues: {
       id: initialData.id,
-      price: initialData.price,
+      price: initialData.price.toNumber(),
     },
   });
 
-  const { mutate, isLoading } = api.stockPrice.update.useMutation({
+  const { mutate, isPending } = api.stockPrice.update.useMutation({
     onSuccess: () => {
       onSuccess();
       onClose();
@@ -76,8 +76,8 @@ export default function EditStockPriceDialog({
           </div>
           <DialogFooter>
             <div className="flex gap-2">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : "Save"}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? <Loader2 className="animate-spin" /> : "Save"}
               </Button>
             </div>
           </DialogFooter>
