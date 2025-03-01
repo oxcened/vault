@@ -7,12 +7,22 @@
  * need to use are documented accordingly near the end.
  */
 
+import { Prisma } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
-import superjson from "superjson";
+import SuperJSON from "superjson";
 import { ZodError } from "zod";
 
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
+
+SuperJSON.registerCustom<Prisma.Decimal, string>(
+  {
+    isApplicable: (v): v is Prisma.Decimal => Prisma.Decimal.isDecimal(v),
+    serialize: (v) => v.toJSON(),
+    deserialize: (v) => new Prisma.Decimal(v),
+  },
+  "decimal.js",
+);
 
 /**
  * 1. CONTEXT
@@ -44,7 +54,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
  * errors on the backend.
  */
 const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson,
+  transformer: SuperJSON,
   errorFormatter({ shape, error }) {
     return {
       ...shape,
