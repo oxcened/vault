@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,12 +14,11 @@ import {
 } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { Skeleton } from "~/components/ui/skeleton";
-import { api } from "~/trpc/react";
 import { formatCurrency } from "~/utils/currency";
+import { api } from "~/trpc/server";
 
-export default function NetWorthPage() {
-  const { data, isPending } = api.netWorthOverview.get.useQuery();
+export default async function NetWorthPage() {
+  const data = await api.netWorthOverview.get();
 
   return (
     <>
@@ -43,47 +40,37 @@ export default function NetWorthPage() {
         </Breadcrumb>
       </header>
 
-      <p className="mx-5 mt-5 text-3xl font-medium">Hey, Alen</p>
+      <p className="mx-5 mt-5 text-3xl font-medium">Hey, {"asd"}</p>
 
       <div className="grid gap-5 p-5 sm:grid-cols-3">
-        {isPending ? (
-          <>
-            <Skeleton className="h-[92px] flex-grow" />
-            <Skeleton className="h-[92px] flex-grow" />
-            <Skeleton className="h-[92px] flex-grow" />
-          </>
-        ) : (
-          <>
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>
-                  {formatCurrency({ value: data?.netValue ?? 0 })}
-                </CardTitle>
-                <CardDescription>Net Worth</CardDescription>
-              </CardHeader>
-            </Card>
+        <Card className="flex-grow">
+          <CardHeader>
+            <CardTitle>
+              {formatCurrency({ value: data?.netValue ?? 0 })}
+            </CardTitle>
+            <CardDescription>Net Worth</CardDescription>
+          </CardHeader>
+        </Card>
 
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>
-                  {formatCurrency({
-                    value: data?.totalAssets ?? 0,
-                  })}
-                </CardTitle>
-                <CardDescription>Assets</CardDescription>
-              </CardHeader>
-            </Card>
+        <Card className="flex-grow">
+          <CardHeader>
+            <CardTitle>
+              {formatCurrency({
+                value: data?.totalAssets ?? 0,
+              })}
+            </CardTitle>
+            <CardDescription>Assets</CardDescription>
+          </CardHeader>
+        </Card>
 
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>
-                  {formatCurrency({ value: data?.totalDebts ?? 0 })}
-                </CardTitle>
-                <CardDescription>Debts</CardDescription>
-              </CardHeader>
-            </Card>
-          </>
-        )}
+        <Card className="flex-grow">
+          <CardHeader>
+            <CardTitle>
+              {formatCurrency({ value: data?.totalDebts ?? 0 })}
+            </CardTitle>
+            <CardDescription>Debts</CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     </>
   );
