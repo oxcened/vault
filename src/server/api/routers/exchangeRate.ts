@@ -1,14 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { updateFromDate } from "./netWorth";
-import { evalManifestWithRetries } from "next/dist/server/load-components";
-
-function earliestDateOptional(date1?: Date, date2?: Date): Date | undefined {
-  if (!date1 && !date2) return undefined;
-  if (!date1) return date2;
-  if (!date2) return date1;
-  return date1 < date2 ? date1 : date2;
-}
+import { earliestDateOptional } from "~/server/utils/date";
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {

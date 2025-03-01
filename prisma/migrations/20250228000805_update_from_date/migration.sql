@@ -92,7 +92,7 @@ BEGIN
         SUM(
           (
             CASE 
-              WHEN LOWER(a.type) = 'stocks' 
+              WHEN LOWER(a.category) = 'stocks' 
                 THEN lq.quantity * IFNULL(lsp.price, 0)
               ELSE lq.quantity
             END

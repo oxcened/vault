@@ -33,7 +33,7 @@ import { MoreHorizontal } from "lucide-react";
 import EditExchangeRateDialog, {
   EditExchangeRateDialogProps,
 } from "./EditExchangeRateDialog";
-import { ExchangeRate } from "@prisma/client";
+import { ExchangeRate, Prisma } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 

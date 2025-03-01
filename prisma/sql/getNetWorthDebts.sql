@@ -25,7 +25,7 @@ latest_exchange_rates AS (
 SELECT 
   d.id,
   d.name,
-  d.type,
+  d.category,
   d.currency,
   ldq.quantity AS quantity,
   ldq.quantity AS nativeValue,

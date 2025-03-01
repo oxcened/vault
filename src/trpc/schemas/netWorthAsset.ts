@@ -1,15 +1,15 @@
 import { evaluate } from "mathjs";
 import * as yup from "yup";
-import { OTHER_TYPE, STOCK_TYPE } from "~/constants";
+import { OTHER_CATEGORY, STOCK_CATEGORY } from "~/constants";
 
 export const createNetWorthAssetSchema = yup.object({
   name: yup.string().label("Name").required(),
-  type: yup.string().label("Type").required(),
-  customType: yup
+  category: yup.string().label("Category").required(),
+  customCategory: yup
     .string()
-    .label("Custom type")
-    .when("type", {
-      is: OTHER_TYPE,
+    .label("Custom category")
+    .when("category", {
+      is: OTHER_CATEGORY,
       then: (schema) => schema.required(),
     }),
   currency: yup.string().label("Currency").required(),
@@ -30,8 +30,8 @@ export const createNetWorthAssetSchema = yup.object({
   tickerId: yup
     .string()
     .label("Ticker ID")
-    .when("type", {
-      is: STOCK_TYPE,
+    .when("category", {
+      is: STOCK_CATEGORY,
       then: (schema) => schema.required(),
     }),
 });

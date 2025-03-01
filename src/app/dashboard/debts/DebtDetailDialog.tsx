@@ -63,7 +63,7 @@ export function DebtDetailDialog({
 
         <Tabs defaultValue="main">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="main">{data?.type}</TabsTrigger>
+            <TabsTrigger value="main">{data?.category}</TabsTrigger>
             <TabsTrigger value="value">Value</TabsTrigger>
           </TabsList>
 

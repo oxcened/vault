@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,7 +33,6 @@ import { MoreHorizontal, Plus } from "lucide-react";
 import EditStockPriceDialog from "./EditStockPriceDialog";
 import { StockPriceHistory } from "@prisma/client";
 import NewStockPriceDialog from "./NewStockPriceDialog";
-import { Skeleton } from "~/components/ui/skeleton";
 import { TableSkeleton } from "~/components/table-skeleton";
 
 export default function StockPricesPage() {
