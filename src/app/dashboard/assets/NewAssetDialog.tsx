@@ -179,44 +179,42 @@ export default function NewAssetDialog({
                 />
               )}
 
-              <>
-                <FormField
-                  control={form.control}
-                  name="initialQuantity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Initial quantity/value</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Initial quantity/value"
-                          type="number"
-                          step="any"
-                          {...field}
-                          value={field.value ?? ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="initialQuantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Initial quantity/value</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Initial quantity/value"
+                        type="number"
+                        step="any"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="quantityFormula"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quantity formula (optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Quantity formula (optional)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
+              <FormField
+                control={form.control}
+                name="quantityFormula"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantity formula (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Quantity formula (optional)"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
