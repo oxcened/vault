@@ -16,9 +16,11 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { formatCurrency } from "~/utils/currency";
 import { api } from "~/trpc/server";
+import { auth } from "~/server/auth";
 
 export default async function NetWorthPage() {
   const data = await api.netWorthOverview.get();
+  const session = await auth();
 
   return (
     <>
@@ -40,7 +42,9 @@ export default async function NetWorthPage() {
         </Breadcrumb>
       </header>
 
-      <p className="mx-5 mt-5 text-3xl font-medium">Hey, {"asd"}</p>
+      <p className="mx-5 mt-5 text-3xl font-medium">
+        Hey, {session?.user.name}
+      </p>
 
       <div className="grid gap-5 p-5 sm:grid-cols-3">
         <Card className="flex-grow">
