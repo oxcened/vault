@@ -11,8 +11,8 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
-import { api, RouterInputs } from "~/trpc/react";
-import { Controller, useForm } from "react-hook-form";
+import { api } from "~/trpc/react";
+import { useForm } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -24,6 +24,16 @@ import { evaluate } from "mathjs";
 import { APP_CURRENCY, DEBT_TYPES, OTHER_TYPE } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 
 export type NewDebtDialogProps = {
   isOpen: boolean;
@@ -40,23 +50,27 @@ export default function NewDebtDialog({
   const { mutate, isPending } = api.netWorthDebt.create.useMutation({
     onSuccess: () => {
       if (createMore) {
-        reset();
+        form.reset();
       } else {
         onOpenChange(false);
       }
       onSuccess();
     },
   });
-  const { register, handleSubmit, control, watch, setValue, reset } = useForm({
+  const form = useForm({
     defaultValues: {
       type: "",
       currency: APP_CURRENCY,
+      customType: "",
+      name: "",
+      quantityFormula: "",
     },
+    resolver: yupResolver(createNetWorthDebtSchema),
   });
 
-  const watchType = watch("type");
+  const watchType = form.watch("type");
   const [isFormulaValid, setFormulaValid] = useState(true);
-  const quantityFormulaValue = watch("quantityFormula");
+  const quantityFormulaValue = form.watch("quantityFormula");
 
   // Evaluate the quantity formula on the fly without showing errors.
   useEffect(() => {
@@ -66,7 +80,7 @@ export default function NewDebtDialog({
       const computed = evaluate(quantityFormulaValue);
       if (isNaN(computed)) return;
 
-      setValue("initialQuantity", Number(computed), {
+      form.setValue("initialQuantity", Number(computed), {
         shouldValidate: true,
       });
       setFormulaValid(true);
@@ -74,89 +88,151 @@ export default function NewDebtDialog({
       // Silently ignore errors while the user is typing.
       setFormulaValid(false);
     }
-  }, [quantityFormulaValue, setValue]);
+  }, [quantityFormulaValue, form.setValue]);
 
   useEffect(() => {
     if (!isOpen) return;
-    reset();
-  }, [isOpen, reset]);
+    form.reset();
+  }, [isOpen, form.reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
-        <form
-          onSubmit={handleSubmit((data) => mutate(data))}
-          className="flex flex-col gap-5"
-        >
-          <DialogHeader>
-            <DialogTitle>New Debt</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Controller
-              name="type"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEBT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit((data) => mutate(data))}
+            className="flex flex-col gap-5"
+          >
+            <DialogHeader>
+              <DialogTitle>New Debt</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-2">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {DEBT_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {watchType === OTHER_TYPE && (
+                <FormField
+                  control={form.control}
+                  name="customType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Custom type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Custom type" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
-            {watchType === OTHER_TYPE && (
-              <Input
-                placeholder="Custom type"
-                {...register("customType", { required: true })}
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            )}
-            <Input
-              placeholder="Name"
-              {...register("name", { required: true })}
-            />
-            <Input
-              placeholder="Initial Quantity/Value"
-              type="number"
-              step="any"
-              {...register("initialQuantity", {
-                valueAsNumber: true,
-                required: true,
-              })}
-            />
-            <Input
-              placeholder="Quantity Formula (optional)"
-              {...register("quantityFormula", {
-                validate: (value) => !value || isFormulaValid,
-              })}
-            />
-            <Input
-              placeholder="Currency (e.g., USD, EUR, BTC)"
-              {...register("currency", { required: true })}
-            />
-          </div>
-          <DialogFooter>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="airplane-mode"
-                onCheckedChange={(checked) => setCreateMore(checked)}
+
+              <FormField
+                control={form.control}
+                name="initialQuantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Initial quantity/value</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Initial quantity/value"
+                        type="number"
+                        step="any"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <Label htmlFor="airplane-mode">Create more</Label>
+
+              <FormField
+                control={form.control}
+                name="quantityFormula"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantity formula (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Quantity formula (optional)"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Currency (e.g., USD, EUR, BTC)"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="animate-spin" />}
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="airplane-mode"
+                  onCheckedChange={(checked) => setCreateMore(checked)}
+                />
+                <Label htmlFor="airplane-mode">Create more</Label>
+              </div>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="animate-spin" />}
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
