@@ -25,7 +25,9 @@ import { formatDate } from "~/utils/date";
 
 export default function NwHistoryPage() {
   const { data = [] } = api.netWorth.getAll.useQuery();
-  const allTimeHigh = Math.max(...data.map((item) => Number(item.netValue)));
+  const athAssets = Math.max(...data.map((item) => Number(item.totalAssets)));
+  const athDebts = Math.max(...data.map((item) => Number(item.totalDebts)));
+  const athNetValue = Math.max(...data.map((item) => Number(item.netValue)));
 
   return (
     <>
@@ -52,13 +54,21 @@ export default function NwHistoryPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Net Worth</TableHead>
-                <TableHead className="text-right">Value</TableHead>
+                <TableHead className="w-24 text-right">Assets</TableHead>
+                <TableHead className="w-24 text-right">Debts</TableHead>
+                <TableHead className="w-24 text-right">Net value</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency({ value: row.totalAssets })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency({ value: row.totalDebts })}
+                  </TableCell>
                   <TableCell className="text-right">
                     {formatCurrency({ value: row.netValue })}
                   </TableCell>
@@ -69,7 +79,13 @@ export default function NwHistoryPage() {
               <TableRow>
                 <TableCell>All time high</TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency({ value: allTimeHigh })}
+                  {formatCurrency({ value: athAssets })}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatCurrency({ value: athDebts })}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatCurrency({ value: athNetValue })}
                 </TableCell>
               </TableRow>
             </TableFooter>
