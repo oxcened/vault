@@ -38,6 +38,7 @@ import { formatNumber } from "~/utils/number";
 import { STOCK_CATEGORY } from "~/constants";
 import { Skeleton } from "~/components/ui/skeleton";
 import { TableSkeleton } from "~/components/table-skeleton";
+import { toast } from "sonner";
 
 export default function AssetsPage() {
   // Query all assets using the new getAll route.
@@ -46,6 +47,7 @@ export default function AssetsPage() {
   // Assuming a delete mutation remains available (adjust endpoint if needed)
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
     onSuccess: () => {
+      toast.success("Asset deleted.");
       void refetch();
     },
   });

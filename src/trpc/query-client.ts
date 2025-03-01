@@ -1,8 +1,11 @@
 import {
   defaultShouldDehydrateQuery,
+  MutationCache,
+  QueryCache,
   QueryClient,
 } from "@tanstack/react-query";
 import SuperJSON from "superjson";
+import { toast } from "sonner";
 
 export const createQueryClient = () =>
   new QueryClient({
@@ -22,4 +25,10 @@ export const createQueryClient = () =>
         deserializeData: SuperJSON.deserialize,
       },
     },
+    queryCache: new QueryCache({
+      onError: (error) => toast.error(error.message || "Unknown error."),
+    }),
+    mutationCache: new MutationCache({
+      onError: (error) => toast.error(error.message || "Unknown error."),
+    }),
   });
