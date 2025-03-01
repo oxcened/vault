@@ -42,9 +42,7 @@ export default function NetWorthPage() {
         </Breadcrumb>
       </header>
 
-      <p className="mx-5 mt-5 text-3xl font-medium text-neutral-800">
-        Hey, Alen
-      </p>
+      <p className="mx-5 mt-5 text-3xl font-medium">Hey, Alen</p>
 
       <div className="grid gap-5 p-5 sm:grid-cols-3">
         <Card className="flex-grow">

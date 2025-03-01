@@ -77,10 +77,10 @@ export function AssetDetailDialog({
 
           <TabsContent value="main">
             {data?.type === STOCK_TYPE && (
-              <div className="flex items-center justify-between rounded-lg border bg-neutral-100 p-5 text-sm">
+              <div className="mb-2 flex items-center justify-between rounded-lg border p-5 text-sm">
                 <div>
                   <p>{data?.ticker?.name}</p>
-                  <p className="text-neutral-500">
+                  <p className="text-muted-foreground">
                     {data?.ticker?.ticker} &middot; {data?.ticker?.exchange}
                   </p>
                 </div>
@@ -133,7 +133,7 @@ export function AssetDetailDialog({
                           })}
                         </p>
                         {data?.type === STOCK_TYPE && (
-                          <p className="text-xs text-neutral-500">
+                          <p className="text-xs text-muted-foreground">
                             Qty {formatNumber({ value: row.quantity ?? 0 })}
                           </p>
                         )}
