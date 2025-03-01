@@ -105,7 +105,7 @@ export default function AssetsPage() {
       </header>
 
       <div className="p-5">
-        <p className="text-3xl font-medium text-neutral-800">
+        <p className="text-3xl font-medium">
           {formatCurrency({ value: total })}
         </p>
 
@@ -127,7 +127,7 @@ export default function AssetsPage() {
                       <TableCell>
                         <div>{row.name}</div>
                         {row.type === STOCK_TYPE && (
-                          <div className="text-xs text-neutral-500">
+                          <div className="text-xs text-muted-foreground">
                             {row.ticker} &middot; Qty&nbsp;
                             {formatNumber({ value: row.quantity ?? 0 })}
                           </div>
