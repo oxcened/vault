@@ -37,10 +37,12 @@ import { AssetDetailDialog } from "./AssetDetailDialog";
 import { NetWorthAsset } from "@prisma/client";
 import { formatNumber } from "~/utils/number";
 import { STOCK_TYPE } from "~/constants";
+import { Skeleton } from "~/components/ui/skeleton";
+import { TableSkeleton } from "~/components/table-skeleton";
 
 export default function AssetsPage() {
   // Query all assets using the new getAll route.
-  const { data = [], refetch } = api.netWorthAsset.getAll.useQuery();
+  const { data = [], refetch, isPending } = api.netWorthAsset.getAll.useQuery();
 
   // Assuming a delete mutation remains available (adjust endpoint if needed)
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
@@ -105,9 +107,20 @@ export default function AssetsPage() {
       </header>
 
       <div className="p-5">
-        <p className="text-3xl font-medium">
-          {formatCurrency({ value: total })}
-        </p>
+        {isPending && (
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <div className="mt-5 rounded-md border">
+              <TableSkeleton />
+            </div>
+          </div>
+        )}
+
+        {!isPending && (
+          <p className="text-3xl font-medium">
+            {formatCurrency({ value: total })}
+          </p>
+        )}
 
         {dataByType.map(({ type, results, total }) => (
           <Fragment key={type}>

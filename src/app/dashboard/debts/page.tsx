@@ -33,14 +33,14 @@ import {
 import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Decimal } from "decimal.js";
-import { AssetDetailDialog } from "../assets/AssetDetailDialog";
 import { NetWorthAsset } from "@prisma/client";
-import { formatNumber } from "~/utils/number";
 import { DebtDetailDialog } from "./DebtDetailDialog";
+import { Skeleton } from "~/components/ui/skeleton";
+import { TableSkeleton } from "~/components/table-skeleton";
 
 export default function AssetsPage() {
   // Query all assets using the new getAll route.
-  const { data = [], refetch } = api.netWorthDebt.getAll.useQuery();
+  const { data = [], refetch, isPending } = api.netWorthDebt.getAll.useQuery();
 
   // Assuming a delete mutation remains available (adjust endpoint if needed)
   const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
@@ -105,9 +105,20 @@ export default function AssetsPage() {
       </header>
 
       <div className="p-5">
-        <p className="text-3xl font-medium">
-          {formatCurrency({ value: total })}
-        </p>
+        {isPending && (
+          <div>
+            <Skeleton className="mb-5 h-8 w-48" />
+            <div className="mt-5 rounded-md border">
+              <TableSkeleton />
+            </div>
+          </div>
+        )}
+
+        {!isPending && (
+          <p className="text-3xl font-medium">
+            {formatCurrency({ value: total })}
+          </p>
+        )}
 
         {dataByType.map(({ type, results, total }) => (
           <Fragment key={type}>
