@@ -40,6 +40,7 @@ import {
 } from "~/components/ui/form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
+import { toast } from "sonner";
 
 export type NewAssetDialogProps = {
   isOpen: boolean;
@@ -55,6 +56,7 @@ export default function NewAssetDialog({
   const [createMore, setCreateMore] = useState(false);
   const { mutate, isPending } = api.netWorthAsset.create.useMutation({
     onSuccess: () => {
+      toast.success("Asset created.");
       if (createMore) {
         form.reset();
       } else {
@@ -95,6 +97,10 @@ export default function NewAssetDialog({
       // Silently ignore errors while the user is typing.
     }
   }, [quantityFormulaValue, form.setValue]);
+
+  useEffect(() => {
+    form.setValue("tickerId", "");
+  }, [watchCategory]);
 
   useEffect(() => {
     if (!isOpen) return;

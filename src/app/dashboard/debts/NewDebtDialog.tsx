@@ -34,6 +34,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
+import { toast } from "sonner";
 
 export type NewDebtDialogProps = {
   isOpen: boolean;
@@ -49,6 +50,7 @@ export default function NewDebtDialog({
   const [createMore, setCreateMore] = useState(false);
   const { mutate, isPending } = api.netWorthDebt.create.useMutation({
     onSuccess: () => {
+      toast.success("Debt created.");
       if (createMore) {
         form.reset();
       } else {

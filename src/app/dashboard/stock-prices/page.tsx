@@ -34,6 +34,7 @@ import EditStockPriceDialog from "./EditStockPriceDialog";
 import { StockPriceHistory } from "@prisma/client";
 import NewStockPriceDialog from "./NewStockPriceDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
+import { toast } from "sonner";
 
 export default function StockPricesPage() {
   // Query all stock price history records.
@@ -41,7 +42,10 @@ export default function StockPricesPage() {
 
   // Delete mutation.
   const { mutate: deleteStockPrice } = api.stockPrice.delete.useMutation({
-    onSuccess: () => void refetch(),
+    onSuccess: () => {
+      toast.success("Stock price deleted.");
+      void refetch();
+    },
   });
 
   // State for editing a stock price.

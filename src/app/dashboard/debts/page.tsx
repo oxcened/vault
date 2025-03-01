@@ -36,6 +36,7 @@ import { NetWorthAsset, Prisma } from "@prisma/client";
 import { DebtDetailDialog } from "./DebtDetailDialog";
 import { Skeleton } from "~/components/ui/skeleton";
 import { TableSkeleton } from "~/components/table-skeleton";
+import { toast } from "sonner";
 
 export default function AssetsPage() {
   // Query all assets using the new getAll route.
@@ -44,6 +45,7 @@ export default function AssetsPage() {
   // Assuming a delete mutation remains available (adjust endpoint if needed)
   const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
     onSuccess: () => {
+      toast.success("Debt deleted.");
       void refetch();
     },
   });

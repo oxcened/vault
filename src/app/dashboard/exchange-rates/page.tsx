@@ -33,9 +33,10 @@ import { MoreHorizontal } from "lucide-react";
 import EditExchangeRateDialog, {
   EditExchangeRateDialogProps,
 } from "./EditExchangeRateDialog";
-import { ExchangeRate, Prisma } from "@prisma/client";
+import { ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
+import { toast } from "sonner";
 
 export default function ExchangeRatesPage() {
   // Query all exchange rates.
@@ -43,7 +44,10 @@ export default function ExchangeRatesPage() {
 
   // Delete mutation.
   const { mutate: deleteExchangeRate } = api.exchangeRate.delete.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => {
+      toast.success("Exchange rate deleted.");
+      void refetch();
+    },
   });
 
   // State for editing exchange rate.

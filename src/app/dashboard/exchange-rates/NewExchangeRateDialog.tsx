@@ -22,6 +22,7 @@ import { twJoin } from "tailwind-merge";
 import { localTimeToUTCTime } from "~/utils/date";
 import { CalendarIcon, Loader2, Plus } from "lucide-react";
 import { Calendar } from "~/components/ui/calendar";
+import { toast } from "sonner";
 
 type Form = RouterInputs["exchangeRate"]["create"];
 
@@ -32,6 +33,7 @@ export default function NewExchangeRateDialog({
 }) {
   const { mutate, isPending } = api.exchangeRate.create.useMutation({
     onSuccess: () => {
+      toast.success("Exchange rate created.");
       setOpen(false);
       onSuccess();
     },

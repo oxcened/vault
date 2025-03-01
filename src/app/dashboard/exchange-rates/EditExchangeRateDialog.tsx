@@ -13,6 +13,7 @@ import { Input } from "~/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { api, RouterInputs } from "~/trpc/react";
+import { toast } from "sonner";
 
 type Form = RouterInputs["exchangeRate"]["update"];
 
@@ -37,6 +38,7 @@ export default function EditExchangeRateDialog({
 
   const { mutate, isPending } = api.exchangeRate.update.useMutation({
     onSuccess: () => {
+      toast.success("Exchange rate updated.");
       onSuccess();
       onClose();
     },

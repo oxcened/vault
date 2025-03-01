@@ -13,6 +13,7 @@ import { Input } from "~/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { api, RouterInputs } from "~/trpc/react";
 import { StockPriceHistory } from "@prisma/client";
+import { toast } from "sonner";
 
 type Form = RouterInputs["stockPrice"]["update"]; // expects at least { id: string, price: number }
 
@@ -40,6 +41,7 @@ export default function EditStockPriceDialog({
 
   const { mutate, isPending } = api.stockPrice.update.useMutation({
     onSuccess: () => {
+      toast.success("Stock price updated.");
       onSuccess();
       onClose();
     },
