@@ -1,4 +1,4 @@
-import { Decimal } from "decimal.js";
+import { Prisma } from "@prisma/client";
 
 export const defaultCurrencyOptions: Intl.NumberFormatOptions = {
   style: "currency",
@@ -7,7 +7,7 @@ export const defaultCurrencyOptions: Intl.NumberFormatOptions = {
 };
 
 export type FormatCurrencyParams = {
-  value: Decimal | number;
+  value: Prisma.Decimal | number;
   options?: Intl.NumberFormatOptions;
 };
 
