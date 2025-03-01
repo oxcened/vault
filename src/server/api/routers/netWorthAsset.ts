@@ -4,11 +4,11 @@ import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
 import { APP_CURRENCY, STOCK_TYPE } from "~/constants";
 import { updateFromDate } from "./netWorth";
 import { ExchangeRate, StockPriceHistory } from "@prisma/client";
-import { createNetWorthSchema } from "~/trpc/schemas/netWorthAsset";
+import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(createNetWorthSchema)
+    .input(createNetWorthAssetSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.$transaction(async (tx) => {
         const date = new Date();

@@ -21,13 +21,9 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { evaluate } from "mathjs";
-import { DEBT_TYPES } from "~/constants";
+import { APP_CURRENCY, DEBT_TYPES, OTHER_TYPE } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
-
-type Form = RouterInputs["netWorthDebt"]["create"] & {
-  quantityFormula?: string;
-};
 
 export type NewDebtDialogProps = {
   isOpen: boolean;
@@ -51,12 +47,12 @@ export default function NewDebtDialog({
       onSuccess();
     },
   });
-  const { register, handleSubmit, control, watch, setValue, reset } =
-    useForm<Form>({
-      defaultValues: {
-        type: "",
-      },
-    });
+  const { register, handleSubmit, control, watch, setValue, reset } = useForm({
+    defaultValues: {
+      type: "",
+      currency: APP_CURRENCY,
+    },
+  });
 
   const watchType = watch("type");
   const [isFormulaValid, setFormulaValid] = useState(true);
@@ -117,7 +113,7 @@ export default function NewDebtDialog({
                 </Select>
               )}
             />
-            {watchType === "Other" && (
+            {watchType === OTHER_TYPE && (
               <Input
                 placeholder="Custom type"
                 {...register("customType", { required: true })}

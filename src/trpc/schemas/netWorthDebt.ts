@@ -1,8 +1,8 @@
 import { evaluate } from "mathjs";
 import * as yup from "yup";
-import { OTHER_TYPE, STOCK_TYPE } from "~/constants";
+import { OTHER_TYPE } from "~/constants";
 
-export const createNetWorthAssetSchema = yup.object({
+export const createNetWorthDebtSchema = yup.object({
   name: yup.string().required(),
   type: yup.string().required(),
   customType: yup.string().when("type", {
@@ -19,9 +19,5 @@ export const createNetWorthAssetSchema = yup.object({
     } catch (e) {
       return false;
     }
-  }),
-  tickerId: yup.string().when("type", {
-    is: STOCK_TYPE,
-    then: (schema) => schema.required(),
   }),
 });
