@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,12 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { api } from "~/trpc/react";
+import { api } from "~/trpc/server";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
 
-export default function NwHistoryPage() {
-  const { data = [] } = api.netWorth.getAll.useQuery();
+export default async function NwHistoryPage() {
+  const data = await api.netWorth.getAll();
   const athAssets = Math.max(...data.map((item) => Number(item.totalAssets)));
   const athDebts = Math.max(...data.map((item) => Number(item.totalDebts)));
   const athNetValue = Math.max(...data.map((item) => Number(item.netValue)));
