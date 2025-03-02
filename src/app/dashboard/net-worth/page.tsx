@@ -41,38 +41,39 @@ export default async function NetWorthPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-
       <p className="mx-5 mt-5 text-3xl font-medium">
         Hey, {session?.user.name}
       </p>
 
-      <div className="grid gap-5 p-5 sm:grid-cols-3">
+      <div className="mx-5 mt-10 grid gap-5 sm:grid-cols-3">
         <Card className="flex-grow">
           <CardHeader>
-            <CardTitle>
-              {formatCurrency({ value: data?.netValue ?? 0 })}
-            </CardTitle>
             <CardDescription>Net Worth</CardDescription>
+            <CardTitle className="text-xl">
+              {formatCurrency({
+                value: data?.netValue ?? 0,
+              })}
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card className="flex-grow">
           <CardHeader>
-            <CardTitle>
+            <CardDescription>Assets</CardDescription>
+            <CardTitle className="text-xl">
               {formatCurrency({
                 value: data?.totalAssets ?? 0,
               })}
             </CardTitle>
-            <CardDescription>Assets</CardDescription>
           </CardHeader>
         </Card>
 
         <Card className="flex-grow">
           <CardHeader>
-            <CardTitle>
+            <CardDescription>Debts</CardDescription>
+            <CardTitle className="text-xl">
               {formatCurrency({ value: data?.totalDebts ?? 0 })}
             </CardTitle>
-            <CardDescription>Debts</CardDescription>
           </CardHeader>
         </Card>
       </div>
