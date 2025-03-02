@@ -19,6 +19,7 @@ import {
 } from "~/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "./mode-toggle";
 
 // This is sample data.
 const data = {
@@ -69,8 +70,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="h-16 flex-row items-center justify-between">
         <p className="p-2 font-medium">Vault</p>
+        <ModeToggle />
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
