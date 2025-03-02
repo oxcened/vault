@@ -84,7 +84,7 @@ export default function ExchangeRatesPage() {
         <NewExchangeRateDialog onSuccess={refetch} />
       </header>
 
-      <div className="m-5 rounded-md border">
+      <div className="m-5 rounded-xl border">
         {isPending && <TableSkeleton />}
         {!isPending && (
           <Table>
