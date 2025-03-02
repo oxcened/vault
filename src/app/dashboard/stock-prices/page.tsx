@@ -35,6 +35,7 @@ import { StockPriceHistory } from "@prisma/client";
 import NewStockPriceDialog from "./NewStockPriceDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
+import { Number } from "~/components/ui/number";
 
 export default function StockPricesPage() {
   // Query all stock price history records.
@@ -98,7 +99,7 @@ export default function StockPricesPage() {
                   <TableCell>{price.ticker.ticker}</TableCell>
                   <TableCell>{price.ticker.exchange}</TableCell>
                   <TableCell className="text-right">
-                    {price.price.toString()}
+                    <Number value={price.price} />
                   </TableCell>
                   <TableCell>{formatDate({ date: price.timestamp })}</TableCell>
                   <TableCell>

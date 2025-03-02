@@ -16,7 +16,7 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/server";
 import { auth } from "~/server/auth";
-import { Currency } from "~/components/ui/currency";
+import { RoundedCurrency } from "~/components/ui/number";
 
 export default async function NetWorthPage() {
   const data = await api.netWorthOverview.get();
@@ -50,7 +50,7 @@ export default async function NetWorthPage() {
           <CardHeader>
             <CardDescription>Net Worth</CardDescription>
             <CardTitle className="text-xl font-medium">
-              <Currency value={data?.netValue} />
+              <RoundedCurrency value={data?.netValue} />
             </CardTitle>
           </CardHeader>
         </Card>
@@ -59,7 +59,7 @@ export default async function NetWorthPage() {
           <CardHeader>
             <CardDescription>Assets</CardDescription>
             <CardTitle className="text-xl font-medium">
-              <Currency value={data?.totalAssets} />
+              <RoundedCurrency value={data?.totalAssets} />
             </CardTitle>
           </CardHeader>
         </Card>
@@ -68,7 +68,7 @@ export default async function NetWorthPage() {
           <CardHeader>
             <CardDescription>Debts</CardDescription>
             <CardTitle className="text-xl font-medium">
-              <Currency value={data?.totalDebts} />
+              <RoundedCurrency value={data?.totalDebts} />
             </CardTitle>
           </CardHeader>
         </Card>

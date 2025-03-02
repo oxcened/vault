@@ -37,6 +37,7 @@ import { ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
+import { Number } from "~/components/ui/number";
 
 export default function ExchangeRatesPage() {
   // Query all exchange rates.
@@ -102,7 +103,7 @@ export default function ExchangeRatesPage() {
                   <TableCell>{rate.baseCurrency}</TableCell>
                   <TableCell>{rate.quoteCurrency}</TableCell>
                   <TableCell className="text-right">
-                    {rate.rate.toString()}
+                    <Number value={rate.rate} />
                   </TableCell>
                   <TableCell>{formatDate({ date: rate.timestamp })}</TableCell>
                   <TableCell>
