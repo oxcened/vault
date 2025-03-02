@@ -6,6 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import { Currency } from "~/components/ui/currency";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import {
@@ -18,7 +19,6 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { api } from "~/trpc/server";
-import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
 
 export default async function NwHistoryPage() {
@@ -62,13 +62,13 @@ export default async function NwHistoryPage() {
                 <TableRow key={row.id}>
                   <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency({ value: row.totalAssets })}
+                    <Currency value={row.totalAssets} />
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency({ value: row.totalDebts })}
+                    <Currency value={row.totalDebts} />
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency({ value: row.netValue })}
+                    <Currency value={row.netValue} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -77,13 +77,13 @@ export default async function NwHistoryPage() {
               <TableRow>
                 <TableCell>All time high</TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency({ value: athAssets })}
+                  <Currency value={athAssets} />
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency({ value: athDebts })}
+                  <Currency value={athDebts} />
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency({ value: athNetValue })}
+                  <Currency value={athNetValue} />
                 </TableCell>
               </TableRow>
             </TableFooter>
