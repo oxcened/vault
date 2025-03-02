@@ -1,6 +1,5 @@
 import { Prisma } from "@prisma/client";
 import { APP_CURRENCY } from "~/constants";
-import { cn } from "~/lib/utils";
 import { formatNumber } from "~/utils/number";
 
 export type NumberProps = {
@@ -11,7 +10,7 @@ export type NumberProps = {
 
 export function Number({ value, options, className }: NumberProps) {
   return (
-    <span className={cn("font-mono", className)}>
+    <span className={className}>
       {formatNumber({ value: value ?? 0, options })}
     </span>
   );
