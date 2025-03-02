@@ -21,7 +21,6 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
-import { formatCurrency } from "~/utils/currency";
 import NewAssetDialog from "./NewAssetDialog";
 import {
   DropdownMenu,
@@ -39,12 +38,11 @@ import { STOCK_CATEGORY } from "~/constants";
 import { Skeleton } from "~/components/ui/skeleton";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
+import { Currency } from "~/components/ui/currency";
 
 export default function AssetsPage() {
-  // Query all assets using the new getAll route.
   const { data = [], refetch, isPending } = api.netWorthAsset.getAll.useQuery();
 
-  // Assuming a delete mutation remains available (adjust endpoint if needed)
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
     onSuccess: () => {
       toast.success("Asset deleted.");
@@ -55,10 +53,8 @@ export default function AssetsPage() {
   const [detailsDialog, setDetailsDialog] = useState<NetWorthAsset["id"]>();
   const [newDialog, setNewDialog] = useState(false);
 
-  // Group assets by type.
   const categories = [...new Set(data.map((item) => item.category))];
 
-  // Compute totals per category using the returned convertedValue field.
   const dataByCategory = categories.map((category) => {
     const results = data.filter((item) => item.category === category);
     return {
@@ -121,7 +117,7 @@ export default function AssetsPage() {
           <>
             <p className="text-muted-foreground">Total assets</p>
             <p className="text-3xl font-medium">
-              {formatCurrency({ value: total })}
+              <Currency value={total} />
             </p>
           </>
         )}
@@ -151,7 +147,7 @@ export default function AssetsPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency({ value: row.convertedValue ?? 0 })}
+                        <Currency value={row.convertedValue} />
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -181,7 +177,7 @@ export default function AssetsPage() {
                   <TableRow>
                     <TableCell>Total</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency({ value: total })}
+                      <Currency value={total} />
                     </TableCell>
                     <TableCell></TableCell>
                   </TableRow>

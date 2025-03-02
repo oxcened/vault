@@ -14,9 +14,9 @@ import {
 } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { formatCurrency } from "~/utils/currency";
 import { api } from "~/trpc/server";
 import { auth } from "~/server/auth";
+import { Currency } from "~/components/ui/currency";
 
 export default async function NetWorthPage() {
   const data = await api.netWorthOverview.get();
@@ -49,10 +49,8 @@ export default async function NetWorthPage() {
         <Card className="flex-grow">
           <CardHeader>
             <CardDescription>Net Worth</CardDescription>
-            <CardTitle className="text-xl">
-              {formatCurrency({
-                value: data?.netValue ?? 0,
-              })}
+            <CardTitle className="text-xl font-medium">
+              <Currency value={data?.netValue} />
             </CardTitle>
           </CardHeader>
         </Card>
@@ -60,10 +58,8 @@ export default async function NetWorthPage() {
         <Card className="flex-grow">
           <CardHeader>
             <CardDescription>Assets</CardDescription>
-            <CardTitle className="text-xl">
-              {formatCurrency({
-                value: data?.totalAssets ?? 0,
-              })}
+            <CardTitle className="text-xl font-medium">
+              <Currency value={data?.totalAssets} />
             </CardTitle>
           </CardHeader>
         </Card>
@@ -71,8 +67,8 @@ export default async function NetWorthPage() {
         <Card className="flex-grow">
           <CardHeader>
             <CardDescription>Debts</CardDescription>
-            <CardTitle className="text-xl">
-              {formatCurrency({ value: data?.totalDebts ?? 0 })}
+            <CardTitle className="text-xl font-medium">
+              <Currency value={data?.totalDebts} />
             </CardTitle>
           </CardHeader>
         </Card>
