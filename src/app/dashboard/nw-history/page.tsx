@@ -47,7 +47,7 @@ export default async function NwHistoryPage() {
         </Breadcrumb>
       </header>
       <div className="p-5">
-        <div className="mt-5 rounded-md border">
+        <div className="mt-5 rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>
