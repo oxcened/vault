@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsContent, TabsTrigger } from "~/components/ui/tabs";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
-import { defaultCurrencyOptions, formatCurrency } from "~/utils/currency";
 import {
   Table,
   TableBody,
@@ -20,7 +19,7 @@ import {
 } from "~/components/ui/table";
 import { formatDate } from "~/utils/date";
 import { APP_CURRENCY } from "~/constants";
-import { formatNumber } from "~/utils/number";
+import { Currency } from "~/components/ui/number";
 
 export type DebtDetailDialogProps = {
   isOpen: boolean;
@@ -48,14 +47,16 @@ export function DebtDetailDialog({
         <DialogHeader>
           <DialogTitle>{data?.name}</DialogTitle>
           <DialogDescription>
-            {formatCurrency({ value: data?.computedValue ?? 0 })}
+            <Currency value={data?.computedValue} />
             {data?.currency !== APP_CURRENCY && (
               <>
                 &nbsp;&middot;&nbsp;
-                {formatCurrency({
-                  value: data?.nativeComputedValue ?? 0,
-                  options: { currency: data?.currency },
-                })}
+                <Currency
+                  value={data?.nativeComputedValue}
+                  options={{
+                    currency: data?.currency,
+                  }}
+                />
               </>
             )}
           </DialogDescription>
@@ -99,9 +100,7 @@ export function DebtDetailDialog({
                       </TableCell>
                       <TableCell className="text-right">
                         <p>
-                          {formatCurrency({
-                            value: row.computedValue ?? 0,
-                          })}
+                          <Currency value={row.computedValue} />
                         </p>
                       </TableCell>
                     </TableRow>

@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
-import { Currency } from "~/components/ui/currency";
+import { RoundedCurrency } from "~/components/ui/number";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import {
@@ -52,9 +52,9 @@ export default async function NwHistoryPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Net Worth</TableHead>
-                <TableHead className="w-24 text-right">Assets</TableHead>
-                <TableHead className="w-24 text-right">Debts</TableHead>
-                <TableHead className="w-24 text-right">Net value</TableHead>
+                <TableHead className="w-32 text-right">Assets</TableHead>
+                <TableHead className="w-32 text-right">Debts</TableHead>
+                <TableHead className="w-32 text-right">Net value</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -62,13 +62,13 @@ export default async function NwHistoryPage() {
                 <TableRow key={row.id}>
                   <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
                   <TableCell className="text-right">
-                    <Currency value={row.totalAssets} />
+                    <RoundedCurrency value={row.totalAssets} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <Currency value={row.totalDebts} />
+                    <RoundedCurrency value={row.totalDebts} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <Currency value={row.netValue} />
+                    <RoundedCurrency value={row.netValue} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -77,13 +77,13 @@ export default async function NwHistoryPage() {
               <TableRow>
                 <TableCell>All time high</TableCell>
                 <TableCell className="text-right">
-                  <Currency value={athAssets} />
+                  <RoundedCurrency value={athAssets} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <Currency value={athDebts} />
+                  <RoundedCurrency value={athDebts} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <Currency value={athNetValue} />
+                  <RoundedCurrency value={athNetValue} />
                 </TableCell>
               </TableRow>
             </TableFooter>

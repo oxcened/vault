@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsContent, TabsTrigger } from "~/components/ui/tabs";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
-import { defaultCurrencyOptions, formatCurrency } from "~/utils/currency";
 import {
   Table,
   TableBody,
@@ -20,7 +19,8 @@ import {
 } from "~/components/ui/table";
 import { formatDate } from "~/utils/date";
 import { APP_CURRENCY, STOCK_CATEGORY } from "~/constants";
-import { formatNumber } from "~/utils/number";
+import { Currency } from "~/components/ui/number";
+import { Number } from "~/components/ui/number";
 
 export type AssetDetailDialogProps = {
   isOpen: boolean;
@@ -52,18 +52,22 @@ export function AssetDetailDialog({
         <DialogHeader>
           <DialogTitle>{data?.name}</DialogTitle>
           <DialogDescription>
-            {formatCurrency({
-              value: data?.computedValue ?? 0,
-            })}
+            <Currency
+              value={data?.computedValue}
+              options={{
+                maximumFractionDigits: 2,
+              }}
+            />
             {data?.currency !== APP_CURRENCY && (
               <>
                 &nbsp;&middot;&nbsp;
-                {formatCurrency({
-                  value: data?.nativeComputedValue ?? 0,
-                  options: {
+                <Currency
+                  value={data?.nativeComputedValue}
+                  options={{
                     currency: data?.currency,
-                  },
-                })}
+                    maximumFractionDigits: 2,
+                  }}
+                />
               </>
             )}
           </DialogDescription>
@@ -85,14 +89,13 @@ export function AssetDetailDialog({
                   </p>
                 </div>
                 <p>
-                  {formatCurrency({
-                    value: data.latestStockPrice?.price ?? 0,
-                    options: {
-                      ...defaultCurrencyOptions,
+                  <Currency
+                    value={data.latestStockPrice?.price}
+                    options={{
                       currency: data.currency,
                       maximumFractionDigits: 2,
-                    },
-                  })}
+                    }}
+                  />
                 </p>
               </div>
             )}
@@ -103,7 +106,7 @@ export function AssetDetailDialog({
                 <Input
                   id="quantity"
                   placeholder="Quantity/Value"
-                  defaultValue={Number(data?.latestQuantity?.quantity ?? 0)}
+                  defaultValue={data?.latestQuantity?.quantity?.toNumber()}
                 />
               </div>
             </form>
@@ -128,13 +131,16 @@ export function AssetDetailDialog({
                       </TableCell>
                       <TableCell className="text-right">
                         <p>
-                          {formatCurrency({
-                            value: row.computedValue ?? 0,
-                          })}
+                          <Currency
+                            value={row.computedValue}
+                            options={{
+                              maximumFractionDigits: 2,
+                            }}
+                          />
                         </p>
                         {data?.category === STOCK_CATEGORY && (
                           <p className="text-xs text-muted-foreground">
-                            Qty {formatNumber({ value: row.quantity ?? 0 })}
+                            Qty <Number value={row.quantity} />
                           </p>
                         )}
                       </TableCell>
