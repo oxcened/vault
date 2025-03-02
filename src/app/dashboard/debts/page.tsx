@@ -109,22 +109,25 @@ export default function AssetsPage() {
         {isPending && (
           <div>
             <Skeleton className="mb-5 h-8 w-48" />
-            <div className="mt-5 rounded-md border">
+            <div className="mt-5 rounded-xl border">
               <TableSkeleton />
             </div>
           </div>
         )}
 
         {!isPending && (
-          <p className="text-3xl font-medium">
-            {formatCurrency({ value: total })}
-          </p>
+          <>
+            <p className="text-muted-foreground">Total debts</p>
+            <p className="text-3xl font-medium">
+              {formatCurrency({ value: total })}
+            </p>
+          </>
         )}
 
         {dataByCategory.map(({ category, results, total }) => (
           <Fragment key={category}>
-            <p className="mt-5 text-sm font-medium first:mt-0">{category}</p>
-            <div className="mt-5 rounded-md border">
+            <p className="mt-10 text-sm font-medium first:mt-0">{category}</p>
+            <div className="mt-5 rounded-xl border">
               <Table>
                 <TableHeader>
                   <TableRow>
