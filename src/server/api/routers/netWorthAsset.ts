@@ -131,56 +131,58 @@ export const netWorthAssetRouter = createTRPCRouter({
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const asset = await ctx.db.netWorthAsset.findFirst({
-        where: { id: input.id },
-        include: {
-          ticker: {
-            include: {
-              prices: {
-                orderBy: {
-                  timestamp: "desc",
+      return ctx.db.$transaction(async (tx) => {
+        const asset = await tx.netWorthAsset.findFirst({
+          where: { id: input.id },
+          include: {
+            ticker: {
+              include: {
+                prices: {
+                  orderBy: {
+                    timestamp: "desc",
+                  },
+                  take: 1,
                 },
-                take: 1,
+              },
+            },
+            quantities: {
+              orderBy: {
+                timestamp: "desc",
               },
             },
           },
-          quantities: {
-            orderBy: {
-              timestamp: "desc",
-            },
+        });
+
+        const latestQuantity = asset?.quantities[0];
+        const latestStockPrice = asset?.ticker?.prices[0];
+        const nativeComputedValue = latestQuantity?.quantity?.times(
+          latestStockPrice?.price ?? 1,
+        );
+        const exchangeRate = await tx.exchangeRate.findFirst({
+          where: {
+            baseCurrency: asset?.currency,
+            quoteCurrency: APP_CURRENCY,
           },
-        },
+          orderBy: {
+            timestamp: "desc",
+          },
+        });
+        const computedValue = exchangeRate?.rate
+          ? nativeComputedValue?.times(exchangeRate.rate)
+          : nativeComputedValue;
+
+        const valueHistory = await tx.$queryRawTyped(
+          getNetWorthAssetHistory(input.id, APP_CURRENCY, APP_CURRENCY),
+        );
+
+        return {
+          ...asset,
+          latestQuantity,
+          latestStockPrice,
+          valueHistory,
+          nativeComputedValue,
+          computedValue,
+        };
       });
-
-      const latestQuantity = asset?.quantities[0];
-      const latestStockPrice = asset?.ticker?.prices[0];
-      const nativeComputedValue = latestQuantity?.quantity?.times(
-        latestStockPrice?.price ?? 1,
-      );
-      const exchangeRate = await ctx.db.exchangeRate.findFirst({
-        where: {
-          baseCurrency: asset?.currency,
-          quoteCurrency: APP_CURRENCY,
-        },
-        orderBy: {
-          timestamp: "desc",
-        },
-      });
-      const computedValue = exchangeRate?.rate
-        ? nativeComputedValue?.times(exchangeRate.rate)
-        : nativeComputedValue;
-
-      const valueHistory = await ctx.db.$queryRawTyped(
-        getNetWorthAssetHistory(input.id, APP_CURRENCY, APP_CURRENCY),
-      );
-
-      return {
-        ...asset,
-        latestQuantity,
-        latestStockPrice,
-        valueHistory,
-        nativeComputedValue,
-        computedValue,
-      };
     }),
 });

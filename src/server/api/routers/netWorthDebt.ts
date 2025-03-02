@@ -108,42 +108,44 @@ export const netWorthDebtRouter = createTRPCRouter({
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const asset = await ctx.db.netWorthDebt.findFirst({
-        where: { id: input.id },
-        include: {
-          quantities: {
-            orderBy: {
-              timestamp: "desc",
+      return ctx.db.$transaction(async (tx) => {
+        const asset = await tx.netWorthDebt.findFirst({
+          where: { id: input.id },
+          include: {
+            quantities: {
+              orderBy: {
+                timestamp: "desc",
+              },
             },
           },
-        },
+        });
+
+        const latestQuantity = asset?.quantities[0];
+        const nativeComputedValue = latestQuantity?.quantity;
+        const exchangeRate = await tx.exchangeRate.findFirst({
+          where: {
+            baseCurrency: asset?.currency,
+            quoteCurrency: APP_CURRENCY,
+          },
+          orderBy: {
+            timestamp: "desc",
+          },
+        });
+        const computedValue = exchangeRate?.rate
+          ? nativeComputedValue?.times(exchangeRate.rate)
+          : nativeComputedValue;
+
+        const valueHistory = await tx.$queryRawTyped(
+          getNetWorthDebtHistory(input.id, APP_CURRENCY, APP_CURRENCY),
+        );
+
+        return {
+          ...asset,
+          latestQuantity,
+          valueHistory,
+          nativeComputedValue,
+          computedValue,
+        };
       });
-
-      const latestQuantity = asset?.quantities[0];
-      const nativeComputedValue = latestQuantity?.quantity;
-      const exchangeRate = await ctx.db.exchangeRate.findFirst({
-        where: {
-          baseCurrency: asset?.currency,
-          quoteCurrency: APP_CURRENCY,
-        },
-        orderBy: {
-          timestamp: "desc",
-        },
-      });
-      const computedValue = exchangeRate?.rate
-        ? nativeComputedValue?.times(exchangeRate.rate)
-        : nativeComputedValue;
-
-      const valueHistory = await ctx.db.$queryRawTyped(
-        getNetWorthDebtHistory(input.id, APP_CURRENCY, APP_CURRENCY),
-      );
-
-      return {
-        ...asset,
-        latestQuantity,
-        valueHistory,
-        nativeComputedValue,
-        computedValue,
-      };
     }),
 });
