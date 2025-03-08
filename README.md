@@ -46,6 +46,33 @@ cp .env.example .env
 
 Then, open `.env` and fill in the required secrets and configuration values.
 
+### Authentication
+
+Vault uses **Discord** as the authentication provider via NextAuth.js.  
+To set it up, follow these steps:
+
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+2. Create a new application.
+3. Under **OAuth2**, add a redirect URI matching:
+   ```
+   http://localhost:3000/api/auth/callback/discord
+   ```
+4. Copy the **Client ID** and **Client Secret** from the OAuth2 settings.
+5. In your `.env` file, add the following:
+
+   ```sh
+   AUTH_DISCORD_ID=your-client-id
+   AUTH_DISCORD_SECRET=your-client-secret
+   ```
+
+6. Restart the development server with:
+
+   ```sh
+   npm run dev
+   ```
+
+For more details, check out [T3 Authentication Guide](https://create.t3.gg/en/usage/first-steps#authentication).
+
 ### Database Setup
 
 For local development, you can spin up a MySQL database in a Docker container by running:
