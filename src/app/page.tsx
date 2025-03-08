@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { buttonVariants } from "~/components/ui/button";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { auth } from "~/server/auth";
 import { HydrateClient } from "~/trpc/server";
 
@@ -12,21 +14,12 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <Link
-                href="/api/auth/signin"
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                Sign in
-              </Link>
-            </div>
-          </div>
+      <main className="grid h-screen place-content-center">
+        <div className="flex gap-5">
+          <h1 className="text-2xl">Vault</h1>
+          <Link href="/api/auth/signin" className={buttonVariants()}>
+            Sign in
+          </Link>
         </div>
       </main>
     </HydrateClient>
