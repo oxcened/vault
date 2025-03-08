@@ -36,4 +36,5 @@ SELECT
 FROM NetWorthDebt d
 LEFT JOIN latest_debt_quantities ldq ON d.id = ldq.netWorthDebtId
 LEFT JOIN latest_exchange_rates ler ON UPPER(d.currency) = ler.baseCurrency
+WHERE d.createdById = ?  -- Filter debts by the specific user
 ORDER BY d.createdAt ASC;
