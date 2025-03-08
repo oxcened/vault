@@ -1,9 +1,6 @@
 "use client";
 
 import * as React from "react";
-
-import { SearchForm } from "~/components/search-form";
-import { VersionSwitcher } from "~/components/version-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -21,9 +18,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
 
-// This is sample data.
 const data = {
-  versions: ["2025"],
   navMain: [
     {
       title: "Net Worth",
@@ -44,6 +39,20 @@ const data = {
         {
           title: "History",
           url: "/dashboard/nw-history",
+        },
+      ],
+    },
+    {
+      title: "Cash flow",
+      url: "#",
+      items: [
+        {
+          title: "Overview",
+          url: "/dashboard/cash-flow",
+        },
+        {
+          title: "Transactions",
+          url: "/dashboard/transactions",
         },
       ],
     },
