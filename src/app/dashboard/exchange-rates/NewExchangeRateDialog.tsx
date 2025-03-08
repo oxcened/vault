@@ -58,7 +58,7 @@ export default function NewExchangeRateDialog({
       <DialogTrigger asChild>
         <Button variant="outline" className="ml-auto">
           <Plus />
-          New Exchange Rate
+          New exchange rate
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -67,7 +67,7 @@ export default function NewExchangeRateDialog({
           className="flex flex-col gap-5"
         >
           <DialogHeader>
-            <DialogTitle>New Exchange Rate</DialogTitle>
+            <DialogTitle>New exchange rate</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2">
             <Input
