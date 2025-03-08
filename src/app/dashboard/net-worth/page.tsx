@@ -31,7 +31,7 @@ export default async function NetWorthPage() {
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="/dashboard/net-worth">
-                Net Worth
+                Net worth
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
@@ -48,7 +48,7 @@ export default async function NetWorthPage() {
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           <Card className="flex-grow">
             <CardHeader>
-              <CardDescription>Net Worth</CardDescription>
+              <CardDescription>Net worth</CardDescription>
               <CardTitle className="text-xl font-medium">
                 <RoundedCurrency value={data?.netValue} />
               </CardTitle>
