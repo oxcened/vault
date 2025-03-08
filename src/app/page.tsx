@@ -13,7 +13,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="grid h-screen place-content-center">
+      <main className="grid h-dvh place-content-center">
         <div className="flex items-center gap-5">
           <h1 className="text-2xl">Vault</h1>
           <Link href="/api/auth/signin" className={buttonVariants()}>
