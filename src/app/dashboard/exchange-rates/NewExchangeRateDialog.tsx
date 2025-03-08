@@ -39,7 +39,13 @@ export default function NewExchangeRateDialog({
     },
   });
 
-  const { register, handleSubmit, reset, control } = useForm<Form>();
+  const { register, handleSubmit, reset, control } = useForm<Form>({
+    defaultValues: {
+      baseCurrency: "",
+      quoteCurrency: "",
+      timestamp: new Date(),
+    },
+  });
   const [isOpen, setOpen] = useState(false);
 
   function handleSelectDate(field: ControllerRenderProps<Form>, date?: Date) {
