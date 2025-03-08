@@ -82,7 +82,12 @@ export default function StockPricesPage() {
 
       <div className="mx-auto w-full max-w-screen-md p-5">
         {isPending && <TableSkeleton />}
-        {!isPending && (
+        {!isPending && !data.length && (
+          <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
+            You don't have any stock prices yet
+          </div>
+        )}
+        {!isPending && !!data.length && (
           <Table>
             <TableHeader>
               <TableRow>

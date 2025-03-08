@@ -131,6 +131,12 @@ export default function NetWorthHoldings<T extends Holding>({
           </>
         )}
 
+        {!holdings.length && !isFetching && (
+          <div className="mt-10 rounded-xl bg-muted p-10 text-center text-muted-foreground">
+            You don't have any {holdingLabelPlural.toLocaleLowerCase()} yet
+          </div>
+        )}
+
         {dataByCategory.map(({ category, results, total }) => (
           <Fragment key={category}>
             <p className="mt-10 text-sm font-medium first:mt-0">{category}</p>
