@@ -23,7 +23,7 @@ import { LogOut } from "lucide-react";
 const data = {
   navMain: [
     {
-      title: "Net Worth",
+      title: "Net worth",
       url: "#",
       items: [
         {
