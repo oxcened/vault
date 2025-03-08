@@ -70,7 +70,7 @@ CREATE TABLE `NetWorth` (
 CREATE TABLE `NetWorthAsset` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `type` VARCHAR(191) NOT NULL,
+    `category` VARCHAR(191) NOT NULL,
     `tickerId` VARCHAR(191) NULL,
     `currency` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -96,7 +96,7 @@ CREATE TABLE `NetWorthAssetQuantity` (
 CREATE TABLE `NetWorthDebt` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `type` VARCHAR(191) NOT NULL,
+    `category` VARCHAR(191) NOT NULL,
     `currency` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE `StockPriceHistory` (
 
 -- CreateTable
 CREATE TABLE `ExchangeRate` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `baseCurrency` VARCHAR(3) NOT NULL,
     `quoteCurrency` VARCHAR(3) NOT NULL,
     `rate` DECIMAL(38, 18) NOT NULL,
@@ -150,6 +150,31 @@ CREATE TABLE `ExchangeRate` (
 
     INDEX `ExchangeRate_baseCurrency_quoteCurrency_timestamp_idx`(`baseCurrency`, `quoteCurrency`, `timestamp`),
     UNIQUE INDEX `ExchangeRate_baseCurrency_quoteCurrency_timestamp_key`(`baseCurrency`, `quoteCurrency`, `timestamp`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Transaction` (
+    `id` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
+    `amount` DECIMAL(38, 18) NOT NULL,
+    `currency` VARCHAR(191) NOT NULL,
+    `type` ENUM('INCOME', 'EXPENSE', 'TRANSFER') NOT NULL,
+    `categoryId` VARCHAR(191) NOT NULL,
+    `timestamp` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TransactionCategory` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -170,3 +195,6 @@ ALTER TABLE `NetWorthDebtQuantity` ADD CONSTRAINT `NetWorthDebtQuantity_netWorth
 
 -- AddForeignKey
 ALTER TABLE `StockPriceHistory` ADD CONSTRAINT `StockPriceHistory_tickerId_fkey` FOREIGN KEY (`tickerId`) REFERENCES `StockTicker`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `TransactionCategory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
