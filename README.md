@@ -1,29 +1,148 @@
-# Create T3 App
+# Vault
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+**Vault** – Your Personal Finance Sidekick! 🚀  
+Keep track of your **net worth**, **cash flow**, and **expenses** with ease. Vault is still in development, but the goal is to support **multiple currencies**, **real-time exchange rates**, **stock prices**, and **crypto tracking**. Stay tuned!
 
-## What's next? How do I make an app with this?
+## 📌 Table of Contents
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- [Getting Started](#getting-started)
+- [Roadmap](#-roadmap)
+- [Tech Stack](#tech-stack)
+  - [Core Technologies](#core-technologies)
+  - [UI & Components](#ui--components)
+- [Who's Behind This?](#-whos-behind-this)
+- [License](#-license)
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Getting Started
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Ready to dive in? Follow these steps to get Vault up and running in no time. ⏳
 
-## Learn More
+### Prerequisites
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Make sure you have the following installed:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- 🏗️ [Node.js](https://nodejs.org/) (Required: v22.13.1)
+- 📦 [npm](https://www.npmjs.com/) (Vault uses `npm@10.9.2`)
+- 🗄️ [MySQL](https://www.mysql.com/)
+- 🐳 [Docker](https://www.docker.com/) (If you want to use the included DB spin up script)
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+### Installation
 
-## How do I deploy this?
+Clone the repository and install dependencies:
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+```sh
+git clone https://github.com/oxcened/vault.git
+cd vault
+npm install
+```
+
+### Environment Variables
+
+Before running the project, create a `.env` file in the root directory. You can use `.env.example` as a reference:
+
+```sh
+cp .env.example .env
+```
+
+Then, open `.env` and fill in the required secrets and configuration values.
+
+### Database Setup
+
+For local development, you can spin up a MySQL database in a Docker container by running:
+
+```sh
+./start-database.sh
+```
+
+Once the database is running, set up the schema with:
+
+Run the following to set up the database schema:
+
+```sh
+npm run db:push
+```
+
+To apply migrations, use:
+
+```sh
+npm run db:migrate
+```
+
+You can also generate Prisma types:
+
+```sh
+npm run db:generate
+```
+
+### Development
+
+Start the development server:
+
+```sh
+npm run dev
+```
+
+### Linting & Formatting
+
+Check for linting errors:
+
+```sh
+npm run lint
+```
+
+Format code:
+
+```sh
+npm run format:write
+```
+
+### Building for Production
+
+To build and start the production server:
+
+```sh
+npm run build
+npm run start
+```
+
+Now you're ready to start using Vault!
+
+## ✨ Roadmap
+
+- 📊 **Net Worth Tracking** – See all your assets and liabilities in one place.
+- 💰 **Cash Flow Insights** – Understand how your money moves.
+- 🛍️ **Expense Tracking** – Keep an eye on where you're spending.
+- 🌍 **Multi-Currency Support** – Handle different currencies with live exchange rates.
+- 📈 **Stock & Crypto Tracking** – Stay updated with market prices.
+- 🎨 **Slick UI** – Built with modern components for a smooth experience.
+
+## Tech Stack
+
+Vault is built with the **T3 Stack**, making it scalable and efficient.
+
+### Core Technologies:
+
+- [TypeScript](https://www.typescriptlang.org/) – Because type safety is cool.
+- [Next.js](https://nextjs.org) – Full-stack framework with SSR and API routes.
+- [NextAuth.js](https://next-auth.js.org) – Secure authentication and session management.
+- [Prisma](https://prisma.io) – ORM for database management.
+- [Tailwind CSS](https://tailwindcss.com) – Modern styling with utility classes.
+- [tRPC](https://trpc.io) – Type-safe API communication.
+
+### UI & Components:
+
+- [Radix UI](https://www.radix-ui.com/) with [shadcn/ui](https://ui.shadcn.com) components.
+- [Lucide Icons](https://lucide.dev/) for sleek and simple icons.
+
+## 🛠 Who’s Behind This?
+
+Built and maintained by **Alen Ajam**, a developer passionate about finance and open-source software. 🚀
+
+- GitHub: [oxcened](https://github.com/oxcened)
+- Email: [hello@alenajam.dev](mailto:hello@alenajam.dev)
+- Website: [alenajam.dev](https://alenajam.dev)
+
+## 📜 License
+
+Vault is open-source and licensed under the [MIT License](https://opensource.org/licenses/MIT).  
+Want to contribute? PRs are always welcome! 🎉
