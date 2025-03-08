@@ -90,7 +90,7 @@ export default function NetWorthHoldings<T extends Holding>({
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="/dashboard/net-worth">
-                Net Worth
+                Net worth
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
@@ -111,14 +111,7 @@ export default function NetWorthHoldings<T extends Holding>({
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
-        {isFetching && (
-          <div>
-            <Skeleton className="mb-5 h-8 w-48" />
-            <div className="mt-5">
-              <TableSkeleton />
-            </div>
-          </div>
-        )}
+        {isFetching && <TableSkeleton />}
 
         {!isFetching && (
           <>
