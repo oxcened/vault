@@ -58,7 +58,7 @@ export default function NewStockPriceDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Stock Price</DialogTitle>
+          <DialogTitle>New stock price</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
