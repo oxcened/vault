@@ -110,11 +110,11 @@ export default function NetWorthHoldings<T extends Holding>({
         </Button>
       </header>
 
-      <div className="p-5">
+      <div className="mx-auto w-full max-w-screen-md p-5">
         {isFetching && (
           <div>
             <Skeleton className="mb-5 h-8 w-48" />
-            <div className="mt-5 rounded-xl border">
+            <div className="mt-5">
               <TableSkeleton />
             </div>
           </div>
@@ -134,61 +134,58 @@ export default function NetWorthHoldings<T extends Holding>({
         {dataByCategory.map(({ category, results, total }) => (
           <Fragment key={category}>
             <p className="mt-10 text-sm font-medium first:mt-0">{category}</p>
-            <div className="mt-5 rounded-xl border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{holdingLabel}</TableHead>
-                    <TableHead className="text-right">Value</TableHead>
-                    <TableHead className="w-0"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {results.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>
-                        <div>{row.name}</div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <RoundedCurrency value={row.convertedValue} />
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() => onEditHolding(row)}
-                            >
-                              Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => onDeleteHolding(row)}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TableCell>Total</TableCell>
-                    <TableCell className="text-right">
-                      <RoundedCurrency value={total} />
+
+            <Table className="mt-5">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{holdingLabel}</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                  <TableHead className="w-0"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {results.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>
+                      <div>{row.name}</div>
                     </TableCell>
-                    <TableCell></TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.convertedValue} />
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => onEditHolding(row)}>
+                            Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => onDeleteHolding(row)}
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
-                </TableFooter>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell>Total</TableCell>
+                  <TableCell className="text-right">
+                    <RoundedCurrency value={total} />
+                  </TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
           </Fragment>
         ))}
       </div>

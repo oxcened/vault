@@ -63,24 +63,24 @@ export default function StockPricesPage() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/dashboard/net-worth">
-                Net Worth
+                Net worth
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Stock Prices</BreadcrumbPage>
+              <BreadcrumbPage>Stock prices</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto">
           <Button variant="outline" onClick={() => setNewDialogOpen(true)}>
             <Plus />
-            New Stock Price
+            New stock price
           </Button>
         </div>
       </header>
 
-      <div className="m-5 rounded-xl border">
+      <div className="mx-auto w-full max-w-screen-md p-5">
         {isPending && <TableSkeleton />}
         {!isPending && (
           <Table>
