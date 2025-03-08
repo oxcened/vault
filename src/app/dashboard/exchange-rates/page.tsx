@@ -71,12 +71,12 @@ export default function ExchangeRatesPage() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/dashboard/net-worth">
-                Net Worth
+                Net worth
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Exchange Rates</BreadcrumbPage>
+              <BreadcrumbPage>Exchange rates</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -84,7 +84,7 @@ export default function ExchangeRatesPage() {
         <NewExchangeRateDialog onSuccess={refetch} />
       </header>
 
-      <div className="m-5 rounded-xl border">
+      <div className="mx-auto w-full max-w-screen-md p-5">
         {isPending && <TableSkeleton />}
         {!isPending && (
           <Table>

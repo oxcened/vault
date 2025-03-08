@@ -41,37 +41,38 @@ export default async function NetWorthPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-      <p className="mx-5 mt-5 text-3xl font-medium">
-        Hey, {session?.user.name}
-      </p>
 
-      <div className="mx-5 mt-10 grid gap-5 sm:grid-cols-3">
-        <Card className="flex-grow">
-          <CardHeader>
-            <CardDescription>Net Worth</CardDescription>
-            <CardTitle className="text-xl font-medium">
-              <RoundedCurrency value={data?.netValue} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
+      <div className="mx-auto w-full max-w-screen-md p-5">
+        <p className="text-3xl font-medium">Hey, {session?.user.name}</p>
 
-        <Card className="flex-grow">
-          <CardHeader>
-            <CardDescription>Assets</CardDescription>
-            <CardTitle className="text-xl font-medium">
-              <RoundedCurrency value={data?.totalAssets} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <div className="mt-10 grid gap-5 sm:grid-cols-3">
+          <Card className="flex-grow">
+            <CardHeader>
+              <CardDescription>Net Worth</CardDescription>
+              <CardTitle className="text-xl font-medium">
+                <RoundedCurrency value={data?.netValue} />
+              </CardTitle>
+            </CardHeader>
+          </Card>
 
-        <Card className="flex-grow">
-          <CardHeader>
-            <CardDescription>Debts</CardDescription>
-            <CardTitle className="text-xl font-medium">
-              <RoundedCurrency value={data?.totalDebts} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
+          <Card className="flex-grow">
+            <CardHeader>
+              <CardDescription>Assets</CardDescription>
+              <CardTitle className="text-xl font-medium">
+                <RoundedCurrency value={data?.totalAssets} />
+              </CardTitle>
+            </CardHeader>
+          </Card>
+
+          <Card className="flex-grow">
+            <CardHeader>
+              <CardDescription>Debts</CardDescription>
+              <CardTitle className="text-xl font-medium">
+                <RoundedCurrency value={data?.totalDebts} />
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
       </div>
     </>
   );

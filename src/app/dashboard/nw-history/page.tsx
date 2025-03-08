@@ -46,49 +46,47 @@ export default async function NwHistoryPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-      <div className="p-5">
-        <div className="mt-5 rounded-xl border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Net Worth</TableHead>
-                <TableHead className="w-32 text-right">Assets</TableHead>
-                <TableHead className="w-32 text-right">Debts</TableHead>
-                <TableHead className="w-32 text-right">Net value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={row.totalAssets} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={row.totalDebts} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={row.netValue} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell>All time high</TableCell>
+      <div className="mx-auto w-full max-w-screen-md p-5">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Net Worth</TableHead>
+              <TableHead className="w-32 text-right">Assets</TableHead>
+              <TableHead className="w-32 text-right">Debts</TableHead>
+              <TableHead className="w-32 text-right">Net value</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
                 <TableCell className="text-right">
-                  <RoundedCurrency value={athAssets} />
+                  <RoundedCurrency value={row.totalAssets} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <RoundedCurrency value={athDebts} />
+                  <RoundedCurrency value={row.totalDebts} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <RoundedCurrency value={athNetValue} />
+                  <RoundedCurrency value={row.netValue} />
                 </TableCell>
               </TableRow>
-            </TableFooter>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell>All time high</TableCell>
+              <TableCell className="text-right">
+                <RoundedCurrency value={athAssets} />
+              </TableCell>
+              <TableCell className="text-right">
+                <RoundedCurrency value={athDebts} />
+              </TableCell>
+              <TableCell className="text-right">
+                <RoundedCurrency value={athNetValue} />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
       </div>
     </>
   );
