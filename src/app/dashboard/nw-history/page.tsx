@@ -36,7 +36,7 @@ export default async function NwHistoryPage() {
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="/dashboard/net-worth">
-                Net Worth
+                Net worth
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
@@ -56,7 +56,7 @@ export default async function NwHistoryPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Net Worth</TableHead>
+                <TableHead>Net worth</TableHead>
                 <TableHead className="w-32 text-right">Assets</TableHead>
                 <TableHead className="w-32 text-right">Debts</TableHead>
                 <TableHead className="w-32 text-right">Net value</TableHead>
