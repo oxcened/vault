@@ -63,6 +63,7 @@ export const netWorthDebtRouter = createTRPCRouter({
         await updateFromDate({
           db: tx,
           date,
+          createdBy: ctx.session.user.id,
         });
 
         return {
@@ -96,6 +97,7 @@ export const netWorthDebtRouter = createTRPCRouter({
           await updateFromDate({
             db: tx,
             date: startDate,
+            createdBy: ctx.session.user.id,
           });
         }
 

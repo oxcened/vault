@@ -66,6 +66,7 @@ export const stockPriceRouter = createTRPCRouter({
           await updateFromDate({
             db: tx,
             date: earliest.timestamp,
+            createdBy: ctx.session.user.id,
           });
         }
 
