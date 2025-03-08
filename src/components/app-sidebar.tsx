@@ -17,6 +17,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
+import { Button, buttonVariants } from "./ui/button";
+import { LogOut } from "lucide-react";
 
 const data = {
   navMain: [
@@ -79,9 +81,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="h-16 flex-row items-center justify-between">
-        <p className="p-2 font-medium">Vault</p>
+      <SidebarHeader className="h-16 flex-row items-center">
+        <p className="mr-auto p-2 font-medium">Vault</p>
         <ModeToggle />
+        <Link
+          href="/api/auth/signout"
+          className={buttonVariants({
+            variant: "outline",
+            size: "icon",
+          })}
+        >
+          <LogOut />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
