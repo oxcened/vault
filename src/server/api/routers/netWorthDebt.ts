@@ -106,7 +106,9 @@ export const netWorthDebtRouter = createTRPCRouter({
       });
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.$queryRawTyped(getNetWorthDebts(APP_CURRENCY, APP_CURRENCY));
+    return ctx.db.$queryRawTyped(
+      getNetWorthDebts(APP_CURRENCY, APP_CURRENCY, ctx.session.user.id),
+    );
   }),
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))
