@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { buttonVariants } from "~/components/ui/button";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { auth } from "~/server/auth";
 import { HydrateClient } from "~/trpc/server";
 
