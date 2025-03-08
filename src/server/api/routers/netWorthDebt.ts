@@ -24,6 +24,7 @@ export const netWorthDebtRouter = createTRPCRouter({
             name: input.name,
             category,
             currency: input.currency,
+            createdBy: { connect: { id: ctx.session.user.id } },
           },
         });
 
