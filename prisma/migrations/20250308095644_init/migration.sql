@@ -60,6 +60,7 @@ CREATE TABLE `NetWorth` (
     `timestamp` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
 
     INDEX `NetWorth_timestamp_idx`(`timestamp`),
     UNIQUE INDEX `NetWorth_timestamp_key`(`timestamp`),
@@ -75,6 +76,7 @@ CREATE TABLE `NetWorthAsset` (
     `currency` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -100,6 +102,7 @@ CREATE TABLE `NetWorthDebt` (
     `currency` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -164,6 +167,7 @@ CREATE TABLE `Transaction` (
     `timestamp` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -185,16 +189,28 @@ ALTER TABLE `Account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`
 ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `NetWorth` ADD CONSTRAINT `NetWorth_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NetWorthAsset` ADD CONSTRAINT `NetWorthAsset_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `NetWorthAsset` ADD CONSTRAINT `NetWorthAsset_tickerId_fkey` FOREIGN KEY (`tickerId`) REFERENCES `StockTicker`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `NetWorthAssetQuantity` ADD CONSTRAINT `NetWorthAssetQuantity_netWorthAssetId_fkey` FOREIGN KEY (`netWorthAssetId`) REFERENCES `NetWorthAsset`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `NetWorthDebt` ADD CONSTRAINT `NetWorthDebt_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `NetWorthDebtQuantity` ADD CONSTRAINT `NetWorthDebtQuantity_netWorthDebtId_fkey` FOREIGN KEY (`netWorthDebtId`) REFERENCES `NetWorthDebt`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `StockPriceHistory` ADD CONSTRAINT `StockPriceHistory_tickerId_fkey` FOREIGN KEY (`tickerId`) REFERENCES `StockTicker`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `TransactionCategory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
