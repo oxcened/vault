@@ -25,7 +25,8 @@ export const netWorthAssetRouter = createTRPCRouter({
             name: input.name,
             category,
             currency: input.currency,
-            tickerId: tickerId,
+            ticker: tickerId ? { connect: { id: tickerId } } : undefined,
+            createdBy: { connect: { id: ctx.session.user.id } },
           },
         });
 
@@ -82,9 +83,11 @@ export const netWorthAssetRouter = createTRPCRouter({
           });
         }
 
+        // Update net worth
         await updateFromDate({
           db: tx,
           date,
+          createdBy: ctx.session.user.id,
         });
 
         return {
@@ -119,6 +122,7 @@ export const netWorthAssetRouter = createTRPCRouter({
           await updateFromDate({
             db: tx,
             date: startDate,
+            createdBy: ctx.session.user.id,
           });
         }
 

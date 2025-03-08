@@ -35,11 +35,13 @@ export async function getLatest({
 export async function updateFromDate({
   db,
   date,
+  createdBy,
 }: {
   db: Pick<PrismaClient, "$queryRaw" | "netWorth">;
   date: Date;
+  createdBy: string;
 }) {
-  return db.$queryRaw`CALL updateFromDate(${date}, ${APP_CURRENCY})`;
+  return db.$queryRaw`CALL updateFromDate(${date}, ${APP_CURRENCY}, ${createdBy})`;
 }
 
 export const netWorthRouter = createTRPCRouter({
@@ -67,6 +69,10 @@ export const netWorthRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return updateFromDate({ db: ctx.db, date: input.date });
+      return updateFromDate({
+        db: ctx.db,
+        date: input.date,
+        createdBy: ctx.session.user.id,
+      });
     }),
 });

@@ -82,6 +82,7 @@ export const exchangeRateRouter = createTRPCRouter({
           await updateFromDate({
             db: tx,
             date: earliest,
+            createdBy: ctx.session.user.id,
           });
         }
 
