@@ -1,7 +1,5 @@
 const defaultDateOptions: Intl.DateTimeFormatOptions = {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
+  dateStyle: "medium",
 };
 
 export type FormatDateParams = {
