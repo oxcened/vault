@@ -49,11 +49,6 @@ export default function CashFlowPage() {
 
       <div className="mx-auto w-full max-w-screen-md p-5">
         {isLoading && <TableSkeleton />}
-        {!isLoading && !data?.cashFlow?.length && (
-          <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have a cash flow yet
-          </div>
-        )}
         {!isLoading && (
           <>
             <p className="text-muted-foreground">Cash flow</p>
@@ -61,6 +56,11 @@ export default function CashFlowPage() {
               <RoundedCurrency value={data?.savings} />
             </p>
           </>
+        )}
+        {!isLoading && !data?.cashFlow?.length && (
+          <div className="mt-10 rounded-xl bg-muted p-10 text-center text-muted-foreground">
+            You don't have a cash flow yet
+          </div>
         )}
         {!isLoading && !!data?.cashFlow?.length && (
           <>
