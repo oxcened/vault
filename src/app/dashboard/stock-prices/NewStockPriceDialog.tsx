@@ -33,7 +33,12 @@ export default function NewStockPriceDialog({
   onSuccess,
   onClose,
 }: NewStockPriceDialogProps) {
-  const { register, handleSubmit, reset, control } = useForm<Form>();
+  const { register, handleSubmit, reset, control } = useForm<Form>({
+    defaultValues: {
+      tickerId: "",
+      timestamp: new Date(),
+    },
+  });
 
   const { mutate, isPending } = api.stockPrice.create.useMutation({
     onSuccess: () => {
