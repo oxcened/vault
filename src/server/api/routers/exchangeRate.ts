@@ -33,7 +33,7 @@ export const exchangeRateRouter = createTRPCRouter({
   update: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
         baseCurrency: z.string().length(3).toUpperCase(),
         quoteCurrency: z.string().length(3).toUpperCase(),
         rate: z.number(),
@@ -90,7 +90,7 @@ export const exchangeRateRouter = createTRPCRouter({
     }),
 
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       return ctx.db.exchangeRate.delete({
         where: { id: input.id },
