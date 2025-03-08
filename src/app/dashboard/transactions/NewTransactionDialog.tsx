@@ -60,6 +60,10 @@ export default function NewTransactionDialog({
       onSuccess();
     },
   });
+  const { data: categories = [], isPending: isFetchingCategories } =
+    api.transactionCategory.getAll.useQuery(undefined, {
+      enabled: isOpen,
+    });
   const form = useForm({
     defaultValues: {
       currency: APP_CURRENCY,
@@ -171,10 +175,27 @@ export default function NewTransactionDialog({
                 name="categoryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category ID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Category ID" {...field} />
-                    </FormControl>
+                    <FormLabel>Category</FormLabel>
+
+                    <Select
+                      value={field.value}
+                      disabled={isFetchingCategories}
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger isLoading={isFetchingCategories}>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
                     <FormMessage />
                   </FormItem>
                 )}

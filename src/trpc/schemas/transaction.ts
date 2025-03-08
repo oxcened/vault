@@ -11,5 +11,5 @@ export const createTransactionSchema = yup.object({
     .oneOf(Object.values(TransactionType))
     .label("Type")
     .required(),
-  categoryId: yup.string().label("Category ID").required(),
+  categoryId: yup.string().label("Category").required(),
 });
