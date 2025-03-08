@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfig from "../../tailwind.config";
@@ -13,11 +14,23 @@ const breakpoints = Object.fromEntries(
 );
 
 export function useBreakpoint() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const sm = useMediaQuery({ minWidth: breakpoints.sm });
+  const md = useMediaQuery({ minWidth: breakpoints.md });
+  const lg = useMediaQuery({ minWidth: breakpoints.lg });
+  const xl = useMediaQuery({ minWidth: breakpoints.xl });
+  const xxl = useMediaQuery({ minWidth: breakpoints["2xl"] });
+
   return {
-    sm: useMediaQuery({ minWidth: breakpoints.sm }),
-    md: useMediaQuery({ minWidth: breakpoints.md }),
-    lg: useMediaQuery({ minWidth: breakpoints.lg }),
-    xl: useMediaQuery({ minWidth: breakpoints.xl }),
-    xxl: useMediaQuery({ minWidth: breakpoints["2xl"] }),
+    sm: isClient ? sm : false,
+    md: isClient ? md : false,
+    lg: isClient ? lg : false,
+    xl: isClient ? xl : false,
+    xxl: isClient ? xxl : false,
   };
 }
