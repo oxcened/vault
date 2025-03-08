@@ -130,7 +130,9 @@ export const netWorthAssetRouter = createTRPCRouter({
       });
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.$queryRawTyped(getNetWorthAssets(APP_CURRENCY, APP_CURRENCY));
+    return ctx.db.$queryRawTyped(
+      getNetWorthAssets(APP_CURRENCY, APP_CURRENCY, ctx.session.user.id),
+    );
   }),
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))

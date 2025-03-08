@@ -42,7 +42,7 @@ SELECT
   st.exchange AS exchange,
   st.name AS stockName,
   lq.quantity AS quantity,
-  lsp.price as stockPrice,
+  lsp.price AS stockPrice,
   CASE
     WHEN LOWER(a.category) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
     ELSE lq.quantity
@@ -64,4 +64,5 @@ LEFT JOIN latest_quantities lq ON a.id = lq.netWorthAssetId
 LEFT JOIN StockTicker st ON a.tickerId = st.id
 LEFT JOIN latest_stock_prices lsp ON st.id = lsp.tickerId
 LEFT JOIN latest_exchange_rates ler ON UPPER(a.currency) = ler.baseCurrency
+WHERE a.createdById = ?  -- Filter assets by the specific user
 ORDER BY a.createdAt ASC;
