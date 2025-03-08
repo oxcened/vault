@@ -1,10 +1,18 @@
+import { redirect } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { auth } from "~/server/auth";
 
 export type DashboardLayoutProps = PropsWithChildren;
 
-export default function DashboardLayout({ children }: PropsWithChildren) {
+export default async function DashboardLayout({ children }: PropsWithChildren) {
+  const session = await auth();
+
+  if (!session) {
+    return redirect("/");
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
