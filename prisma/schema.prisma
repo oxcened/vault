@@ -44,13 +44,17 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String          @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?         @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    netWorths     NetWorth[]
+    assets        NetWorthAsset[]
+    debts         NetWorthDebt[]
+    transactions  Transaction[]
 }
 
 model VerificationToken {
@@ -65,30 +69,34 @@ model NetWorth {
     id          String   @id @default(cuid())
     totalAssets Decimal  @db.Decimal(38, 18)
     totalDebts  Decimal  @db.Decimal(38, 18)
-    netValue    Decimal  @db.Decimal(38, 18) // computed as totalAssets - totalDebts
+    netValue    Decimal  @db.Decimal(38, 18)
     timestamp   DateTime
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
+    createdById String
+    createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
     @@unique([timestamp])
     @@index([timestamp])
 }
 
 model NetWorthAsset {
-    id         String                  @id @default(cuid())
-    name       String
-    category   String
-    tickerId   String?
-    currency   String
-    createdAt  DateTime                @default(now())
-    updatedAt  DateTime                @updatedAt
-    ticker     StockTicker?            @relation(fields: [tickerId], references: [id])
-    quantities NetWorthAssetQuantity[]
+    id          String                  @id @default(cuid())
+    name        String
+    category    String
+    tickerId    String?
+    currency    String
+    createdAt   DateTime                @default(now())
+    updatedAt   DateTime                @updatedAt
+    createdById String
+    createdBy   User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    ticker      StockTicker?            @relation(fields: [tickerId], references: [id])
+    quantities  NetWorthAssetQuantity[]
 }
 
 model NetWorthAssetQuantity {
     id              String        @id @default(cuid())
-    quantity        Decimal       @db.Decimal(38, 18) // e.g., 10.5 BTC, 1200 USD balance
+    quantity        Decimal       @db.Decimal(38, 18)
     quantityFormula String?
     timestamp       DateTime
     netWorthAssetId String
@@ -99,18 +107,20 @@ model NetWorthAssetQuantity {
 }
 
 model NetWorthDebt {
-    id         String                 @id @default(cuid())
-    name       String
-    category   String
-    currency   String
-    createdAt  DateTime               @default(now())
-    updatedAt  DateTime               @updatedAt
-    quantities NetWorthDebtQuantity[]
+    id          String                 @id @default(cuid())
+    name        String
+    category    String
+    currency    String
+    createdAt   DateTime               @default(now())
+    updatedAt   DateTime               @updatedAt
+    createdById String
+    createdBy   User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    quantities  NetWorthDebtQuantity[]
 }
 
 model NetWorthDebtQuantity {
     id              String       @id @default(cuid())
-    quantity        Decimal      @db.Decimal(38, 18) // e.g., 10.5 BTC, 1200 USD balance
+    quantity        Decimal      @db.Decimal(38, 18)
     quantityFormula String?
     timestamp       DateTime
     netWorthDebtId  String
@@ -122,13 +132,13 @@ model NetWorthDebtQuantity {
 
 model StockTicker {
     id             String              @id @default(cuid())
-    ticker         String // e.g., 'AAPL', 'BTC'
-    exchange       String // e.g., 'NASDAQ', 'NYSE', 'BINANCE'
-    name           String // 'Apple Inc.'
+    ticker         String
+    exchange       String
+    name           String
     netWorthAssets NetWorthAsset[]
     prices         StockPriceHistory[]
 
-    @@unique([ticker, exchange], name: "ticker_exchange") // Prevents duplicate tickers across different exchanges
+    @@unique([ticker, exchange], name: "ticker_exchange")
 }
 
 model StockPriceHistory {
@@ -138,7 +148,7 @@ model StockPriceHistory {
     timestamp DateTime
     ticker    StockTicker @relation(fields: [tickerId], references: [id])
 
-    @@unique([tickerId, timestamp], name: "ticker_timestamp") // Ensures one price per ticker per timestamp
+    @@unique([tickerId, timestamp], name: "ticker_timestamp")
     @@index([tickerId, timestamp])
 }
 
@@ -154,17 +164,18 @@ model ExchangeRate {
 }
 
 model Transaction {
-    id          String          @id @default(cuid())
+    id          String              @id @default(cuid())
     description String
-    amount      Decimal         @db.Decimal(38, 18)
+    amount      Decimal             @db.Decimal(38, 18)
     currency    String
     type        TransactionType
     categoryId  String
     timestamp   DateTime
-    createdAt   DateTime        @default(now())
-    updatedAt   DateTime        @updatedAt
-
-    category TransactionCategory @relation(fields: [categoryId], references: [id])
+    createdAt   DateTime            @default(now())
+    updatedAt   DateTime            @updatedAt
+    createdById String
+    createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    category    TransactionCategory @relation(fields: [categoryId], references: [id])
 }
 
 model TransactionCategory {
