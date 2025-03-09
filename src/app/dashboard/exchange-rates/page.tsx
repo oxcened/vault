@@ -61,6 +61,11 @@ export default function ExchangeRatesPage() {
 
   const [isNewDialog, setNewDialog] = useState(false);
 
+  function handleExchangeRateEdited() {
+    setEditingRate(undefined);
+    void refetch();
+  }
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -145,16 +150,13 @@ export default function ExchangeRatesPage() {
         )}
       </div>
 
-      {editingRate && (
-        <EditExchangeRateDialog
-          initialData={editingRate}
-          onClose={() => setEditingRate(undefined)}
-          onSuccess={() => {
-            setEditingRate(undefined);
-            void refetch();
-          }}
-        />
-      )}
+      <EditExchangeRateDialog
+        key={editingRate?.id}
+        isOpen={!!editingRate}
+        initialData={editingRate}
+        onOpenChange={() => setEditingRate(undefined)}
+        onSuccess={handleExchangeRateEdited}
+      />
 
       <NewExchangeRateDialog
         key={String(isNewDialog)}

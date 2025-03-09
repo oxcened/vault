@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -18,14 +17,16 @@ import { toast } from "sonner";
 type Form = RouterInputs["exchangeRate"]["update"];
 
 export type EditExchangeRateDialogProps = {
-  initialData: Form; // Contains at least { id, rate, baseCurrency, quoteCurrency }
-  onClose: () => void;
+  initialData?: Form;
+  isOpen: boolean;
+  onOpenChange: (newOpen: boolean) => void;
   onSuccess: () => void;
 };
 
 export default function EditExchangeRateDialog({
   initialData,
-  onClose,
+  isOpen,
+  onOpenChange,
   onSuccess,
 }: EditExchangeRateDialogProps) {
   const {
@@ -40,12 +41,12 @@ export default function EditExchangeRateDialog({
     onSuccess: () => {
       toast.success("Exchange rate updated.");
       onSuccess();
-      onClose();
+      onOpenChange(false);
     },
   });
 
   return (
-    <Dialog open onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Exchange Rate</DialogTitle>
