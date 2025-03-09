@@ -29,7 +29,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import EditExchangeRateDialog, {
   EditExchangeRateDialogProps,
 } from "./EditExchangeRateDialog";
@@ -62,6 +62,8 @@ export default function ExchangeRatesPage() {
     });
   }
 
+  const [isNewDialog, setNewDialog] = useState(false);
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -81,7 +83,14 @@ export default function ExchangeRatesPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <NewExchangeRateDialog onSuccess={refetch} />
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={() => setNewDialog(true)}
+        >
+          <Plus />
+          Exchange rate
+        </Button>
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
@@ -149,6 +158,13 @@ export default function ExchangeRatesPage() {
           }}
         />
       )}
+
+      <NewExchangeRateDialog
+        key={String(isNewDialog)}
+        isOpen={isNewDialog}
+        onOpenChange={setNewDialog}
+        onSuccess={refetch}
+      />
     </>
   );
 }

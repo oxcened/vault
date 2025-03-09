@@ -27,14 +27,18 @@ import { toast } from "sonner";
 type Form = RouterInputs["exchangeRate"]["create"];
 
 export default function NewExchangeRateDialog({
+  isOpen,
   onSuccess,
+  onOpenChange,
 }: {
+  isOpen: boolean;
   onSuccess: () => void;
+  onOpenChange: (newOpen: boolean) => void;
 }) {
   const { mutate, isPending } = api.exchangeRate.create.useMutation({
     onSuccess: () => {
       toast.success("Exchange rate created.");
-      setOpen(false);
+      onOpenChange(false);
       onSuccess();
     },
   });
@@ -46,7 +50,6 @@ export default function NewExchangeRateDialog({
       timestamp: new Date(),
     },
   });
-  const [isOpen, setOpen] = useState(false);
 
   function handleSelectDate(field: ControllerRenderProps<Form>, date?: Date) {
     if (!date) return;
@@ -54,19 +57,7 @@ export default function NewExchangeRateDialog({
   }
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        setOpen(open);
-        if (open) reset();
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button variant="outline" className="ml-auto">
-          <Plus />
-          Exchange rate
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <form
           onSubmit={handleSubmit((data) => mutate(data))}
