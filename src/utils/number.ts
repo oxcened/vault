@@ -7,6 +7,6 @@ export type FormatNumberOptions = {
 
 export function formatNumber({ value, options }: FormatNumberOptions): string {
   return new Intl.NumberFormat(navigator.language || "en-US", options).format(
-    Number(value),
+    Prisma.Decimal.isDecimal(value) ? value.toNumber() : value,
   );
 }
