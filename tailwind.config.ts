@@ -66,6 +66,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        financial: {
+          positive: `rgb(var(--financial-positive))`, // Uses CSS variables
+          negative: `rgb(var(--financial-negative))`,
+        },
       },
     },
   },
