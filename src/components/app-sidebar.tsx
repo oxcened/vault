@@ -3,9 +3,6 @@
 import * as React from "react";
 import {
   AudioWaveform,
-  Banknote,
-  BookOpen,
-  Bot,
   Command,
   Frame,
   GalleryVerticalEnd,
@@ -14,24 +11,22 @@ import {
   LineChart,
   Map,
   PieChart,
-  PiggyBank,
-  Settings2,
-  SquareTerminal,
+  Vault,
   Wallet,
 } from "lucide-react";
 
 import { NavMain } from "~/components/nav-main";
-import { NavProjects } from "~/components/nav-projects";
 import { NavUser } from "~/components/nav-user";
-import { TeamSwitcher } from "~/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenuButton,
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const data = {
   user: {
@@ -148,7 +143,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <p className="mr-auto p-2 font-medium">Vault</p>
+        <Link href="/dashboard">
+          <SidebarMenuButton
+            asChild
+            size="lg"
+            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          >
+            <div>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <Vault className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">Vault</span>
+              </div>
+            </div>
+          </SidebarMenuButton>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
