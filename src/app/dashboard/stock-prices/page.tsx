@@ -79,9 +79,12 @@ export default function StockPricesPage() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto">
-          <Button variant="outline" onClick={() => setNewDialogOpen(true)}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setNewDialogOpen(true)}
+          >
             <Plus />
-            Stock price
           </Button>
         </div>
       </header>

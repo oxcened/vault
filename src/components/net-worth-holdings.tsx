@@ -103,10 +103,10 @@ export default function NetWorthHoldings<T extends Holding>({
         <Button
           variant="outline"
           className="ml-auto"
+          size="icon"
           onClick={() => onNewHolding()}
         >
           <Plus />
-          {holdingLabel}
         </Button>
       </header>
 

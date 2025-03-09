@@ -56,11 +56,10 @@ export default function TransactionsPage() {
         <Button
           variant="outline"
           className="ml-auto"
-          size={md ? "default" : "icon"}
+          size="icon"
           onClick={() => setNewTransaction(true)}
         >
           <Plus />
-          <span className="hidden md:inline">Transaction</span>
         </Button>
       </header>
 

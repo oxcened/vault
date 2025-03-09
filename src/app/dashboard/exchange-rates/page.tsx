@@ -80,10 +80,10 @@ export default function ExchangeRatesPage() {
         <Button
           variant="outline"
           className="ml-auto"
+          size="icon"
           onClick={() => setNewDialog(true)}
         >
           <Plus />
-          Exchange rate
         </Button>
       </header>
 
