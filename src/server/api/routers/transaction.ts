@@ -4,12 +4,24 @@ import { z } from "zod";
 export const transactionRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.transaction.findMany({
-      where : {
-        createdById: ctx.session.user.id
+      where: {
+        createdById: ctx.session.user.id,
       },
       orderBy: { timestamp: "desc" },
-      include: {
-        category: true,
+      select: {
+        id: true,
+        amount: true,
+        currency: true,
+        createdById: true,
+        timestamp: true,
+        createdAt: true,
+        description: true,
+        type: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
   }),
@@ -34,7 +46,7 @@ export const transactionRouter = createTRPCRouter({
           description: input.description,
           type: input.type,
           category: { connect: { id: input.categoryId } },
-          createdBy: { connect: { id: ctx.session.user.id } }
+          createdBy: { connect: { id: ctx.session.user.id } },
         },
       });
     }),
