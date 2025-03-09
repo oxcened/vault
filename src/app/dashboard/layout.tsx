@@ -1,3 +1,4 @@
+import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -14,9 +15,11 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <SessionProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    </SessionProvider>
   );
 }
