@@ -8,6 +8,7 @@ import { netWorthDebtRouter } from "./routers/netWorthDebt";
 import { transactionRouter } from "./routers/transaction";
 import { transactionCategoryRouter } from "./routers/transactionCategory";
 import { cashFlowRouter } from "./routers/cashFlow";
+import { dashboardRouter } from "./routers/dashboard";
 
 /**
  * This is the primary router for your server.
@@ -24,6 +25,7 @@ export const appRouter = createTRPCRouter({
   transaction: transactionRouter,
   transactionCategory: transactionCategoryRouter,
   cashFlow: cashFlowRouter,
+  dashboard: dashboardRouter,
 });
 
 // export type definition of API
