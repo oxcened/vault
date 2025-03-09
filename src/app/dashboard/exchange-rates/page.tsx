@@ -40,10 +40,8 @@ import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
 
 export default function ExchangeRatesPage() {
-  // Query all exchange rates.
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
 
-  // Delete mutation.
   const { mutate: deleteExchangeRate } = api.exchangeRate.delete.useMutation({
     onSuccess: () => {
       toast.success("Exchange rate deleted.");
@@ -51,7 +49,6 @@ export default function ExchangeRatesPage() {
     },
   });
 
-  // State for editing exchange rate.
   const [editingRate, setEditingRate] =
     useState<EditExchangeRateDialogProps["initialData"]>();
 

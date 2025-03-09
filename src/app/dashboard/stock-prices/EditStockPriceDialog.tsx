@@ -14,18 +14,21 @@ import { Loader2 } from "lucide-react";
 import { api, RouterInputs } from "~/trpc/react";
 import { StockPriceHistory } from "@prisma/client";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
-type Form = RouterInputs["stockPrice"]["update"]; // expects at least { id: string, price: number }
+type Form = RouterInputs["stockPrice"]["update"];
 
 export type EditStockPriceDialogProps = {
-  initialData: StockPriceHistory; // includes id, tickerId, price, timestamp, etc.
-  onClose: () => void;
+  isOpen: boolean;
+  initialData?: StockPriceHistory;
+  onOpenChange: (newOpen: boolean) => void;
   onSuccess: () => void;
 };
 
 export default function EditStockPriceDialog({
+  isOpen,
   initialData,
-  onClose,
+  onOpenChange,
   onSuccess,
 }: EditStockPriceDialogProps) {
   const {
@@ -34,8 +37,8 @@ export default function EditStockPriceDialog({
     formState: { errors },
   } = useForm<Form>({
     defaultValues: {
-      id: initialData.id,
-      price: initialData.price.toNumber(),
+      id: initialData?.id,
+      price: initialData?.price.toNumber(),
     },
   });
 
@@ -43,26 +46,24 @@ export default function EditStockPriceDialog({
     onSuccess: () => {
       toast.success("Stock price updated.");
       onSuccess();
-      onClose();
+      onOpenChange(false);
     },
   });
 
-  const onSubmit = (data: Form) => {
-    mutate(data);
-  };
-
   return (
-    <Dialog open onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Stock Price</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit((data) => mutate(data))}
+          className="space-y-4"
+        >
           <div className="flex flex-col gap-2">
-            {/* Display ticker as read-only */}
             <Input
               placeholder="Ticker ID"
-              value={initialData.tickerId}
+              value={initialData?.tickerId || "N/A"}
               disabled
               className="cursor-not-allowed"
             />

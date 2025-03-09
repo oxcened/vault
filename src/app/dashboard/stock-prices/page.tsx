@@ -38,10 +38,8 @@ import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
 
 export default function StockPricesPage() {
-  // Query all stock price history records.
   const { data = [], refetch, isPending } = api.stockPrice.getAll.useQuery();
 
-  // Delete mutation.
   const { mutate: deleteStockPrice } = api.stockPrice.delete.useMutation({
     onSuccess: () => {
       toast.success("Stock price deleted.");
@@ -49,10 +47,18 @@ export default function StockPricesPage() {
     },
   });
 
-  // State for editing a stock price.
   const [editingPrice, setEditingPrice] = useState<StockPriceHistory>();
-  // State for creating a new stock price.
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
+
+  function handleStockCreated() {
+    setNewDialogOpen(false);
+    void refetch();
+  }
+
+  function handleStockEdited() {
+    setEditingPrice(undefined);
+    void refetch();
+  }
 
   return (
     <>
@@ -139,23 +145,17 @@ export default function StockPricesPage() {
 
       <NewStockPriceDialog
         isOpen={isNewDialogOpen}
-        onSuccess={() => {
-          setNewDialogOpen(false);
-          void refetch();
-        }}
+        onSuccess={handleStockCreated}
         onClose={() => setNewDialogOpen(false)}
       />
 
-      {editingPrice && (
-        <EditStockPriceDialog
-          initialData={editingPrice}
-          onClose={() => setEditingPrice(undefined)}
-          onSuccess={() => {
-            setEditingPrice(undefined);
-            void refetch();
-          }}
-        />
-      )}
+      <EditStockPriceDialog
+        key={editingPrice?.id}
+        isOpen={!!editingPrice}
+        initialData={editingPrice}
+        onOpenChange={() => setEditingPrice(undefined)}
+        onSuccess={handleStockEdited}
+      />
     </>
   );
 }
