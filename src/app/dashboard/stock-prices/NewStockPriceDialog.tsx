@@ -18,7 +18,6 @@ import { PopoverTrigger } from "@radix-ui/react-popover";
 import { twJoin } from "tailwind-merge";
 import { localTimeToUTCTime } from "~/utils/date";
 import { toast } from "sonner";
-import { useEffect } from "react";
 
 type Form = RouterInputs["stockPrice"]["create"];
 
@@ -53,11 +52,6 @@ export default function NewStockPriceDialog({
     if (!date) return;
     field.onChange(localTimeToUTCTime({ date }));
   }
-
-  useEffect(() => {
-    if (!isOpen) return;
-    reset();
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

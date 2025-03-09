@@ -144,6 +144,7 @@ export default function StockPricesPage() {
       </div>
 
       <NewStockPriceDialog
+        key={String(isNewDialogOpen)}
         isOpen={isNewDialogOpen}
         onSuccess={handleStockCreated}
         onClose={() => setNewDialogOpen(false)}
