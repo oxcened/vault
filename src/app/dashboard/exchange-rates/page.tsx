@@ -30,14 +30,13 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
-import EditExchangeRateDialog, {
-  EditExchangeRateDialogProps,
-} from "./EditExchangeRateDialog";
+import EditExchangeRateDialog from "./EditExchangeRateDialog";
 import { ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
+import { CreateExchangeRate } from "~/trpc/schemas/exchangeRate";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
@@ -49,22 +48,15 @@ export default function ExchangeRatesPage() {
     },
   });
 
-  const [editingRate, setEditingRate] =
-    useState<EditExchangeRateDialogProps["initialData"]>();
+  const [editingRate, setEditingRate] = useState<ExchangeRate>();
+  const [isEditDialog, setEditDialog] = useState(false);
 
   function handleEditClick(rate: ExchangeRate) {
-    setEditingRate({
-      ...rate,
-      rate: rate.rate.toNumber(),
-    });
+    setEditingRate(rate);
+    setEditDialog(true);
   }
 
   const [isNewDialog, setNewDialog] = useState(false);
-
-  function handleExchangeRateEdited() {
-    setEditingRate(undefined);
-    void refetch();
-  }
 
   return (
     <>
@@ -151,15 +143,15 @@ export default function ExchangeRatesPage() {
       </div>
 
       <EditExchangeRateDialog
-        key={editingRate?.id}
-        isOpen={!!editingRate}
-        initialData={editingRate}
-        onOpenChange={() => setEditingRate(undefined)}
-        onSuccess={handleExchangeRateEdited}
+        key={`edit-exchange-rate-dialog-${isEditDialog}`}
+        isOpen={isEditDialog}
+        exchangeRate={editingRate}
+        onOpenChange={setEditDialog}
+        onSuccess={refetch}
       />
 
       <NewExchangeRateDialog
-        key={String(isNewDialog)}
+        key={`new-exchange-rate-dialog-${isNewDialog}`}
         isOpen={isNewDialog}
         onOpenChange={setNewDialog}
         onSuccess={refetch}

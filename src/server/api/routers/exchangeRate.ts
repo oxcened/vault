@@ -2,6 +2,10 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { updateFromDate } from "./netWorth";
 import { earliestDateOptional } from "~/server/utils/date";
+import {
+  createExchangeRateSchema,
+  updateExchangeRateSchema,
+} from "~/trpc/schemas/exchangeRate";
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -10,16 +14,8 @@ export const exchangeRateRouter = createTRPCRouter({
     });
   }),
 
-  // Example: Create a new exchange rate record.
   create: protectedProcedure
-    .input(
-      z.object({
-        baseCurrency: z.string().length(3),
-        quoteCurrency: z.string().length(3),
-        rate: z.number(),
-        timestamp: z.date(),
-      }),
-    )
+    .input(createExchangeRateSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.exchangeRate.create({
         data: {
@@ -31,14 +27,7 @@ export const exchangeRateRouter = createTRPCRouter({
       });
     }),
   update: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        baseCurrency: z.string().length(3).toUpperCase(),
-        quoteCurrency: z.string().length(3).toUpperCase(),
-        rate: z.number(),
-      }),
-    )
+    .input(updateExchangeRateSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.$transaction(async (tx) => {
         const updated = await tx.exchangeRate.update({
@@ -47,6 +36,7 @@ export const exchangeRateRouter = createTRPCRouter({
             baseCurrency: input.baseCurrency,
             quoteCurrency: input.quoteCurrency,
             rate: input.rate,
+            timestamp: input.timestamp,
           },
         });
 

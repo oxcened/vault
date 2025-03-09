@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -9,22 +7,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
-import { api, RouterInputs } from "~/trpc/react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { twJoin } from "tailwind-merge";
-import { localTimeToUTCTime } from "~/utils/date";
-import { CalendarIcon, Loader2, Plus } from "lucide-react";
-import { Calendar } from "~/components/ui/calendar";
+import { api } from "~/trpc/react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
-type Form = RouterInputs["exchangeRate"]["create"];
+import { ExchangeRateDialogForm } from "./ExchangeRateDialogForm";
 
 export default function NewExchangeRateDialog({
   isOpen,
@@ -43,88 +30,26 @@ export default function NewExchangeRateDialog({
     },
   });
 
-  const { register, handleSubmit, reset, control } = useForm<Form>({
-    defaultValues: {
-      baseCurrency: "",
-      quoteCurrency: "",
-      timestamp: new Date(),
-    },
-  });
-
-  function handleSelectDate(field: ControllerRenderProps<Form>, date?: Date) {
-    if (!date) return;
-    field.onChange(localTimeToUTCTime({ date }));
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
-        <form
-          onSubmit={handleSubmit((data) => mutate(data))}
-          className="flex flex-col gap-5"
-        >
-          <DialogHeader>
-            <DialogTitle>New exchange rate</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Input
-              placeholder="Base Currency (e.g., USD)"
-              {...register("baseCurrency", { required: true })}
-            />
-            <Input
-              placeholder="Quote Currency (e.g., EUR)"
-              {...register("quoteCurrency", { required: true })}
-            />
-            <Input
-              placeholder="Rate"
-              type="number"
-              step="any"
-              {...register("rate", { required: true, valueAsNumber: true })}
-            />
-            <Controller
-              name="timestamp"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={twJoin(
-                        "pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        field.value.toLocaleDateString()
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => handleSelectDate(field, date)}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="animate-spin" />}
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
+        <DialogHeader>
+          <DialogTitle>New exchange rate</DialogTitle>
+        </DialogHeader>
+        <ExchangeRateDialogForm
+          formId="new-exchange-rate-dialog-form"
+          onSubmit={mutate}
+        />
+        <DialogFooter>
+          <Button
+            type="submit"
+            disabled={isPending}
+            form="new-exchange-rate-dialog-form"
+          >
+            {isPending && <Loader2 className="animate-spin" />}
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
