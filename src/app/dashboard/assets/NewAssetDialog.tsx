@@ -102,11 +102,6 @@ export default function NewAssetDialog({
     form.setValue("tickerId", "");
   }, [watchCategory]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    form.reset();
-  }, [isOpen]);
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>

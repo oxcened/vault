@@ -34,6 +34,7 @@ export default function AssetsPage() {
       />
 
       <NewAssetDialog
+        key={String(newDialog)}
         isOpen={newDialog}
         onOpenChange={setNewDialog}
         onSuccess={refetch}
