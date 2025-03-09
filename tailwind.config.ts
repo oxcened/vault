@@ -67,8 +67,8 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         financial: {
-          positive: `rgb(var(--financial-positive))`, // Uses CSS variables
-          negative: `rgb(var(--financial-negative))`,
+          positive: "rgb(var(--financial-positive))",
+          negative: "rgb(var(--financial-negative))",
         },
       },
     },

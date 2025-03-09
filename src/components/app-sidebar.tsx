@@ -2,34 +2,77 @@
 
 import * as React from "react";
 import {
+  AudioWaveform,
+  Banknote,
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  GalleryVerticalEnd,
+  Globe,
+  LayoutDashboard,
+  LineChart,
+  Map,
+  PieChart,
+  PiggyBank,
+  Settings2,
+  SquareTerminal,
+  Wallet,
+} from "lucide-react";
+
+import { NavMain } from "~/components/nav-main";
+import { NavProjects } from "~/components/nav-projects";
+import { NavUser } from "~/components/nav-user";
+import { TeamSwitcher } from "~/components/team-switcher";
+import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
-  useSidebar,
 } from "~/components/ui/sidebar";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ModeToggle } from "./mode-toggle";
-import { Button, buttonVariants } from "./ui/button";
-import { LogOut } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: GalleryVerticalEnd,
+      plan: "Enterprise",
+    },
+    {
+      name: "Acme Corp.",
+      logo: AudioWaveform,
+      plan: "Startup",
+    },
+    {
+      name: "Evil Corp.",
+      logo: Command,
+      plan: "Free",
+    },
+  ],
   navMain: [
     {
-      title: "Net worth",
+      title: "Overview",
       url: "#",
+      icon: LayoutDashboard,
       items: [
         {
-          title: "Overview",
-          url: "/dashboard/net-worth",
+          title: "Dashboard",
+          url: "/dashboard",
         },
+      ],
+    },
+    {
+      title: "Financial breakdown",
+      url: "#",
+      icon: Wallet,
+      items: [
         {
           title: "Assets",
           url: "/dashboard/assets",
@@ -38,18 +81,19 @@ const data = {
           title: "Debts",
           url: "/dashboard/debts",
         },
-        {
-          title: "History",
-          url: "/dashboard/nw-history",
-        },
       ],
     },
     {
-      title: "Cash flow",
+      title: "Performance & History",
       url: "#",
+      icon: LineChart,
       items: [
         {
-          title: "Overview",
+          title: "Net worth history",
+          url: "/dashboard/nw-history",
+        },
+        {
+          title: "Cash flow",
           url: "/dashboard/cash-flow",
         },
         {
@@ -59,8 +103,9 @@ const data = {
       ],
     },
     {
-      title: "Other",
+      title: "Market data",
       url: "#",
+      icon: Globe,
       items: [
         {
           title: "Exchange rates",
@@ -73,51 +118,44 @@ const data = {
       ],
     },
   ],
+  projects: [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
+    },
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
+  const { data: session } = useSession();
+  const user: React.ComponentProps<typeof NavUser>["user"] = {
+    avatar: session?.user.image || "",
+    email: session?.user.email || "john.doe@example.com",
+    name: session?.user.name || "John Doe",
+  };
 
   return (
-    <Sidebar {...props}>
-      <SidebarHeader className="h-16 flex-row items-center">
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
         <p className="mr-auto p-2 font-medium">Vault</p>
-        <ModeToggle />
-        <Link
-          href="/api/auth/signout"
-          className={buttonVariants({
-            variant: "outline",
-            size: "icon",
-          })}
-        >
-          <LogOut />
-        </Link>
       </SidebarHeader>
       <SidebarContent>
-        {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
-          <SidebarGroup key={item.title}>
-            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={pathname === item.url}>
-                      <Link
-                        href={item.url}
-                        onClick={() => setOpenMobile(false)}
-                      >
-                        {item.title}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <NavMain items={data.navMain} />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
