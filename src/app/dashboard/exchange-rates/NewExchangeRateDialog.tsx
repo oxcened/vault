@@ -64,7 +64,7 @@ export default function NewExchangeRateDialog({
       <DialogTrigger asChild>
         <Button variant="outline" className="ml-auto">
           <Plus />
-          New exchange rate
+          Exchange rate
         </Button>
       </DialogTrigger>
       <DialogContent>
