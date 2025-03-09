@@ -74,7 +74,6 @@ export default function NewDebtDialog({
 
   const quantityFormulaValue = form.watch("quantityFormula");
 
-  // Evaluate the quantity formula on the fly without showing errors.
   useEffect(() => {
     if (!quantityFormulaValue?.trim()) return;
 
@@ -91,11 +90,6 @@ export default function NewDebtDialog({
       // Silently ignore errors while the user is typing.
     }
   }, [quantityFormulaValue, form.setValue]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    form.reset();
-  }, [isOpen, form.reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

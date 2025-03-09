@@ -34,6 +34,7 @@ export default function AssetsPage() {
       />
 
       <NewDebtDialog
+        key={String(newDialog)}
         isOpen={newDialog}
         onOpenChange={setNewDialog}
         onSuccess={refetch}
