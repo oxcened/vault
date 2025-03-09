@@ -52,7 +52,7 @@ export default function CashFlowPage() {
         {!isLoading && (
           <>
             <p className="text-muted-foreground">Cash flow</p>
-            <p className="text-3xl font-medium">
+            <p className="text-3xl">
               <RoundedCurrency value={data?.savings} />
             </p>
           </>
@@ -80,8 +80,10 @@ export default function CashFlowPage() {
                         value={category.netAmount}
                         className={cn(
                           "text-right",
-                          category.netAmount.isPos() && "text-green-600",
-                          category.netAmount.isNeg() && "text-red-600",
+                          category.netAmount.isPos() &&
+                            "text-financial-positive",
+                          category.netAmount.isNeg() &&
+                            "text-financial-negative",
                         )}
                       />
                     </TableCell>

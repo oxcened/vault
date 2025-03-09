@@ -118,7 +118,7 @@ export default function NetWorthHoldings<T extends Holding>({
             <p className="text-muted-foreground">
               Total {holdingLabelPlural.toLocaleLowerCase()}
             </p>
-            <p className="text-3xl font-medium">
+            <p className="text-3xl">
               <RoundedCurrency value={total} />
             </p>
           </>
