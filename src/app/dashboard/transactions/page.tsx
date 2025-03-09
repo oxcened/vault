@@ -11,31 +11,14 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHead,
-  TableRow,
-} from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
-import { formatDate } from "~/utils/date";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
-import { Currency } from "~/components/ui/number";
-import { cn } from "~/lib/utils";
 import NewTransactionDialog from "./NewTransactionDialog";
 import { useBreakpoint } from "~/hooks/useBreakpoint";
+import { TransactionTable } from "~/components/transaction-table";
 
 export default function TransactionsPage() {
   const { data = [], refetch, isPending } = api.transaction.getAll.useQuery();
@@ -77,7 +60,7 @@ export default function TransactionsPage() {
           onClick={() => setNewTransaction(true)}
         >
           <Plus />
-          <span className="hidden md:inline">New transaction</span>
+          <span className="hidden md:inline">Transaction</span>
         </Button>
       </header>
 
@@ -89,83 +72,11 @@ export default function TransactionsPage() {
           </div>
         )}
         {!isPending && !!data.length && (
-          <div>
-            <Table className="whitespace-nowrap">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Category
-                  </TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="w-8"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row) => {
-                  const isIncome = row.type === "INCOME";
-                  const isExpense = row.type === "EXPENSE";
-                  const amount = row.amount.mul(isExpense ? -1 : 1);
-
-                  return (
-                    <TableRow key={row.id}>
-                      <TableCell>
-                        <span>
-                          {formatDate({
-                            date: row.timestamp,
-                            options: md
-                              ? undefined
-                              : {
-                                  dateStyle: undefined,
-                                  day: "numeric",
-                                  month: "2-digit",
-                                  year: undefined,
-                                },
-                          })}
-                        </span>
-                      </TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {row.category.name}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Currency
-                          value={amount}
-                          options={{
-                            currency: row.currency,
-                            maximumFractionDigits: md ? 2 : 0,
-                          }}
-                          className={cn(
-                            isIncome && "text-green-600",
-                            isExpense && "text-red-600",
-                          )}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() => deleteTransaction(row)}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+          <TransactionTable
+            showActions
+            data={data}
+            onDeleteTransaction={(id) => deleteTransaction({ id })}
+          />
         )}
       </div>
 
