@@ -75,7 +75,7 @@ export default function StockPricesPage() {
         <div className="ml-auto">
           <Button variant="outline" onClick={() => setNewDialogOpen(true)}>
             <Plus />
-            New stock price
+            Stock price
           </Button>
         </div>
       </header>
