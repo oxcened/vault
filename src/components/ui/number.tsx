@@ -57,3 +57,15 @@ export function RoundedCurrency({ options, ...props }: NumberProps) {
     />
   );
 }
+
+export function Percentage({ options, ...props }: NumberProps) {
+  return (
+    <Number
+      {...props}
+      options={{
+        style: "percent",
+        ...options,
+      }}
+    />
+  );
+}
