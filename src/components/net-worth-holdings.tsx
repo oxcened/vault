@@ -39,6 +39,8 @@ export type Holding = {
   name: string;
   category: string;
   convertedValue: Prisma.Decimal | null;
+  quantity: Prisma.Decimal | null;
+  ticker?: string | null;
 };
 
 export type NetWorthHoldingsProps<T> = {
@@ -147,6 +149,11 @@ export default function NetWorthHoldings<T extends Holding>({
                   <TableRow key={row.id}>
                     <TableCell>
                       <div>{row.name}</div>
+                      {row.ticker && (
+                        <div className="text-xs text-neutral-500">
+                          {row.ticker} &middot; Qty {Number(row.quantity)}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <RoundedCurrency value={row.convertedValue} />
