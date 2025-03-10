@@ -1,9 +1,12 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { updateFromDate } from "./netWorth";
+import {
+  createStockPriceSchema,
+  updateStockPriceSchema,
+} from "~/trpc/schemas/stockPrice";
 
 export const stockPriceRouter = createTRPCRouter({
-  // Get all stock price records
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.stockPriceHistory.findMany({
       orderBy: { timestamp: "desc" },
@@ -13,41 +16,40 @@ export const stockPriceRouter = createTRPCRouter({
     });
   }),
 
-  // Create a new stock price record
   create: protectedProcedure
-    .input(
-      z.object({
-        tickerId: z.string(),
-        price: z.number().positive(),
-        timestamp: z.date(),
-      }),
-    )
+    .input(createStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
-      const timestamp = new Date(input.timestamp);
-      timestamp.setUTCHours(0, 0, 0, 0);
+      return ctx.db.$transaction(async (transaction) => {
+        const timestamp = new Date(input.timestamp);
+        timestamp.setUTCHours(0, 0, 0, 0);
 
-      return ctx.db.stockPriceHistory.create({
-        data: {
-          tickerId: input.tickerId,
-          price: input.price,
-          timestamp: timestamp,
-        },
+        const created = transaction.stockPriceHistory.create({
+          data: {
+            tickerId: input.tickerId,
+            price: input.price,
+            timestamp: timestamp,
+          },
+        });
+
+        if (timestamp) {
+          await updateFromDate({
+            db: transaction,
+            date: timestamp,
+            createdBy: ctx.session.user.id,
+          });
+        }
+
+        return created;
       });
     }),
 
-  // Update an existing stock price record
   update: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        price: z.number().positive("Price must be a positive number"),
-      }),
-    )
+    .input(updateStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.$transaction(async (tx) => {
         const updated = await tx.stockPriceHistory.update({
           where: { id: input.id },
-          data: { price: input.price },
+          data: { price: input.price, timestamp: input.timestamp },
           include: { ticker: true },
         });
 
@@ -74,7 +76,6 @@ export const stockPriceRouter = createTRPCRouter({
       });
     }),
 
-  // Delete a stock price record
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
