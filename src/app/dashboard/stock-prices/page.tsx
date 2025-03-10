@@ -31,7 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
 import EditStockPriceDialog from "./EditStockPriceDialog";
-import { StockPriceHistory } from "@prisma/client";
+import { ExchangeRate, StockPriceHistory } from "@prisma/client";
 import NewStockPriceDialog from "./NewStockPriceDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
@@ -49,6 +49,7 @@ export default function StockPricesPage() {
 
   const [editingPrice, setEditingPrice] = useState<StockPriceHistory>();
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 
   function handleStockCreated() {
     setNewDialogOpen(false);
@@ -56,8 +57,13 @@ export default function StockPricesPage() {
   }
 
   function handleStockEdited() {
-    setEditingPrice(undefined);
+    setEditDialogOpen(false);
     void refetch();
+  }
+
+  function handleEditClick(stockPrice: StockPriceHistory) {
+    setEditingPrice(stockPrice);
+    setEditDialogOpen(true);
   }
 
   return (
@@ -127,7 +133,7 @@ export default function StockPricesPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                          onClick={() => setEditingPrice(price)}
+                          onClick={() => handleEditClick(price)}
                         >
                           Edit
                         </DropdownMenuItem>
@@ -147,17 +153,17 @@ export default function StockPricesPage() {
       </div>
 
       <NewStockPriceDialog
-        key={String(isNewDialogOpen)}
+        key={`new-stock-price-dialog-${isNewDialogOpen}`}
         isOpen={isNewDialogOpen}
         onSuccess={handleStockCreated}
-        onClose={() => setNewDialogOpen(false)}
+        onOpenChange={() => setNewDialogOpen(false)}
       />
 
       <EditStockPriceDialog
-        key={editingPrice?.id}
-        isOpen={!!editingPrice}
-        initialData={editingPrice}
-        onOpenChange={() => setEditingPrice(undefined)}
+        key={`edit-stock-price-dialog-${isEditDialogOpen}`}
+        isOpen={isEditDialogOpen}
+        stockPrice={editingPrice}
+        onOpenChange={setEditDialogOpen}
         onSuccess={handleStockEdited}
       />
     </>

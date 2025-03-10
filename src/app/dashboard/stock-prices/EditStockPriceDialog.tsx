@@ -1,6 +1,5 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -9,39 +8,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { api, RouterInputs } from "~/trpc/react";
-import { StockPriceHistory } from "@prisma/client";
+import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { useEffect } from "react";
-
-type Form = RouterInputs["stockPrice"]["update"];
+import { StockPriceHistory } from "@prisma/client";
+import { CreateStockPrice } from "~/trpc/schemas/stockPrice";
+import { StockPriceDialogForm } from "./StockPriceDialogForm";
 
 export type EditStockPriceDialogProps = {
+  stockPrice?: StockPriceHistory;
   isOpen: boolean;
-  initialData?: StockPriceHistory;
   onOpenChange: (newOpen: boolean) => void;
   onSuccess: () => void;
 };
 
 export default function EditStockPriceDialog({
+  stockPrice,
   isOpen,
-  initialData,
   onOpenChange,
   onSuccess,
 }: EditStockPriceDialogProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Form>({
-    defaultValues: {
-      id: initialData?.id,
-      price: initialData?.price.toNumber(),
-    },
-  });
-
   const { mutate, isPending } = api.stockPrice.update.useMutation({
     onSuccess: () => {
       toast.success("Stock price updated.");
@@ -50,41 +36,36 @@ export default function EditStockPriceDialog({
     },
   });
 
+  const initialData: CreateStockPrice | undefined = stockPrice
+    ? {
+        ...stockPrice,
+        price: stockPrice.price.toNumber(),
+      }
+    : undefined;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Stock Price</DialogTitle>
+          <DialogTitle>Edit Exchange Rate</DialogTitle>
         </DialogHeader>
-        <form
-          onSubmit={handleSubmit((data) => mutate(data))}
-          className="space-y-4"
-        >
-          <div className="flex flex-col gap-2">
-            <Input
-              placeholder="Ticker ID"
-              value={initialData?.tickerId || "N/A"}
-              disabled
-              className="cursor-not-allowed"
-            />
-            <Input
-              placeholder="Price"
-              type="number"
-              step="any"
-              {...register("price", { valueAsNumber: true })}
-            />
-            {errors.price && (
-              <p className="text-xs text-red-500">{errors.price.message}</p>
-            )}
-          </div>
-          <DialogFooter>
-            <div className="flex gap-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? <Loader2 className="animate-spin" /> : "Save"}
-              </Button>
-            </div>
-          </DialogFooter>
-        </form>
+        <StockPriceDialogForm
+          formId="edit-exchange-rate-dialog-form"
+          initialData={initialData}
+          onSubmit={(data) =>
+            stockPrice?.id && mutate({ ...data, id: stockPrice.id })
+          }
+        />
+        <DialogFooter>
+          <Button
+            type="submit"
+            disabled={isPending}
+            form="edit-exchange-rate-dialog-form"
+          >
+            {isPending && <Loader2 className="animate-spin" />}
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
