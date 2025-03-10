@@ -64,7 +64,7 @@ const data = {
       ],
     },
     {
-      title: "Financial breakdown",
+      title: "Financials",
       url: "#",
       icon: Wallet,
       items: [
@@ -76,6 +76,14 @@ const data = {
           title: "Debts",
           url: "/dashboard/debts",
         },
+        {
+          title: "Cash flow",
+          url: "/dashboard/cash-flow",
+        },
+        {
+          title: "Transactions",
+          url: "/dashboard/transactions",
+        },
       ],
     },
     {
@@ -86,14 +94,6 @@ const data = {
         {
           title: "Net worth history",
           url: "/dashboard/nw-history",
-        },
-        {
-          title: "Cash flow",
-          url: "/dashboard/cash-flow",
-        },
-        {
-          title: "Transactions",
-          url: "/dashboard/transactions",
         },
       ],
     },
