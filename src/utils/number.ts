@@ -10,3 +10,5 @@ export function formatNumber({ value, options }: FormatNumberOptions): string {
     Prisma.Decimal.isDecimal(value) ? value.toNumber() : value,
   );
 }
+
+export const DECIMAL_ZERO = new Prisma.Decimal(0);
