@@ -1,11 +1,13 @@
 WITH asset_info AS (
   SELECT 
-    id, 
-    category, 
-    tickerId, 
-    currency
-  FROM NetWorthAsset
-  WHERE id = ?
+    a.id, 
+    a.categoryId,
+    c.name AS category, 
+    a.tickerId, 
+    a.currency
+  FROM NetWorthAsset a
+  JOIN NetWorthCategory c ON a.categoryId = c.id
+  WHERE a.id = ?
 ),
 date_series AS (
   -- Generate a distinct set of dates (normalized to midnight) from price and quantity records.
@@ -40,7 +42,7 @@ daily_data AS (
     ds.day,
     -- For stock assets, get the latest price record (price and its id) with timestamp ≤ the day.
     CASE 
-      WHEN (SELECT LOWER(category) FROM asset_info) = 'stocks'
+      WHEN (SELECT c.isStock FROM NetWorthCategory c WHERE c.id = (SELECT categoryId FROM asset_info))
       THEN (
         SELECT sp.price
         FROM StockPriceHistory sp
@@ -52,7 +54,7 @@ daily_data AS (
       ELSE NULL
     END AS stockPrice,
     CASE 
-      WHEN (SELECT LOWER(category) FROM asset_info) = 'stocks'
+      WHEN (SELECT c.isStock FROM NetWorthCategory c WHERE c.id = (SELECT categoryId FROM asset_info))
       THEN (
         SELECT sp.id
         FROM StockPriceHistory sp
@@ -99,7 +101,7 @@ SELECT
   dd.quantityTimestamp,
   -- Native computed value: for stocks, quantity * stockPrice; for others, just quantity.
   CASE 
-    WHEN (SELECT LOWER(category) FROM asset_info) = 'stocks'
+    WHEN (SELECT c.isStock FROM NetWorthCategory c WHERE c.id = (SELECT categoryId FROM asset_info))
       THEN IFNULL(dd.lastQuantity, 0) * IFNULL(dd.stockPrice, 0)
     ELSE IFNULL(dd.lastQuantity, 0)
   END AS nativeComputedValue,
@@ -109,14 +111,14 @@ SELECT
     WHEN UPPER((SELECT currency FROM asset_info)) <> UPPER(?)
       THEN (
           CASE 
-            WHEN (SELECT LOWER(category) FROM asset_info) = 'stocks'
+            WHEN (SELECT c.isStock FROM NetWorthCategory c WHERE c.id = (SELECT categoryId FROM asset_info))
               THEN IFNULL(dd.lastQuantity, 0) * IFNULL(dd.stockPrice, 0)
             ELSE IFNULL(dd.lastQuantity, 0)
           END
         ) * IFNULL(de.exRate, 1)
     ELSE 
       CASE 
-          WHEN (SELECT LOWER(category) FROM asset_info) = 'stocks'
+          WHEN (SELECT c.isStock FROM NetWorthCategory c WHERE c.id = (SELECT categoryId FROM asset_info))
             THEN IFNULL(dd.lastQuantity, 0) * IFNULL(dd.stockPrice, 0)
           ELSE IFNULL(dd.lastQuantity, 0)
       END

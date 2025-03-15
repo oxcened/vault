@@ -23,8 +23,9 @@ export const netWorthDebtRouter = createTRPCRouter({
         const debtRecord = await tx.netWorthDebt.create({
           data: {
             name: input.name,
-            category,
             currency: input.currency,
+            // TODO get id from input
+            category: { connect: { id: "clm8v60p00012p8g2lz9p9zcm" } },
             createdBy: { connect: { id: ctx.session.user.id } },
           },
         });

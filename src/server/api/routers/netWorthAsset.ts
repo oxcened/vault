@@ -24,8 +24,9 @@ export const netWorthAssetRouter = createTRPCRouter({
         const assetRecord = await tx.netWorthAsset.create({
           data: {
             name: input.name,
-            category,
             currency: input.currency,
+            // TODO get id from input
+            category: { connect: { id: "clm8v60p00001p8g2lz9p9zcm" } },
             ticker: tickerId ? { connect: { id: tickerId } } : undefined,
             createdBy: { connect: { id: ctx.session.user.id } },
           },

@@ -81,10 +81,25 @@ model NetWorth {
     @@index([timestamp])
 }
 
+enum NetWorthCategoryType {
+    ASSET
+    DEBT
+    BOTH
+}
+
+model NetWorthCategory {
+    id      String               @id @default(cuid())
+    name    String               @unique
+    type    NetWorthCategoryType
+    isStock Boolean              @default(false)
+    assets  NetWorthAsset[]
+    debts   NetWorthDebt[]
+}
+
 model NetWorthAsset {
     id          String                  @id @default(cuid())
     name        String
-    category    String
+    categoryId  String
     tickerId    String?
     currency    String
     createdAt   DateTime                @default(now())
@@ -93,6 +108,7 @@ model NetWorthAsset {
     createdBy   User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
     ticker      StockTicker?            @relation(fields: [tickerId], references: [id])
     quantities  NetWorthAssetQuantity[]
+    category    NetWorthCategory        @relation(fields: [categoryId], references: [id])
 }
 
 model NetWorthAssetQuantity {
@@ -110,13 +126,14 @@ model NetWorthAssetQuantity {
 model NetWorthDebt {
     id          String                 @id @default(cuid())
     name        String
-    category    String
+    categoryId  String
     currency    String
     createdAt   DateTime               @default(now())
     updatedAt   DateTime               @updatedAt
     createdById String
     createdBy   User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
     quantities  NetWorthDebtQuantity[]
+    category    NetWorthCategory       @relation(fields: [categoryId], references: [id])
 }
 
 model NetWorthDebtQuantity {

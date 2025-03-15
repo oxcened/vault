@@ -25,7 +25,7 @@ latest_exchange_rates AS (
 SELECT 
   d.id,
   d.name,
-  d.category,
+  c.name AS category,
   d.currency,
   ldq.quantity AS quantity,
   ldq.quantity AS nativeValue,
@@ -34,7 +34,9 @@ SELECT
     ELSE ldq.quantity
   END AS convertedValue
 FROM NetWorthDebt d
+JOIN NetWorthCategory c ON d.categoryId = c.id
 LEFT JOIN latest_debt_quantities ldq ON d.id = ldq.netWorthDebtId
 LEFT JOIN latest_exchange_rates ler ON UPPER(d.currency) = ler.baseCurrency
 WHERE d.createdById = ?  -- Filter debts by the specific user
+  AND c.type IN ('DEBT', 'BOTH')  -- Ensures only relevant debt categories are included
 ORDER BY d.createdAt ASC;

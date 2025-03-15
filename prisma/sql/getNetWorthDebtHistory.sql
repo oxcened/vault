@@ -1,10 +1,12 @@
 WITH debt_info AS (
   SELECT 
-    id, 
-    category, 
-    currency
-  FROM NetWorthDebt
-  WHERE id = ?
+    d.id, 
+    d.categoryId, 
+    c.name AS category, 
+    d.currency
+  FROM NetWorthDebt d
+  JOIN NetWorthCategory c ON d.categoryId = c.id
+  WHERE d.id = ?
 ),
 date_series AS (
   -- Generate distinct dates from the debt quantity records.

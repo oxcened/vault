@@ -36,7 +36,7 @@ latest_exchange_rates AS (
 SELECT 
   a.id,
   a.name,
-  a.category,
+  c.name AS category,
   a.currency,
   st.ticker AS ticker,
   st.exchange AS exchange,
@@ -44,25 +44,27 @@ SELECT
   lq.quantity AS quantity,
   lsp.price AS stockPrice,
   CASE
-    WHEN LOWER(a.category) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
+    WHEN c.isStock THEN lq.quantity * IFNULL(lsp.price, 0)
     ELSE lq.quantity
   END AS nativeValue,
   CASE 
     WHEN UPPER(a.currency) <> UPPER(?) THEN 
       (CASE 
-         WHEN LOWER(a.category) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
+         WHEN c.isStock THEN lq.quantity * IFNULL(lsp.price, 0)
          ELSE lq.quantity
        END) * IFNULL(ler.rate, 1)
     ELSE 
       CASE 
-        WHEN LOWER(a.category) = 'stocks' THEN lq.quantity * IFNULL(lsp.price, 0)
+        WHEN c.isStock THEN lq.quantity * IFNULL(lsp.price, 0)
         ELSE lq.quantity
       END
   END AS convertedValue
 FROM NetWorthAsset a
+JOIN NetWorthCategory c ON a.categoryId = c.id
 LEFT JOIN latest_quantities lq ON a.id = lq.netWorthAssetId
 LEFT JOIN StockTicker st ON a.tickerId = st.id
 LEFT JOIN latest_stock_prices lsp ON st.id = lsp.tickerId
 LEFT JOIN latest_exchange_rates ler ON UPPER(a.currency) = ler.baseCurrency
-WHERE a.createdById = ?  -- Filter assets by the specific user
+WHERE a.createdById = ?  
+  AND c.type IN ('ASSET', 'BOTH')
 ORDER BY a.createdAt ASC;

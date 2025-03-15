@@ -29,7 +29,6 @@ BEGIN
     /*
       Compute net worth as of v_currentMonthEnd using CTEs.
       The WITH clause must be at the beginning of the statement.
-      All string comparisons are forced to the same collation.
     */
     WITH
       latest_quantities AS (
@@ -96,7 +95,7 @@ BEGIN
         SUM(
           (
             CASE 
-              WHEN LOWER(a.category) = 'stocks' 
+              WHEN nc.isStock 
                 THEN lq.quantity * IFNULL(lsp.price, 0)
               ELSE lq.quantity
             END
@@ -108,6 +107,7 @@ BEGIN
           END
         ) AS assetValue
       FROM NetWorthAsset a
+      JOIN NetWorthCategory nc ON a.categoryId = nc.id
       LEFT JOIN latest_quantities lq ON a.id = lq.netWorthAssetId
       LEFT JOIN StockTicker st ON a.tickerId = st.id
       LEFT JOIN latest_stock_prices lsp ON st.id = lsp.tickerId
@@ -125,12 +125,13 @@ BEGIN
           END
         ) AS debtValue
       FROM NetWorthDebt d
+      JOIN NetWorthCategory nc ON d.categoryId = nc.id
       LEFT JOIN latest_debt_quantities lqd ON d.id = lqd.netWorthDebtId
       LEFT JOIN latest_exchange_rates ler2 ON UPPER(d.currency) COLLATE utf8mb4_unicode_ci = ler2.baseCurrency COLLATE utf8mb4_unicode_ci
       WHERE d.createdById COLLATE utf8mb4_unicode_ci = inputCreatedById COLLATE utf8mb4_unicode_ci
     ) AS debts;
 
-    -- For the current month, update any existing record in the month (regardless of its day).
+    -- For the current month, update or insert the record.
     IF YEAR(d) = YEAR(today) AND MONTH(d) = MONTH(today) THEN
       UPDATE NetWorth
       SET totalAssets = totalAssets,

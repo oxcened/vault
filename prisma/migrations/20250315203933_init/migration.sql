@@ -68,10 +68,21 @@ CREATE TABLE `NetWorth` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `NetWorthCategory` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `type` ENUM('ASSET', 'DEBT', 'BOTH') NOT NULL,
+    `isStock` BOOLEAN NOT NULL DEFAULT false,
+
+    UNIQUE INDEX `NetWorthCategory_name_key`(`name`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `NetWorthAsset` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `category` VARCHAR(191) NOT NULL,
+    `categoryId` VARCHAR(191) NOT NULL,
     `tickerId` VARCHAR(191) NULL,
     `currency` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -98,7 +109,7 @@ CREATE TABLE `NetWorthAssetQuantity` (
 CREATE TABLE `NetWorthDebt` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `category` VARCHAR(191) NOT NULL,
+    `categoryId` VARCHAR(191) NOT NULL,
     `currency` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -182,6 +193,22 @@ CREATE TABLE `TransactionCategory` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `CashFlow` (
+    `id` VARCHAR(191) NOT NULL,
+    `timestamp` DATETIME(3) NOT NULL,
+    `income` DECIMAL(38, 18) NOT NULL,
+    `expenses` DECIMAL(38, 18) NOT NULL,
+    `netFlow` DECIMAL(38, 18) NOT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `CashFlow_timestamp_idx`(`timestamp`),
+    UNIQUE INDEX `CashFlow_timestamp_key`(`timestamp`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -198,10 +225,16 @@ ALTER TABLE `NetWorthAsset` ADD CONSTRAINT `NetWorthAsset_createdById_fkey` FORE
 ALTER TABLE `NetWorthAsset` ADD CONSTRAINT `NetWorthAsset_tickerId_fkey` FOREIGN KEY (`tickerId`) REFERENCES `StockTicker`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `NetWorthAsset` ADD CONSTRAINT `NetWorthAsset_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `NetWorthCategory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `NetWorthAssetQuantity` ADD CONSTRAINT `NetWorthAssetQuantity_netWorthAssetId_fkey` FOREIGN KEY (`netWorthAssetId`) REFERENCES `NetWorthAsset`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `NetWorthDebt` ADD CONSTRAINT `NetWorthDebt_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NetWorthDebt` ADD CONSTRAINT `NetWorthDebt_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `NetWorthCategory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `NetWorthDebtQuantity` ADD CONSTRAINT `NetWorthDebtQuantity_netWorthDebtId_fkey` FOREIGN KEY (`netWorthDebtId`) REFERENCES `NetWorthDebt`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -214,3 +247,6 @@ ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_createdById_fkey` FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE `Transaction` ADD CONSTRAINT `Transaction_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `TransactionCategory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `CashFlow` ADD CONSTRAINT `CashFlow_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
