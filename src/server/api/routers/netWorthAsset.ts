@@ -6,6 +6,7 @@ import { ExchangeRate, StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { updateNetWorthFromDate } from "~/server/utils/db";
+import { evaluate } from "mathjs";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
@@ -30,13 +31,15 @@ export const netWorthAssetRouter = createTRPCRouter({
           },
         });
 
+        const quantity = evaluate(input.initialQuantity);
+
         // Create the initial quantity record.
         const quantityRecord = await tx.netWorthAssetQuantity.create({
           data: {
             netWorthAssetId: assetRecord.id,
-            quantity: input.initialQuantity,
+            quantity,
             timestamp: date,
-            quantityFormula: input.quantityFormula,
+            quantityFormula: input.initialQuantity,
           },
         });
 

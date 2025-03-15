@@ -1,6 +1,6 @@
-import { evaluate } from "mathjs";
 import * as yup from "yup";
 import { OTHER_CATEGORY, STOCK_CATEGORY } from "~/constants";
+import { safeEvaluate } from "~/utils/number";
 
 export const createNetWorthAssetSchema = yup.object({
   name: yup.string().label("Name").required(),
@@ -13,20 +13,11 @@ export const createNetWorthAssetSchema = yup.object({
       then: (schema) => schema.required(),
     }),
   currency: yup.string().label("Currency").required(),
-  initialQuantity: yup.number().label("Initial quantity").required(),
-  quantityFormula: yup
+  initialQuantity: yup
     .string()
-    .label("Quantity formula")
-    .test((value) => {
-      if (!value) return true;
-
-      try {
-        evaluate(value);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }),
+    .label("Initial quantity/value")
+    .required()
+    .test((value) => safeEvaluate(value) != null),
   tickerId: yup
     .string()
     .label("Ticker ID")

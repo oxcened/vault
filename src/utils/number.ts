@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { evaluate } from "mathjs";
 
 export type FormatNumberOptions = {
   value: Prisma.Decimal | number;
@@ -12,3 +13,14 @@ export function formatNumber({ value, options }: FormatNumberOptions): string {
 }
 
 export const DECIMAL_ZERO = new Prisma.Decimal(0);
+
+export function safeEvaluate(input: string): number | undefined {
+  try {
+    const computed = evaluate(input);
+    if (!isNaN(computed)) {
+      return computed;
+    }
+  } catch {
+    // Silence error
+  }
+}
