@@ -72,9 +72,14 @@ export default function NewDebtDialog({
   });
 
   const { data: categories = [], isPending: isFetchingCategories } =
-    api.netWorthCategory.getAll.useQuery(undefined, {
-      enabled: isOpen,
-    });
+    api.netWorthCategory.getByType.useQuery(
+      {
+        type: ["DEBT", "BOTH"],
+      },
+      {
+        enabled: isOpen,
+      },
+    );
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

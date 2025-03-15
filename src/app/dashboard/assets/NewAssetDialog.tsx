@@ -79,9 +79,14 @@ export default function NewAssetDialog({
   }, [watchCategory]);
 
   const { data: categories = [], isPending: isFetchingCategories } =
-    api.netWorthCategory.getAll.useQuery(undefined, {
-      enabled: isOpen,
-    });
+    api.netWorthCategory.getByType.useQuery(
+      {
+        type: ["ASSET", "BOTH"],
+      },
+      {
+        enabled: isOpen,
+      },
+    );
 
   const isStock =
     categories.find((c) => c.id === watchCategory)?.isStock ?? false;
