@@ -31,7 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
 import EditStockPriceDialog from "./EditStockPriceDialog";
-import { ExchangeRate, StockPriceHistory } from "@prisma/client";
+import { StockPriceHistory } from "@prisma/client";
 import NewStockPriceDialog from "./NewStockPriceDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
