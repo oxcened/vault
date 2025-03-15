@@ -21,7 +21,7 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { Currency, RoundedCurrency } from "~/components/ui/number";
+import { Currency, Percentage, RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import {
   ChartConfig,
@@ -40,6 +40,7 @@ import {
 } from "recharts";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
+import { TrendingDown, TrendingUp } from "lucide-react";
 
 const cashFlowByMonthConfig = {
   cashFlow: {
@@ -109,10 +110,53 @@ export default function CashFlowPage() {
 
         {!isLoading && (
           <div>
-            <p className="text-muted-foreground">Cash flow</p>
-            <p className="text-3xl">
-              <RoundedCurrency value={data?.latestCashFlow?.netFlow} />
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-muted-foreground">Cash flow</p>
+            </div>
+            <div className="flex items-end gap-3">
+              <p className="text-3xl">
+                <RoundedCurrency value={data?.latestCashFlow?.netFlow} />
+              </p>
+              {data?.cashFlowTrend?.eq(0) === false && (
+                <div
+                  className={cn(
+                    "flex items-center gap-1 self-center rounded-lg text-sm",
+                    data.cashFlowTrend.gt(0)
+                      ? "text-financial-positive"
+                      : "text-financial-negative",
+                  )}
+                >
+                  {data.cashFlowTrend.gt(0) ? (
+                    <TrendingUp className="size-4" />
+                  ) : (
+                    <TrendingDown className="size-4" />
+                  )}
+                  <p>
+                    <Percentage value={data.cashFlowTrend} /> this month
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-5 flex gap-5">
+              <div>
+                <p className="text-sm text-muted-foreground">Income</p>
+                <div className="flex items-end gap-3">
+                  <p className="text-xl">
+                    <RoundedCurrency value={data?.latestCashFlow?.income} />
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground">Expenses</p>
+                <div className="flex items-end gap-3">
+                  <p className="text-xl">
+                    <RoundedCurrency value={data?.latestCashFlow?.expenses} />
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

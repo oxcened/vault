@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { startOfMonth, endOfMonth } from "date-fns";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { DECIMAL_ZERO } from "~/utils/number";
+import { getPercentageDiff } from "~/server/utils/financial";
 
 async function getCashFlowByCategory({
   db,
@@ -95,6 +96,12 @@ export const cashFlowRouter = createTRPCRouter({
     });
 
     const latestCashFlow = cashFlowByMonth[0];
+    const previousCashFlow = cashFlowByMonth[1];
+
+    const cashFlowTrend = getPercentageDiff(
+      latestCashFlow?.netFlow,
+      previousCashFlow?.netFlow,
+    );
 
     cashFlowByMonth.reverse();
 
@@ -106,7 +113,8 @@ export const cashFlowRouter = createTRPCRouter({
     return {
       cashFlowByCategory,
       cashFlowByMonth,
-      latestCashFlow: latestCashFlow,
+      latestCashFlow,
+      cashFlowTrend,
     };
   }),
 });
