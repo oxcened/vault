@@ -44,17 +44,18 @@ model Session {
 }
 
 model User {
-    id            String          @id @default(cuid())
-    name          String?
-    email         String?         @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    netWorths     NetWorth[]
-    assets        NetWorthAsset[]
-    debts         NetWorthDebt[]
-    transactions  Transaction[]
+    id              String          @id @default(cuid())
+    name            String?
+    email           String?         @unique
+    emailVerified   DateTime?
+    image           String?
+    accounts        Account[]
+    sessions        Session[]
+    netWorths       NetWorth[]
+    assets          NetWorthAsset[]
+    debts           NetWorthDebt[]
+    transactions    Transaction[]
+    MonthlyCashFlow CashFlow[]
 }
 
 model VerificationToken {
@@ -190,4 +191,19 @@ enum TransactionType {
     INCOME
     EXPENSE
     TRANSFER
+}
+
+model CashFlow {
+    id          String   @id @default(cuid())
+    timestamp   DateTime
+    income      Decimal  @db.Decimal(38, 18)
+    expenses    Decimal  @db.Decimal(38, 18)
+    netFlow     Decimal  @db.Decimal(38, 18)
+    createdById String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+    @@unique([timestamp])
+    @@index([timestamp])
 }
