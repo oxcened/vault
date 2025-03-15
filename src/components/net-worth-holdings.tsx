@@ -30,9 +30,9 @@ import {
 import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Prisma } from "@prisma/client";
-import { Skeleton } from "~/components/ui/skeleton";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
+import { DECIMAL_ZERO } from "~/utils/number";
 
 export type Holding = {
   id: string;
@@ -72,7 +72,7 @@ export default function NetWorthHoldings<T extends Holding>({
       total: results.reduce(
         (prev, curr) =>
           curr.convertedValue ? prev.plus(curr.convertedValue) : prev,
-        new Prisma.Decimal(0),
+        DECIMAL_ZERO,
       ),
     };
   });
@@ -80,7 +80,7 @@ export default function NetWorthHoldings<T extends Holding>({
   const total = holdings.reduce(
     (prev, curr) =>
       curr.convertedValue ? prev.plus(curr.convertedValue) : prev,
-    new Prisma.Decimal(0),
+    DECIMAL_ZERO,
   );
 
   return (
