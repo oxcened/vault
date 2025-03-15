@@ -1,7 +1,7 @@
 # Vault
 
-**Vault** – Your Personal Finance Sidekick! 🚀  
-Keep track of your **net worth**, **cash flow**, and **expenses** with ease. Vault is still in development, but the goal is to support **multiple currencies**, **real-time exchange rates**, **stock prices**, and **crypto tracking**. Stay tuned!
+**Vault** – A Modern Personal Finance Solution  
+Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple and effective way. Vault is an evolving project, with planned features like **multi-currency support**, **real-time exchange rates**, and **stock and crypto tracking**.
 
 ## 📌 Table of Contents
 
@@ -15,7 +15,7 @@ Keep track of your **net worth**, **cash flow**, and **expenses** with ease. Vau
 
 ## Getting Started
 
-Ready to dive in? Follow these steps to get Vault up and running in no time. ⏳
+Here’s how you can get Vault up and running.
 
 ### Prerequisites
 
@@ -48,7 +48,7 @@ Then, open `.env` and fill in the required secrets and configuration values.
 
 ### Authentication
 
-Vault uses **Discord** as the authentication provider via NextAuth.js.  
+Vault utilizes **Discord OAuth** for authentication, integrated with NextAuth.js.  
 To set it up, follow these steps:
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
@@ -81,9 +81,7 @@ For local development, you can spin up a MySQL database in a Docker container by
 ./start-database.sh
 ```
 
-Once the database is running, set up the schema with:
-
-Run the following to set up the database schema:
+Initialize the database schema with:
 
 ```sh
 npm run db:push
@@ -136,12 +134,12 @@ Now you're ready to start using Vault!
 
 ## ✨ Roadmap
 
-- 📊 **Net Worth Tracking** – See all your assets and liabilities in one place.
-- 💰 **Cash Flow Insights** – Understand how your money moves.
-- 🛍️ **Expense Tracking** – Keep an eye on where you're spending.
-- 🌍 **Multi-Currency Support** – Handle different currencies with live exchange rates.
-- 📈 **Stock & Crypto Tracking** – Stay updated with market prices.
-- 🎨 **Slick UI** – Built with modern components for a smooth experience.
+- **Net Worth Tracking** – A simple way to see assets and liabilities in one place.
+- **Cash Flow Insights** – A glance at how money moves over time.
+- **Expense Tracking** – A lightweight way to keep an eye on spending.
+- **Multi-Currency Support** – Potential support for different currencies.
+- **Stock & Crypto Tracking** – Basic market tracking for stocks and crypto.
+- **Slick UI** – A clean and modern interface.
 
 ## Tech Stack
 
@@ -149,7 +147,7 @@ Vault is built with the **T3 Stack**, making it scalable and efficient.
 
 ### Core Technologies:
 
-- [TypeScript](https://www.typescriptlang.org/) – Because type safety is cool.
+- [TypeScript](https://www.typescriptlang.org/) – Ensuring type safety.
 - [Next.js](https://nextjs.org) – Full-stack framework with SSR and API routes.
 - [NextAuth.js](https://next-auth.js.org) – Secure authentication and session management.
 - [Prisma](https://prisma.io) – ORM for database management.
@@ -163,7 +161,7 @@ Vault is built with the **T3 Stack**, making it scalable and efficient.
 
 ## 🛠 Who’s Behind This?
 
-Built and maintained by **Alen Ajam**, a developer passionate about finance and open-source software. 🚀
+Built by **Alen Ajam**, who made this for personal use and decided to share it. No guarantees, but if it works for you, great!
 
 - GitHub: [oxcened](https://github.com/oxcened)
 - Email: [hello@alenajam.dev](mailto:hello@alenajam.dev)
@@ -172,4 +170,4 @@ Built and maintained by **Alen Ajam**, a developer passionate about finance and 
 ## 📜 License
 
 Vault is open-source and licensed under the [MIT License](https://opensource.org/licenses/MIT).  
-Want to contribute? PRs are always welcome! 🎉
+Want to contribute? PRs are always welcome!
