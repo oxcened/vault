@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import {
+  ArrowLeftRight,
   AudioWaveform,
   Command,
   Frame,
@@ -64,10 +65,14 @@ const data = {
       ],
     },
     {
-      title: "Financials",
+      title: "Net worth",
       url: "#",
       icon: Wallet,
       items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard/net-worth",
+        },
         {
           title: "Assets",
           url: "/dashboard/assets",
@@ -76,8 +81,15 @@ const data = {
           title: "Debts",
           url: "/dashboard/debts",
         },
+      ],
+    },
+    {
+      title: "Cash flow",
+      url: "#",
+      icon: ArrowLeftRight,
+      items: [
         {
-          title: "Cash flow",
+          title: "Dashboard",
           url: "/dashboard/cash-flow",
         },
         {
