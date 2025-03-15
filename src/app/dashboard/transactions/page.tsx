@@ -32,8 +32,6 @@ export default function TransactionsPage() {
 
   const [isNewTransaction, setNewTransaction] = useState(false);
 
-  const { md } = useBreakpoint();
-
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -65,12 +63,7 @@ export default function TransactionsPage() {
 
       <div className="mx-auto w-screen max-w-screen-md p-5">
         {isPending && <TableSkeleton />}
-        {!isPending && !data.length && (
-          <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have any transactions yet
-          </div>
-        )}
-        {!isPending && !!data.length && (
+        {!isPending && (
           <TransactionTable
             showActions
             data={data}
