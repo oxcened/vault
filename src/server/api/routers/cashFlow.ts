@@ -1,84 +1,112 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { DECIMAL_ZERO } from "~/utils/number";
+
+async function getCashFlowByCategory({
+  db,
+  userId,
+}: {
+  db: Pick<PrismaClient, "transaction">;
+  userId: string;
+}) {
+  const startDate = startOfMonth(new Date());
+  const endDate = endOfMonth(new Date());
+
+  const transactions = await db.transaction.findMany({
+    where: {
+      createdById: userId,
+      timestamp: { gte: startDate, lte: endDate },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      amount: true,
+      currency: true,
+      createdById: true,
+      timestamp: true,
+      createdAt: true,
+      description: true,
+      type: true,
+      category: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const cashFlowByCategory: Record<
+    string,
+    {
+      category: string;
+      expenses: Prisma.Decimal;
+      income: Prisma.Decimal;
+      netFlow: Prisma.Decimal;
+    }
+  > = {};
+
+  for (const transaction of transactions) {
+    const categoryName = transaction.category.name;
+
+    if (!cashFlowByCategory[categoryName]) {
+      cashFlowByCategory[categoryName] = {
+        category: categoryName,
+        expenses: DECIMAL_ZERO,
+        income: DECIMAL_ZERO,
+        netFlow: DECIMAL_ZERO,
+      };
+    }
+
+    if (transaction.type === "EXPENSE") {
+      cashFlowByCategory[categoryName].expenses = cashFlowByCategory[
+        categoryName
+      ].expenses.plus(transaction.amount);
+    } else if (transaction.type === "INCOME") {
+      cashFlowByCategory[categoryName].income = cashFlowByCategory[
+        categoryName
+      ].income.plus(transaction.amount);
+    }
+
+    cashFlowByCategory[categoryName].netFlow = cashFlowByCategory[
+      categoryName
+    ].netFlow.plus(
+      transaction.amount.mul(
+        new Prisma.Decimal(transaction.type === "EXPENSE" ? -1 : 1),
+      ),
+    );
+  }
+
+  return Object.values(cashFlowByCategory);
+}
 
 export const cashFlowRouter = createTRPCRouter({
   getMonthlyCashFlow: protectedProcedure.query(async ({ input, ctx }) => {
-    const now = new Date();
-    const startDate = startOfMonth(now);
-    const endDate = endOfMonth(now);
-
-    // Fetch transactions within this month
-    const transactions = await ctx.db.transaction.findMany({
+    const cashFlowByMonth = await ctx.db.cashFlow.findMany({
       where: {
-        timestamp: {
-          gte: startDate,
-          lte: endDate,
-        },
         createdById: ctx.session.user.id,
       },
       orderBy: {
-        category: {
-          name: "asc",
-        },
+        timestamp: "desc",
       },
-      include: {
-        category: true,
-      },
+      take: 12, // a year
     });
 
-    // Group transactions by category and sum amounts
-    const cashFlow: Record<
-      string,
-      {
-        category: string;
-        totalSpent: Prisma.Decimal;
-        totalEarned: Prisma.Decimal;
-        netAmount: Prisma.Decimal;
-      }
-    > = {};
+    const latestCashFlow = cashFlowByMonth[0];
 
-    let totalSpent = new Prisma.Decimal(0);
-    let totalEarned = new Prisma.Decimal(0);
+    cashFlowByMonth.reverse();
 
-    for (const transaction of transactions) {
-      const categoryName = transaction.category.name;
-
-      if (!cashFlow[categoryName]) {
-        cashFlow[categoryName] = {
-          category: categoryName,
-          totalSpent: new Prisma.Decimal(0),
-          totalEarned: new Prisma.Decimal(0),
-          netAmount: new Prisma.Decimal(0),
-        };
-      }
-
-      if (transaction.type === "EXPENSE") {
-        cashFlow[categoryName].totalSpent = cashFlow[
-          categoryName
-        ].totalSpent.plus(transaction.amount);
-        totalSpent = totalSpent.plus(transaction.amount);
-      } else if (transaction.type === "INCOME") {
-        cashFlow[categoryName].totalEarned = cashFlow[
-          categoryName
-        ].totalEarned.plus(transaction.amount);
-        totalEarned = totalEarned.plus(transaction.amount);
-      }
-
-      cashFlow[categoryName].netAmount = cashFlow[categoryName].netAmount.plus(
-        transaction.amount.mul(
-          new Prisma.Decimal(transaction.type === "EXPENSE" ? -1 : 1),
-        ),
-      );
-    }
-
-    const savings = totalEarned.minus(totalSpent);
+    const cashFlowByCategory = await getCashFlowByCategory({
+      db: ctx.db,
+      userId: ctx.session.user.id,
+    });
 
     return {
-      cashFlow: Object.values(cashFlow), // Convert object to array
-      totalSpent,
-      totalEarned,
-      savings,
+      cashFlowByCategory,
+      cashFlowByMonth,
+      latestCashFlow: latestCashFlow,
     };
   }),
 });
