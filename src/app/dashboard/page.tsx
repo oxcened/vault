@@ -37,7 +37,7 @@ import { cn } from "~/lib/utils";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
 
-const chartData = [
+export const chartData = [
   { month: "January", cashFlow: 80 },
   { month: "February", cashFlow: 200 },
   { month: "March", cashFlow: -120 },
@@ -52,7 +52,7 @@ const chartData = [
       : "rgb(var(--financial-negative))",
 }));
 
-const chartConfig = {
+export const chartConfig = {
   cashFlow: {
     label: "Cash flow",
     color: "hsl(var(--chart-3))",
@@ -82,18 +82,6 @@ export default function DashboardPage() {
   const financialRunwayMonths = data?.totalAssets
     .div(data.totalExpenses)
     .toFixed(0);
-  const netWorthChartData = data?.netWorthHistory.map((nw) => ({
-    month: formatDate({
-      date: nw.timestamp,
-      options: {
-        dateStyle: undefined,
-        month: "short",
-      },
-    }),
-    netWorth: nw.netValue.toNumber(),
-    totalAssets: nw.totalAssets.toNumber(),
-    totalDebts: nw.totalDebts.toNumber(),
-  }));
 
   return (
     <>
@@ -187,16 +175,25 @@ export default function DashboardPage() {
                     <p className="text-3xl">
                       <RoundedCurrency value={data.cashFlow} />
                     </p>
-                    <div className="flex items-center gap-1 self-center rounded-lg text-sm text-financial-negative">
-                      {-1 > 0 ? (
-                        <TrendingUp className="size-4" />
-                      ) : (
-                        <TrendingDown className="size-4" />
-                      )}
-                      <p>
-                        <Percentage value={-1} /> this month
-                      </p>
-                    </div>
+                    {data.cashFlowTrend?.eq(0) === false && (
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 self-center rounded-lg text-sm",
+                          data.cashFlowTrend.gt(0)
+                            ? "text-financial-positive"
+                            : "text-financial-negative",
+                        )}
+                      >
+                        {data.cashFlowTrend.gt(0) ? (
+                          <TrendingUp className="size-4" />
+                        ) : (
+                          <TrendingDown className="size-4" />
+                        )}
+                        <p>
+                          <Percentage value={data.cashFlowTrend} /> this month
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-5 flex gap-5">
@@ -221,87 +218,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
-                <ChartContainer config={netWorthChartConfig}>
-                  <ComposedChart accessibilityLayer data={netWorthChartData}>
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                    />
-
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent />}
-                    />
-
-                    <Bar
-                      yAxisId="right"
-                      dataKey="totalAssets"
-                      fill="var(--color-totalAssets)"
-                      barSize={30}
-                      radius={4}
-                      opacity={0.8}
-                    />
-
-                    <Bar
-                      yAxisId="right"
-                      dataKey="totalDebts"
-                      fill="var(--color-totalDebts)"
-                      barSize={30}
-                      radius={4}
-                      opacity={0.8}
-                    />
-
-                    <Line
-                      yAxisId="left"
-                      dataKey="netWorth"
-                      type="monotone"
-                      stroke="var(--color-netWorth)"
-                      strokeWidth={3}
-                      dot={false}
-                    />
-                  </ComposedChart>
-                </ChartContainer>
-
-                <ChartContainer config={chartConfig}>
-                  <ComposedChart accessibilityLayer data={chartData}>
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tickFormatter={(value) => value.slice(0, 3)}
-                    />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent />}
-                    />
-
-                    <Bar
-                      yAxisId="right"
-                      dataKey="cashFlow"
-                      barSize={30}
-                      radius={4}
-                      opacity={0.8}
-                    >
-                      {chartData.map((entry) => (
-                        <Cell
-                          key={entry.month}
-                          fill={
-                            entry.cashFlow >= 0
-                              ? "rgb(var(--financial-positive))"
-                              : "rgb(var(--financial-negative))"
-                          }
-                        />
-                      ))}
-                    </Bar>
-                  </ComposedChart>
-                </ChartContainer>
-              </div>
+              <Separator />
 
               <div className="flex flex-col gap-10">
                 <div className="flex items-center gap-4">
@@ -313,8 +230,9 @@ export default function DashboardPage() {
                       Net worth forecast
                     </p>
                     <p>
-                      At your current cash flow trend, your net worth could grow
-                      to <RoundedCurrency value={netWorthForecast} /> in a year.
+                      At your current cash flow trend, your net worth could{" "}
+                      {netWorthForecast?.gt(0) ? "grow" : "shrink"} to{" "}
+                      <RoundedCurrency value={netWorthForecast} /> in a year.
                     </p>
                   </div>
                 </div>
@@ -334,6 +252,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+
+              <Separator />
 
               <TransactionTable showSeeAllLink data={data.recentTransactions} />
             </div>
