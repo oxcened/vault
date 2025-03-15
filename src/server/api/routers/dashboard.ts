@@ -1,6 +1,6 @@
 import { getPercentageDiff } from "~/server/utils/financial";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { PrismaClient } from "@prisma/client";
+import { type PrismaClient } from "@prisma/client";
 
 async function getRecentTransactions({
   db,

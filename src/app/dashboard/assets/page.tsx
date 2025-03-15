@@ -4,7 +4,7 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import NewAssetDialog from "./NewAssetDialog";
 import { AssetDetailDialog } from "./AssetDetailDialog";
-import { NetWorthAsset } from "@prisma/client";
+import { type NetWorthAsset } from "@prisma/client";
 import { toast } from "sonner";
 import NetWorthHoldings from "~/components/net-worth-holdings";
 

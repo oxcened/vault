@@ -27,7 +27,7 @@ import {
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import {
-  CreateStockPrice,
+  type CreateStockPrice,
   createStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
 import { localTimeToUTCTime } from "~/utils/date";

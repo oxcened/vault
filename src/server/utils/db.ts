@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { type PrismaClient } from "@prisma/client";
 import { APP_CURRENCY } from "~/constants";
 
 export async function updateNetWorthFromDate({

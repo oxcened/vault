@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 import { DECIMAL_ZERO } from "~/utils/number";
 import { getPercentageDiff } from "~/server/utils/financial";
 

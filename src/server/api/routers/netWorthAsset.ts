@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
 import { APP_CURRENCY, STOCK_CATEGORY } from "~/constants";
-import { ExchangeRate, StockPriceHistory } from "@prisma/client";
+import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { updateNetWorthFromDate } from "~/server/utils/db";

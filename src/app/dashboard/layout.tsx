@@ -1,6 +1,6 @@
 import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { auth } from "~/server/auth";

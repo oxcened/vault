@@ -24,7 +24,7 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { Currency, RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,

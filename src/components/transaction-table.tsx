@@ -19,7 +19,7 @@ import { Currency } from "./ui/number";
 import { ArrowRight, MoreHorizontal } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import Link from "next/link";
-import { Prisma, TransactionType } from "@prisma/client";
+import { type Prisma, type TransactionType } from "@prisma/client";
 
 export type TransactionTableProps = {
   data: {

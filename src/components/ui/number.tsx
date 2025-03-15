@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { APP_CURRENCY } from "~/constants";
 import { formatNumber } from "~/utils/number";
 

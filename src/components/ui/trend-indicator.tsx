@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Percentage } from "./number";

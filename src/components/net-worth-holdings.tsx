@@ -29,7 +29,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";

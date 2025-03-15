@@ -31,7 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
 import EditExchangeRateDialog from "./EditExchangeRateDialog";
-import { ExchangeRate } from "@prisma/client";
+import { type ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";

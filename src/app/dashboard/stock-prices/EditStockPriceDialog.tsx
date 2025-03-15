@@ -11,8 +11,8 @@ import {
 import { Loader2 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { StockPriceHistory } from "@prisma/client";
-import { CreateStockPrice } from "~/trpc/schemas/stockPrice";
+import { type StockPriceHistory } from "@prisma/client";
+import { type CreateStockPrice } from "~/trpc/schemas/stockPrice";
 import { StockPriceDialogForm } from "./StockPriceDialogForm";
 
 export type EditStockPriceDialogProps = {

@@ -19,7 +19,7 @@ import {
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
 import {
-  CreateExchangeRate,
+  type CreateExchangeRate,
   createExchangeRateSchema,
 } from "~/trpc/schemas/exchangeRate";
 import { localTimeToUTCTime } from "~/utils/date";

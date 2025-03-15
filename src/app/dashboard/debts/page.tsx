@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import NewDebtDialog from "./NewDebtDialog";
-import { NetWorthAsset } from "@prisma/client";
+import { type NetWorthAsset } from "@prisma/client";
 import { DebtDetailDialog } from "./DebtDetailDialog";
 import { toast } from "sonner";
 import NetWorthHoldings from "~/components/net-worth-holdings";

@@ -11,9 +11,9 @@ import {
 import { Loader2 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { CreateExchangeRate } from "~/trpc/schemas/exchangeRate";
+import { type CreateExchangeRate } from "~/trpc/schemas/exchangeRate";
 import { ExchangeRateDialogForm } from "./ExchangeRateDialogForm";
-import { ExchangeRate } from "@prisma/client";
+import { type ExchangeRate } from "@prisma/client";
 
 export type EditExchangeRateDialogProps = {
   exchangeRate?: ExchangeRate;
