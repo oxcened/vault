@@ -63,16 +63,18 @@ export default function NewDebtDialog({
   });
   const form = useForm({
     defaultValues: {
-      category: "",
+      categoryId: "",
       currency: APP_CURRENCY,
-      customCategory: "",
       name: "",
       initialQuantity: "",
     },
     resolver: yupResolver(createNetWorthDebtSchema),
   });
 
-  const watchCategory = form.watch("category");
+  const { data: categories = [], isPending: isFetchingCategories } =
+    api.netWorthCategory.getAll.useQuery(undefined, {
+      enabled: isOpen,
+    });
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -88,21 +90,25 @@ export default function NewDebtDialog({
             <div className="flex flex-col gap-2">
               <FormField
                 control={form.control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
 
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isFetchingCategories}
+                    >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger isLoading={isFetchingCategories}>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {DEBT_CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -112,22 +118,6 @@ export default function NewDebtDialog({
                   </FormItem>
                 )}
               />
-
-              {watchCategory === OTHER_CATEGORY && (
-                <FormField
-                  control={form.control}
-                  name="customCategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Custom category</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Custom category" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
 
               <FormField
                 control={form.control}

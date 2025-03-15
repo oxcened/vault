@@ -4,7 +4,6 @@ import { getNetWorthDebtHistory, getNetWorthDebts } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
-import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { updateNetWorthFromDate } from "~/server/utils/db";
 import { evaluate } from "mathjs";
 
@@ -16,16 +15,12 @@ export const netWorthDebtRouter = createTRPCRouter({
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
-        const category =
-          sanitizeOptionalString(input.customCategory) ?? input.category;
-
         // Create the debt record
         const debtRecord = await tx.netWorthDebt.create({
           data: {
             name: input.name,
             currency: input.currency,
-            // TODO get id from input
-            category: { connect: { id: "clm8v60p00012p8g2lz9p9zcm" } },
+            category: { connect: { id: input.categoryId } },
             createdBy: { connect: { id: ctx.session.user.id } },
           },
         });
