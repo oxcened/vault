@@ -17,62 +17,9 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { formatDate } from "~/utils/date";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "~/components/ui/chart";
-import {
-  CartesianGrid,
-  XAxis,
-  Line,
-  Bar,
-  ComposedChart,
-  Cell,
-  ReferenceLine,
-} from "recharts";
 import { cn } from "~/lib/utils";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
-
-export const chartData = [
-  { month: "January", cashFlow: 80 },
-  { month: "February", cashFlow: 200 },
-  { month: "March", cashFlow: -120 },
-  { month: "April", cashFlow: 190 },
-  { month: "May", cashFlow: -130 },
-  { month: "June", cashFlow: 140 },
-].map((i) => ({
-  ...i,
-  fill:
-    i.cashFlow >= 0
-      ? "rgb(var(--financial-positive))"
-      : "rgb(var(--financial-negative))",
-}));
-
-export const chartConfig = {
-  cashFlow: {
-    label: "Cash flow",
-    color: "hsl(var(--chart-3))",
-  },
-} satisfies ChartConfig;
-
-const netWorthChartConfig = {
-  netWorth: {
-    label: "Net worth",
-    color: "hsl(var(--chart-1))",
-  },
-  totalAssets: {
-    label: "Assets",
-    color: "hsl(var(--chart-2))",
-  },
-  totalDebts: {
-    label: "Debts",
-    color: "hsl(var(--chart-3))",
-  },
-} satisfies ChartConfig;
 
 export default function DashboardPage() {
   const { data, isLoading } = api.dashboard.getSummary.useQuery();
