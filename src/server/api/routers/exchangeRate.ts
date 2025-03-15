@@ -1,11 +1,11 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { updateFromDate } from "./netWorth";
 import { earliestDateOptional } from "~/server/utils/date";
 import {
   createExchangeRateSchema,
   updateExchangeRateSchema,
 } from "~/trpc/schemas/exchangeRate";
+import { updateNetWorthFromDate } from "~/server/utils/db";
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -69,7 +69,7 @@ export const exchangeRateRouter = createTRPCRouter({
         );
 
         if (earliest) {
-          await updateFromDate({
+          await updateNetWorthFromDate({
             db: tx,
             date: earliest,
             createdBy: ctx.session.user.id,

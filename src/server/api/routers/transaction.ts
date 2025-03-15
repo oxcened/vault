@@ -1,5 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
+import { updateCashFlowFromDate } from "~/server/utils/db";
 
 export const transactionRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -38,9 +39,12 @@ export const transactionRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.transaction.create({
+      const date = new Date(input.timestamp);
+      date.setUTCHours(0, 0, 0, 0);
+
+      const transaction = await ctx.db.transaction.create({
         data: {
-          timestamp: input.timestamp,
+          timestamp: date,
           amount: input.amount,
           currency: input.currency,
           description: input.description,
@@ -49,13 +53,31 @@ export const transactionRouter = createTRPCRouter({
           createdBy: { connect: { id: ctx.session.user.id } },
         },
       });
+
+      await updateCashFlowFromDate({
+        db: ctx.db,
+        createdBy: ctx.session.user.id,
+        date,
+      });
+
+      return transaction;
     }),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.transaction.delete({
+      const transaction = await ctx.db.transaction.delete({
         where: { id: input.id },
       });
+
+      const date = new Date(transaction.timestamp);
+
+      await updateCashFlowFromDate({
+        db: ctx.db,
+        createdBy: ctx.session.user.id,
+        date,
+      });
+
+      return transaction;
     }),
 });

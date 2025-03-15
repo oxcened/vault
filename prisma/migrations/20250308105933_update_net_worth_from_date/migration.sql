@@ -1,5 +1,5 @@
-DROP PROCEDURE IF EXISTS updateFromDate;
-CREATE PROCEDURE updateFromDate(
+DROP PROCEDURE IF EXISTS updateNetWorthFromDate;
+CREATE PROCEDURE updateNetWorthFromDate(
     IN inputDate DATE, 
     IN inputTargetCurrency VARCHAR(3),
     IN inputCreatedById VARCHAR(255)

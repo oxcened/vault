@@ -2,10 +2,10 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthDebtHistory, getNetWorthDebts } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
-import { updateFromDate } from "./netWorth";
 import { ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
+import { updateNetWorthFromDate } from "~/server/utils/db";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
@@ -61,7 +61,7 @@ export const netWorthDebtRouter = createTRPCRouter({
           });
         }
 
-        await updateFromDate({
+        await updateNetWorthFromDate({
           db: tx,
           date,
           createdBy: ctx.session.user.id,
@@ -95,7 +95,7 @@ export const netWorthDebtRouter = createTRPCRouter({
         if (startDate) {
           startDate?.setUTCHours(0, 0, 0, 0);
 
-          await updateFromDate({
+          await updateNetWorthFromDate({
             db: tx,
             date: startDate,
             createdBy: ctx.session.user.id,

@@ -1,10 +1,10 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { updateFromDate } from "./netWorth";
 import {
   createStockPriceSchema,
   updateStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
+import { updateNetWorthFromDate } from "~/server/utils/db";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -32,7 +32,7 @@ export const stockPriceRouter = createTRPCRouter({
         });
 
         if (timestamp) {
-          await updateFromDate({
+          await updateNetWorthFromDate({
             db: transaction,
             date: timestamp,
             createdBy: ctx.session.user.id,
@@ -65,7 +65,7 @@ export const stockPriceRouter = createTRPCRouter({
         });
 
         if (earliest) {
-          await updateFromDate({
+          await updateNetWorthFromDate({
             db: tx,
             date: earliest.timestamp,
             createdBy: ctx.session.user.id,
