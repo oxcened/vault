@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Calculator, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -29,12 +29,14 @@ import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 import { toast } from "sonner";
+import { safeEvaluate } from "~/utils/number";
 
 export type NewDebtDialogProps = {
   isOpen: boolean;
@@ -65,31 +67,12 @@ export default function NewDebtDialog({
       currency: APP_CURRENCY,
       customCategory: "",
       name: "",
-      quantityFormula: "",
+      initialQuantity: "",
     },
     resolver: yupResolver(createNetWorthDebtSchema),
   });
 
   const watchCategory = form.watch("category");
-
-  const quantityFormulaValue = form.watch("quantityFormula");
-
-  useEffect(() => {
-    if (!quantityFormulaValue?.trim()) return;
-
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const computed = evaluate(quantityFormulaValue);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      if (isNaN(computed)) return;
-
-      form.setValue("initialQuantity", Number(computed), {
-        shouldValidate: true,
-      });
-    } catch {
-      // Silently ignore errors while the user is typing.
-    }
-  }, [quantityFormulaValue, form.setValue]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -167,31 +150,19 @@ export default function NewDebtDialog({
                   <FormItem>
                     <FormLabel>Initial quantity/value</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Initial quantity/value"
-                        type="number"
-                        step="any"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
+                      <div className="relative">
+                        <Input
+                          placeholder="Initial quantity/value"
+                          {...field}
+                        />
+                        <Calculator className="absolute right-3 top-1/2 size-4 -translate-y-1/2 opacity-50" />
+                      </div>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="quantityFormula"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity formula (optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Quantity formula (optional)"
-                        {...field}
-                      />
-                    </FormControl>
+                    <FormDescription>
+                      {safeEvaluate(field.value)
+                        ? "Result: " + safeEvaluate(field.value)
+                        : "You can enter values as a formula, e.g. 1000 + 500."}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

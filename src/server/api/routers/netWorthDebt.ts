@@ -6,6 +6,7 @@ import { ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { updateNetWorthFromDate } from "~/server/utils/db";
+import { evaluate } from "mathjs";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
@@ -28,13 +29,15 @@ export const netWorthDebtRouter = createTRPCRouter({
           },
         });
 
+        const quantity = evaluate(input.initialQuantity);
+
         // Create the initial quantity record.
         const quantityRecord = await tx.netWorthDebtQuantity.create({
           data: {
             netWorthDebtId: debtRecord.id,
-            quantity: input.initialQuantity,
+            quantity,
             timestamp: date,
-            quantityFormula: input.quantityFormula,
+            quantityFormula: input.initialQuantity,
           },
         });
 
