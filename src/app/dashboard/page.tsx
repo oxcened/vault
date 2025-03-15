@@ -15,14 +15,17 @@ import { ChartNoAxesCombined, PiggyBank } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
+import { DECIMAL_ZERO } from "~/utils/number";
 
 export default function DashboardPage() {
   const { data, isLoading } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
 
-  const netWorthForecast = data?.netWorth.plus(data.cashFlow.mul(12));
-  const financialRunwayMonths = data?.totalAssets
-    .div(data.totalExpenses)
+  const netWorthForecast = data?.netWorth?.netValue.plus(
+    (data.cashFlow?.netFlow ?? DECIMAL_ZERO).mul(12),
+  );
+  const financialRunwayMonths = data?.netWorth?.totalAssets
+    .div(data.cashFlow?.expenses ?? DECIMAL_ZERO)
     .toFixed(0);
 
   return (
@@ -65,7 +68,7 @@ export default function DashboardPage() {
 
                   <div className="flex items-end gap-3">
                     <p className="text-3xl">
-                      <RoundedCurrency value={data.netWorth} />
+                      <RoundedCurrency value={data.netWorth?.netValue} />
                     </p>
                     <TrendIndicator value={data.netWorthTrend} />
                   </div>
@@ -75,7 +78,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground">Assets</p>
                       <div className="flex items-end gap-3">
                         <p className="text-xl">
-                          <RoundedCurrency value={data.totalAssets} />
+                          <RoundedCurrency value={data.netWorth?.totalAssets} />
                         </p>
                       </div>
                     </div>
@@ -84,7 +87,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground">Debts</p>
                       <div className="flex items-end gap-3">
                         <p className="text-xl">
-                          <RoundedCurrency value={data.totalDebts} />
+                          <RoundedCurrency value={data.netWorth?.totalDebts} />
                         </p>
                       </div>
                     </div>
@@ -97,7 +100,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-end gap-3">
                     <p className="text-3xl">
-                      <RoundedCurrency value={data.cashFlow} />
+                      <RoundedCurrency value={data.cashFlow?.netFlow} />
                     </p>
                     <TrendIndicator value={data.cashFlowTrend} />
                   </div>
@@ -107,7 +110,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground">Income</p>
                       <div className="flex items-end gap-3">
                         <p className="text-xl">
-                          <RoundedCurrency value={data.totalIncome} />
+                          <RoundedCurrency value={data.cashFlow?.income} />
                         </p>
                       </div>
                     </div>
@@ -116,7 +119,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground">Expenses</p>
                       <div className="flex items-end gap-3">
                         <p className="text-xl">
-                          <RoundedCurrency value={data.totalExpenses} />
+                          <RoundedCurrency value={data.cashFlow?.expenses} />
                         </p>
                       </div>
                     </div>

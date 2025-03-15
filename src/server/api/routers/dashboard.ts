@@ -1,7 +1,6 @@
 import { getPercentageDiff } from "~/server/utils/financial";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { PrismaClient } from "@prisma/client";
-import { DECIMAL_ZERO } from "~/utils/number";
 
 async function getRecentTransactions({
   db,
@@ -90,12 +89,8 @@ export const dashboardRouter = createTRPCRouter({
       });
 
       return {
-        netWorth: latestNetWorth?.netValue || DECIMAL_ZERO,
-        totalAssets: latestNetWorth?.totalAssets || DECIMAL_ZERO,
-        totalDebts: latestNetWorth?.totalDebts || DECIMAL_ZERO,
-        totalIncome: latestCashFlow?.income || DECIMAL_ZERO,
-        totalExpenses: latestCashFlow?.expenses || DECIMAL_ZERO,
-        cashFlow: latestCashFlow?.netFlow || DECIMAL_ZERO,
+        netWorth: latestNetWorth,
+        cashFlow: latestCashFlow,
         recentTransactions,
         netWorthTrend,
         cashFlowTrend,
