@@ -20,12 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  APP_CURRENCY,
-  ASSET_CATEGORIES,
-  OTHER_CATEGORY,
-  STOCK_CATEGORY,
-} from "~/constants";
+import { APP_CURRENCY } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 
@@ -68,9 +63,8 @@ export default function NewAssetDialog({
   });
   const form = useForm({
     defaultValues: {
-      category: "",
+      categoryId: "",
       currency: APP_CURRENCY,
-      customCategory: "",
       name: "",
       tickerId: "",
       initialQuantity: "",
@@ -78,12 +72,19 @@ export default function NewAssetDialog({
     resolver: yupResolver(createNetWorthAssetSchema),
   });
 
-  const watchCategory = form.watch("category");
-  const isStock = watchCategory === STOCK_CATEGORY;
+  const watchCategory = form.watch("categoryId");
 
   useEffect(() => {
     form.resetField("tickerId");
   }, [watchCategory]);
+
+  const { data: categories = [], isPending: isFetchingCategories } =
+    api.netWorthCategory.getAll.useQuery(undefined, {
+      enabled: isOpen,
+    });
+
+  const isStock =
+    categories.find((c) => c.id === watchCategory)?.isStock ?? false;
 
   const { data: stockTickers = [], isPending: isFetchingStockTickers } =
     api.stockTicker.getAll.useQuery(undefined, {
@@ -104,21 +105,25 @@ export default function NewAssetDialog({
             <div className="flex flex-col gap-2">
               <FormField
                 control={form.control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
 
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isFetchingCategories}
+                    >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger isLoading={isFetchingCategories}>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {ASSET_CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -128,22 +133,6 @@ export default function NewAssetDialog({
                   </FormItem>
                 )}
               />
-
-              {watchCategory === OTHER_CATEGORY && (
-                <FormField
-                  control={form.control}
-                  name="customCategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Custom category</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Custom category" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
 
               <FormField
                 control={form.control}

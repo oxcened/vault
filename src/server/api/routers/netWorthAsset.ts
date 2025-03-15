@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
-import { APP_CURRENCY, STOCK_CATEGORY } from "~/constants";
+import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
@@ -16,8 +16,6 @@ export const netWorthAssetRouter = createTRPCRouter({
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
-        const category =
-          sanitizeOptionalString(input.customCategory) ?? input.category;
         const tickerId = sanitizeOptionalString(input.tickerId);
 
         // Create the asset record; assign tickerId if a tickerRecord exists.
@@ -25,8 +23,7 @@ export const netWorthAssetRouter = createTRPCRouter({
           data: {
             name: input.name,
             currency: input.currency,
-            // TODO get id from input
-            category: { connect: { id: "clm8v60p00001p8g2lz9p9zcm" } },
+            category: { connect: { id: input.categoryId } },
             ticker: tickerId ? { connect: { id: tickerId } } : undefined,
             createdBy: { connect: { id: ctx.session.user.id } },
           },
@@ -46,18 +43,18 @@ export const netWorthAssetRouter = createTRPCRouter({
 
         // For stock assets, create a stock price history record.
         let priceRecord: StockPriceHistory | null = null;
-        if (category === STOCK_CATEGORY) {
+        if (tickerId) {
           const stockPrice = 0;
           priceRecord = await tx.stockPriceHistory.upsert({
             where: {
               ticker_timestamp: {
-                tickerId: tickerId!,
+                tickerId,
                 timestamp: date,
               },
             },
             update: {},
             create: {
-              tickerId: tickerId!,
+              tickerId,
               price: stockPrice,
               timestamp: date,
             },
