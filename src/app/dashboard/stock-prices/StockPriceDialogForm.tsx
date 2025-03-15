@@ -17,7 +17,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import { api } from "~/trpc/react";
 import {
   CreateStockPrice,
   createStockPriceSchema,
@@ -43,6 +51,9 @@ export function StockPriceDialogForm({
     resolver: yupResolver(createStockPriceSchema),
   });
 
+  const { data: stockTickers = [], isPending: isFetchingStockTickers } =
+    api.stockTicker.getAll.useQuery();
+
   return (
     <Form {...form}>
       <form
@@ -56,9 +67,26 @@ export function StockPriceDialogForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Stock ticker</FormLabel>
-              <FormControl>
-                <Input placeholder="Stock ticker" {...field} />
-              </FormControl>
+
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={isFetchingStockTickers}
+              >
+                <FormControl>
+                  <SelectTrigger isLoading={isFetchingStockTickers}>
+                    <SelectValue placeholder="Select a stock ticker" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {stockTickers.map((ticker) => (
+                    <SelectItem key={ticker.id} value={ticker.id}>
+                      {ticker.ticker} – {ticker.name} ({ticker.exchange})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <FormMessage />
             </FormItem>
           )}
