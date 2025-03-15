@@ -1,5 +1,4 @@
 import * as yup from "yup";
-import { OTHER_CATEGORY, STOCK_CATEGORY } from "~/constants";
 import { safeEvaluate } from "~/utils/number";
 
 export const createNetWorthAssetSchema = yup.object({

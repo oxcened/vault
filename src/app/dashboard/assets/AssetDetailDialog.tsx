@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { formatDate } from "~/utils/date";
-import { APP_CURRENCY, STOCK_CATEGORY } from "~/constants";
+import { APP_CURRENCY } from "~/constants";
 import { Currency } from "~/components/ui/number";
 import { Number } from "~/components/ui/number";
 
@@ -75,12 +75,12 @@ export function AssetDetailDialog({
 
         <Tabs defaultValue="main">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="main">{data?.category}</TabsTrigger>
+            <TabsTrigger value="main">{data?.category?.name}</TabsTrigger>
             <TabsTrigger value="value">Value</TabsTrigger>
           </TabsList>
 
           <TabsContent value="main">
-            {data?.category === STOCK_CATEGORY && (
+            {data?.category?.isStock && (
               <div className="mb-2 flex items-center justify-between rounded-lg border p-5 text-sm">
                 <div>
                   <p>{data?.ticker?.name}</p>
@@ -138,7 +138,7 @@ export function AssetDetailDialog({
                             }}
                           />
                         </p>
-                        {data?.category === STOCK_CATEGORY && (
+                        {data?.category?.isStock && (
                           <p className="text-xs text-muted-foreground">
                             Qty <Number value={row.quantity} />
                           </p>

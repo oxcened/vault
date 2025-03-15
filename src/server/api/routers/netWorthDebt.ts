@@ -121,6 +121,7 @@ export const netWorthDebtRouter = createTRPCRouter({
                 timestamp: "desc",
               },
             },
+            category: true,
           },
         });
 

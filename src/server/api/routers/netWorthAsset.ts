@@ -157,6 +157,7 @@ export const netWorthAssetRouter = createTRPCRouter({
                 timestamp: "desc",
               },
             },
+            category: true,
           },
         });
 

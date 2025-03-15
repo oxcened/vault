@@ -1,7 +1,7 @@
 "use client";
 
 import { Calculator, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -20,8 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { evaluate } from "mathjs";
-import { APP_CURRENCY, DEBT_CATEGORIES, OTHER_CATEGORY } from "~/constants";
+import { APP_CURRENCY } from "~/constants";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { yupResolver } from "@hookform/resolvers/yup";
