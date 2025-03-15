@@ -12,7 +12,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
-import { Percentage, RoundedCurrency } from "~/components/ui/number";
+import { RoundedCurrency } from "~/components/ui/number";
 import {
   ChartContainer,
   ChartTooltip,
@@ -30,10 +30,9 @@ import {
   ComposedChart,
   YAxis,
 } from "recharts";
-import { TrendingDown, TrendingUp } from "lucide-react";
-import { cn } from "~/lib/utils";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { TableSkeleton } from "~/components/table-skeleton";
+import { TrendIndicator } from "~/components/ui/trend-indicator";
 
 const netWorthChartConfig = {
   netWorth: {
@@ -99,25 +98,7 @@ export default function NetWorthPage() {
               <p className="text-3xl">
                 <RoundedCurrency value={data?.latestNetWorth?.netValue} />
               </p>
-              {data?.netWorthTrend?.eq(0) === false && (
-                <div
-                  className={cn(
-                    "flex items-center gap-1 self-center rounded-lg text-sm",
-                    data.netWorthTrend.gt(0)
-                      ? "text-financial-positive"
-                      : "text-financial-negative",
-                  )}
-                >
-                  {data.netWorthTrend.gt(0) ? (
-                    <TrendingUp className="size-4" />
-                  ) : (
-                    <TrendingDown className="size-4" />
-                  )}
-                  <p>
-                    <Percentage value={data.netWorthTrend} /> this month
-                  </p>
-                </div>
-              )}
+              <TrendIndicator value={data?.netWorthTrend} />
             </div>
 
             <div className="mt-5 flex gap-5">

@@ -21,7 +21,7 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { Currency, Percentage, RoundedCurrency } from "~/components/ui/number";
+import { Currency, RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import {
   ChartConfig,
@@ -33,14 +33,13 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   ComposedChart,
   XAxis,
   YAxis,
 } from "recharts";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { TrendIndicator } from "~/components/ui/trend-indicator";
 
 const cashFlowByMonthConfig = {
   cashFlow: {
@@ -117,25 +116,7 @@ export default function CashFlowPage() {
               <p className="text-3xl">
                 <RoundedCurrency value={data?.latestCashFlow?.netFlow} />
               </p>
-              {data?.cashFlowTrend?.eq(0) === false && (
-                <div
-                  className={cn(
-                    "flex items-center gap-1 self-center rounded-lg text-sm",
-                    data.cashFlowTrend.gt(0)
-                      ? "text-financial-positive"
-                      : "text-financial-negative",
-                  )}
-                >
-                  {data.cashFlowTrend.gt(0) ? (
-                    <TrendingUp className="size-4" />
-                  ) : (
-                    <TrendingDown className="size-4" />
-                  )}
-                  <p>
-                    <Percentage value={data.cashFlowTrend} /> this month
-                  </p>
-                </div>
-              )}
+              <TrendIndicator value={data?.cashFlowTrend} />
             </div>
 
             <div className="mt-5 flex gap-5">

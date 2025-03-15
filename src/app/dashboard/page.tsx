@@ -10,16 +10,11 @@ import {
   BreadcrumbPage,
 } from "~/components/ui/breadcrumb";
 import { useSession } from "next-auth/react";
-import { Percentage, RoundedCurrency } from "~/components/ui/number";
-import {
-  ChartNoAxesCombined,
-  PiggyBank,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
-import { cn } from "~/lib/utils";
+import { RoundedCurrency } from "~/components/ui/number";
+import { ChartNoAxesCombined, PiggyBank } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
+import { TrendIndicator } from "~/components/ui/trend-indicator";
 
 export default function DashboardPage() {
   const { data, isLoading } = api.dashboard.getSummary.useQuery();
@@ -72,25 +67,7 @@ export default function DashboardPage() {
                     <p className="text-3xl">
                       <RoundedCurrency value={data.netWorth} />
                     </p>
-                    {data.netWorthTrend?.eq(0) === false && (
-                      <div
-                        className={cn(
-                          "flex items-center gap-1 self-center rounded-lg text-sm",
-                          data.netWorthTrend.gt(0)
-                            ? "text-financial-positive"
-                            : "text-financial-negative",
-                        )}
-                      >
-                        {data.netWorthTrend.gt(0) ? (
-                          <TrendingUp className="size-4" />
-                        ) : (
-                          <TrendingDown className="size-4" />
-                        )}
-                        <p>
-                          <Percentage value={data.netWorthTrend} /> this month
-                        </p>
-                      </div>
-                    )}
+                    <TrendIndicator value={data.netWorthTrend} />
                   </div>
 
                   <div className="mt-5 flex gap-5">
@@ -122,25 +99,7 @@ export default function DashboardPage() {
                     <p className="text-3xl">
                       <RoundedCurrency value={data.cashFlow} />
                     </p>
-                    {data.cashFlowTrend?.eq(0) === false && (
-                      <div
-                        className={cn(
-                          "flex items-center gap-1 self-center rounded-lg text-sm",
-                          data.cashFlowTrend.gt(0)
-                            ? "text-financial-positive"
-                            : "text-financial-negative",
-                        )}
-                      >
-                        {data.cashFlowTrend.gt(0) ? (
-                          <TrendingUp className="size-4" />
-                        ) : (
-                          <TrendingDown className="size-4" />
-                        )}
-                        <p>
-                          <Percentage value={data.cashFlowTrend} /> this month
-                        </p>
-                      </div>
-                    )}
+                    <TrendIndicator value={data.cashFlowTrend} />
                   </div>
 
                   <div className="mt-5 flex gap-5">
