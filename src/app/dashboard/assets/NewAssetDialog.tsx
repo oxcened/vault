@@ -79,10 +79,16 @@ export default function NewAssetDialog({
   });
 
   const watchCategory = form.watch("category");
+  const isStock = watchCategory === STOCK_CATEGORY;
 
   useEffect(() => {
     form.resetField("tickerId");
   }, [watchCategory]);
+
+  const { data: stockTickers = [], isPending: isFetchingStockTickers } =
+    api.stockTicker.getAll.useQuery(undefined, {
+      enabled: isOpen && isStock,
+    });
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -153,16 +159,34 @@ export default function NewAssetDialog({
                 )}
               />
 
-              {watchCategory === STOCK_CATEGORY && (
+              {isStock && (
                 <FormField
                   control={form.control}
                   name="tickerId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ticker ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ticker ID" {...field} />
-                      </FormControl>
+                      <FormLabel>Stock ticker</FormLabel>
+
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={isFetchingStockTickers}
+                      >
+                        <FormControl>
+                          <SelectTrigger isLoading={isFetchingStockTickers}>
+                            <SelectValue placeholder="Select a stock ticker" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {stockTickers.map((ticker) => (
+                            <SelectItem key={ticker.id} value={ticker.id}>
+                              {ticker.ticker} – {ticker.name} ({ticker.exchange}
+                              )
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
                       <FormMessage />
                     </FormItem>
                   )}

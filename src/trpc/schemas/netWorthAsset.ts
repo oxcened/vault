@@ -20,7 +20,7 @@ export const createNetWorthAssetSchema = yup.object({
     .test((value) => safeEvaluate(value) != null),
   tickerId: yup
     .string()
-    .label("Ticker ID")
+    .label("Stock ticker")
     .when("category", {
       is: STOCK_CATEGORY,
       then: (schema) => schema.required(),
