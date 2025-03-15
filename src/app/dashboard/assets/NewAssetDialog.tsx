@@ -81,7 +81,7 @@ export default function NewAssetDialog({
   const watchCategory = form.watch("category");
 
   useEffect(() => {
-    form.setValue("tickerId", "");
+    form.resetField("tickerId");
   }, [watchCategory]);
 
   return (
