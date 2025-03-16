@@ -6,11 +6,11 @@ export async function updateNetWorthFromDate({
   date,
   createdBy,
 }: {
-  db: Pick<PrismaClient, "$queryRaw" | "netWorth">;
+  db: Pick<PrismaClient, "$executeRaw">;
   date: Date;
   createdBy: string;
 }) {
-  return db.$queryRaw`CALL updateNetWorthFromDate(${date}, ${APP_CURRENCY}, ${createdBy})`;
+  return db.$executeRaw`SELECT update_net_worth_from_date(${date}::DATE, ${APP_CURRENCY}::VARCHAR, ${createdBy}::VARCHAR)`;
 }
 
 export async function updateCashFlowFromDate({
@@ -18,9 +18,9 @@ export async function updateCashFlowFromDate({
   date,
   createdBy,
 }: {
-  db: Pick<PrismaClient, "$queryRaw" | "netWorth">;
+  db: Pick<PrismaClient, "$executeRaw">;
   date: Date;
   createdBy: string;
 }) {
-  return db.$queryRaw`CALL updateCashFlowFromDate(${date}, ${APP_CURRENCY}, ${createdBy})`;
+  return db.$executeRaw`SELECT update_cash_flow_from_date(${date}::DATE, ${APP_CURRENCY}::VARCHAR, ${createdBy}::VARCHAR)`;
 }
