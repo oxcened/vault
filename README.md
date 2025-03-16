@@ -15,7 +15,10 @@ Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple
 ## 📌 Table of Contents
 
 - [Key Features](#-key-features)
-- [Getting Started](#getting-started)
+- [Quick Start](#-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Spin up the dev server](#spin-up-the-dev-server)
+- [Other scripts](#other-scripts)
 - [Tech Stack](#tech-stack)
   - [Core Technologies](#core-technologies)
   - [UI & Components](#ui--components)
@@ -34,9 +37,7 @@ Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple
 - **Dark Mode** – Optimized for both light and dark themes.
 - **Multi-User** – Log in using Discord and manage your own finances.
 
-## Getting Started
-
-Here’s how you can get Vault up and running.
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -44,89 +45,81 @@ Make sure you have the following installed:
 
 - 🏗️ [Node.js](https://nodejs.org/) (Required: v22.13.1)
 - 📦 [npm](https://www.npmjs.com/) (Vault uses `npm@10.9.2`)
-- 🗄️ [MySQL](https://www.mysql.com/)
 - 🐳 [Docker](https://www.docker.com/) (If you want to use the included DB spin up script)
 
-### Installation
+### Spin up the dev server
 
-Clone the repository and install dependencies:
+Here’s what you need to do to get started quickly:
 
-```sh
-git clone https://github.com/oxcened/vault.git
-cd vault
-npm install
-```
+1. **Clone the project**
 
-### Environment Variables
+   ```sh
+   git clone https://github.com/oxcened/vault.git
+   cd vault
+   ```
 
-Before running the project, create a `.env` file in the root directory. You can use `.env.example` as a reference:
+2. **Create a `.env` file** using the provided example:
 
-```sh
-cp .env.example .env
-```
+   ```sh
+   cp .env.example .env
+   ```
 
-Then, open `.env` and fill in the required secrets and configuration values.
+3. **Generate an authentication secret**:
 
-### Authentication
+   ```sh
+   npx auth secret
+   ```
 
-Vault utilizes **Discord OAuth** for authentication, integrated with NextAuth.js.  
-To set it up, follow these steps:
+   Open `.env`, locate the `AUTH_SECRET` field, and paste the generated secret.
 
-1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
-2. Create a new application.
-3. Under **OAuth2**, add a redirect URI matching:
+4. **Set up Discord authentication**:
+
+   1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+   2. Create a new application.
+   3. Under **OAuth2**, add a redirect URI matching:
+
    ```
    http://localhost:3000/api/auth/callback/discord
    ```
-4. Copy the **Client ID** and **Client Secret** from the OAuth2 settings.
-5. In your `.env` file, add the following:
+
+   4. Copy the **Client ID** and **Client Secret** from the OAuth2 settings.
+   5. In your `.env` file, paste them in `AUTH_DISCORD_ID` and `AUTH_DISCORD_SECRET`.
+
+5. **Configure the database**:
+
+   - Fill `DATABASE_URL` and `DATABASE_DIRECT_URL` with your database connection details.
+   - If you don’t have a database, run:
+     ```sh
+     ./start-database.sh
+     ```
+     _(Requires Docker to be installed)_
+
+6. **Install dependencies**:
 
    ```sh
-   AUTH_DISCORD_ID=your-client-id
-   AUTH_DISCORD_SECRET=your-client-secret
+   npm install
    ```
 
-6. Restart the development server with:
+7. **Apply migrations and generate the Prisma client**:
 
+   ```sh
+   npm run db:generate
+   ```
+
+8. **Generate TypedSQL queries**:
+
+   ```sh
+   npm run db:sql
+   ```
+
+9. **Run the app**:
    ```sh
    npm run dev
    ```
 
-For more details, check out [T3 Authentication Guide](https://create.t3.gg/en/usage/first-steps#authentication).
+Now, you’re ready to start using Vault!
 
-### Database Setup
-
-For local development, you can spin up a MySQL database in a Docker container by running:
-
-```sh
-./start-database.sh
-```
-
-Initialize the database schema with:
-
-```sh
-npm run db:push
-```
-
-To apply migrations, use:
-
-```sh
-npm run db:migrate
-```
-
-You can also generate Prisma types:
-
-```sh
-npm run db:generate
-```
-
-### Development
-
-Start the development server:
-
-```sh
-npm run dev
-```
+## Other scripts
 
 ### Linting & Formatting
 
@@ -150,8 +143,6 @@ To build and start the production server:
 npm run build
 npm run start
 ```
-
-Now you're ready to start using Vault!
 
 ## Tech Stack
 
