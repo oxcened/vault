@@ -2,6 +2,9 @@
 CREATE TYPE "NetWorthCategoryType" AS ENUM ('ASSET', 'DEBT', 'BOTH');
 
 -- CreateEnum
+CREATE TYPE "TransactionCategoryType" AS ENUM ('INCOME', 'EXPENSE', 'TRANSFER');
+
+-- CreateEnum
 CREATE TYPE "TransactionType" AS ENUM ('INCOME', 'EXPENSE', 'TRANSFER');
 
 -- CreateTable
@@ -175,6 +178,7 @@ CREATE TABLE "Transaction" (
 CREATE TABLE "TransactionCategory" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "type" "TransactionCategoryType" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -609,24 +613,33 @@ INSERT INTO "NetWorthCategory" ("id", "name", "type", "isStock") VALUES
 ON CONFLICT ("name") DO NOTHING;
 
 -- Insert predefined transaction categories
-INSERT INTO "TransactionCategory" ("id", "name", "createdAt", "updatedAt") VALUES
-  ('cm8ax41c700013b6lt314dmwz', 'Housing', NOW(), NOW()),
-  ('cm8ax4hhq00033b6lb65nska8', 'Personal Care', NOW(), NOW()),
-  ('cm8ax4jxk00053b6l2ol9yn96', 'Groceries & Household', NOW(), NOW()),
-  ('cm8ax4mob00073b6ld1v6ypv9', 'Transport & Mobility', NOW(), NOW()),
-  ('cm8ax4osz00093b6lakgti7bj', 'Eating Out & Bars', NOW(), NOW()),
-  ('cm8ax4rix000b3b6l8ipg9qdd', 'Travel & Holidays', NOW(), NOW()),
-  ('cm8ax4ugy000d3b6lxsfjt8e8', 'Shopping', NOW(), NOW()),
-  ('cm8ax4wia000f3b6lt3ugtp6i', 'Leisure & Entertainment', NOW(), NOW()),
-  ('cm8ax57vp000n3b6lqqpkmgrh', 'Gifts & Donations', NOW(), NOW()),
-  ('cm8ax52xq000l3b6le9ouj3db', 'Financial Fees & Charges', NOW(), NOW()),
-  ('cm8ax5b0k000p3b6l9jtyrmz8', 'Taxes & Contributions', NOW(), NOW()),
-  ('cm8ax5d41000r3b6lr3its2br', 'Other & Unexpected', NOW(), NOW()),
-  
-  ('cm8ax5n1y001d3b6lr4jlt4ov', 'Salary & Wages', NOW(), NOW()),
-  ('cm8ax5kbf00193b6l5jtjuue6', 'Freelance & Side Hustles', NOW(), NOW()),
-  ('cm8ax5pf4001f3b6ldct9ukg3', 'Business Income', NOW(), NOW()),
-  ('cm8ax5s2c001h3b6l6klqp4x1', 'Investments & Dividends', NOW(), NOW()),
-  ('cm8ax5u3a001j3b6l69hwl07i', 'Pension & Retirement Income', NOW(), NOW()),
-  ('cm8ax5vyj001l3b6lk7vuzvfq', 'Rental Income', NOW(), NOW())
+INSERT INTO "TransactionCategory" ("id", "name", "type", "createdAt", "updatedAt") VALUES
+  ('cm8ax41c700013b6lt314dmwz', 'Housing', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4hhq00033b6lb65nska8', 'Personal Care', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4jxk00053b6l2ol9yn96', 'Groceries & Household', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4mob00073b6ld1v6ypv9', 'Transport & Mobility', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4osz00093b6lakgti7bj', 'Eating Out & Bars', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4rix000b3b6l8ipg9qdd', 'Travel & Holidays', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4ugy000d3b6lxsfjt8e8', 'Shopping', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax4wia000f3b6lt3ugtp6i', 'Leisure & Entertainment', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax57vp000n3b6lqqpkmgrh', 'Gifts & Donations', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax52xq000l3b6le9ouj3db', 'Financial Fees & Charges', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax5b0k000p3b6l9jtyrmz8', 'Taxes & Contributions', 'EXPENSE', NOW(), NOW()),
+  ('cm8ax5d41000r3b6lr3its2br', 'Other & Unexpected', 'EXPENSE', NOW(), NOW()),
+
+  ('cm8ax5n1y001d3b6lr4jlt4ov', 'Salary & Wages', 'INCOME', NOW(), NOW()),
+  ('cm8ax5kbf00193b6l5jtjuue6', 'Freelance & Side Hustles', 'INCOME', NOW(), NOW()),
+  ('cm8ax5pf4001f3b6ldct9ukg3', 'Business Income', 'INCOME', NOW(), NOW()),
+  ('cm8ax5s2c001h3b6l6klqp4x1', 'Investments & Dividends', 'INCOME', NOW(), NOW()),
+  ('cm8ax5u3a001j3b6l69hwl07i', 'Pension & Retirement Income', 'INCOME', NOW(), NOW()),
+  ('cm8ax5vyj001l3b6lk7vuzvfq', 'Rental Income', 'INCOME', NOW(), NOW()),
+
+  ('cm8ay5cw1000008l8by1qfy7c', 'Internal Transfer', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5gre000108l81xv52bpb', 'Interbank Transfer', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5ipq000208l8hcf4gq32', 'Checking to Savings', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5kls000308l8bx4h78pn', 'Savings to Checking', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5ncu000408l8dnmh9kgm', 'Credit Card Payment', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5os4000508l85x40eowd', 'Investment Transfer', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5r8k000608l89wgb5yyr', 'Wire Transfer', 'TRANSFER', NOW(), NOW()),
+  ('cm8ay5sst000708l8ayfr0fpx', 'ACH Transfer', 'TRANSFER', NOW(), NOW())
 ON CONFLICT ("name") DO NOTHING;
