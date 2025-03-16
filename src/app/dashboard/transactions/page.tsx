@@ -17,7 +17,6 @@ import { Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
-import { useBreakpoint } from "~/hooks/useBreakpoint";
 import { TransactionTable } from "~/components/transaction-table";
 
 export default function TransactionsPage() {

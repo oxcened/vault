@@ -47,7 +47,7 @@ export function TransactionTable({
   if (!data.length) {
     return (
       <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-        You don't have any transactions yet
+        You don&apos;t have any transactions yet
       </div>
     );
   }

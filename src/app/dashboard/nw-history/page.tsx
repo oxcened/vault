@@ -49,7 +49,7 @@ export default async function NwHistoryPage() {
       <div className="mx-auto w-full max-w-screen-md p-5">
         {!data.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have a net worth history yet
+            You don&apos;t have a net worth history yet
           </div>
         )}
         {!!data.length && (

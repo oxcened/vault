@@ -143,7 +143,7 @@ export default function CashFlowPage() {
 
         {!isLoading && !cashFlowByMonthData?.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have a cash flow history yet
+            You don&apos;t have a cash flow history yet
           </div>
         )}
 
@@ -164,7 +164,6 @@ export default function CashFlowPage() {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 3)}
                 />
 
                 <YAxis
@@ -188,7 +187,7 @@ export default function CashFlowPage() {
 
         {!isLoading && !cashFlowByCategoryData?.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have a cash flow this month yet
+            You don&apos;t have a cash flow this month yet
           </div>
         )}
 

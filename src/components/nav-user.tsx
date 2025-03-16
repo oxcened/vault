@@ -1,26 +1,15 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronRight,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
@@ -30,7 +19,6 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
-import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
 
 export function NavUser({
   user,

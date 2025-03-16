@@ -29,7 +29,8 @@ export const netWorthAssetRouter = createTRPCRouter({
           },
         });
 
-        const quantity = evaluate(input.initialQuantity);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const quantity: number = evaluate(input.initialQuantity);
 
         // Create the initial quantity record.
         const quantityRecord = await tx.netWorthAssetQuantity.create({

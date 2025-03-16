@@ -147,9 +147,9 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const user: React.ComponentProps<typeof NavUser>["user"] = {
-    avatar: session?.user.image || "",
-    email: session?.user.email || "john.doe@example.com",
-    name: session?.user.name || "John Doe",
+    avatar: session?.user.image ?? "",
+    email: session?.user.email ?? "john.doe@example.com",
+    name: session?.user.name ?? "John Doe",
   };
 
   return (

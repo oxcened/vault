@@ -75,7 +75,7 @@ export default function NewTransactionDialog({
   useEffect(() => {
     if (!isOpen) return;
     form.reset();
-  }, [isOpen]);
+  }, [isOpen, form]);
 
   const watchType = form.watch("type");
 

@@ -76,7 +76,7 @@ export default function NewAssetDialog({
 
   useEffect(() => {
     form.resetField("tickerId");
-  }, [watchCategory]);
+  }, [watchCategory, form]);
 
   const { data: categories = [], isPending: isFetchingCategories } =
     api.netWorthCategory.getByType.useQuery(

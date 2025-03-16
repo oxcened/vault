@@ -16,7 +16,8 @@ export const DECIMAL_ZERO = new Prisma.Decimal(0);
 
 export function safeEvaluate(input: string): number | undefined {
   try {
-    const computed = evaluate(input);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const computed: number = evaluate(input);
     if (!isNaN(computed)) {
       return computed;
     }

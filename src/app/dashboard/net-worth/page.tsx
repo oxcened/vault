@@ -127,7 +127,7 @@ export default function NetWorthPage() {
 
         {!isLoading && !data?.netWorthHistory?.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have a net worth history yet
+            You don&apos;t have a net worth history yet
           </div>
         )}
 

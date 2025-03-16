@@ -36,7 +36,7 @@ async function getRecentTransactions({
 }
 
 export const dashboardRouter = createTRPCRouter({
-  getSummary: protectedProcedure.query(async ({ input, ctx }) => {
+  getSummary: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.$transaction(async (transaction) => {
       const userId = ctx.session.user.id;
 

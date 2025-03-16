@@ -50,7 +50,7 @@ export default function DashboardPage() {
 
       {!isLoading && status !== "loading" && !data && (
         <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-          You don't have enough data yet
+          You don&apos;t have enough data yet
         </div>
       )}
 

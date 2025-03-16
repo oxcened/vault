@@ -36,7 +36,6 @@ import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
-import { CreateExchangeRate } from "~/trpc/schemas/exchangeRate";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
@@ -91,7 +90,7 @@ export default function ExchangeRatesPage() {
         {isPending && <TableSkeleton />}
         {!isPending && !data.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have any exchange rates yet
+            You don&apos;t have any exchange rates yet
           </div>
         )}
         {!isPending && !!data.length && (

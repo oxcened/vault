@@ -84,7 +84,7 @@ async function getCashFlowByCategory({
 }
 
 export const cashFlowRouter = createTRPCRouter({
-  getMonthlyCashFlow: protectedProcedure.query(async ({ input, ctx }) => {
+  getMonthlyCashFlow: protectedProcedure.query(async ({ ctx }) => {
     const cashFlowByMonth = await ctx.db.cashFlow.findMany({
       where: {
         createdById: ctx.session.user.id,

@@ -128,7 +128,7 @@ export default function NetWorthHoldings<T extends Holding>({
 
         {!holdings.length && !isFetching && (
           <div className="mt-10 rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don't have any {holdingLabelPlural.toLocaleLowerCase()} yet
+            You don&apos;t have any {holdingLabelPlural.toLocaleLowerCase()} yet
           </div>
         )}
 
