@@ -31,7 +31,8 @@ Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple
 - **Multi-Currency Support** – Potential support for different currencies.
 - **Stock & Crypto Tracking** – Basic market tracking for stocks and crypto.
 - **Slick UI** – A clean and modern interface.
-- **Dark Mode Support** – Optimized for both light and dark themes.
+- **Dark Mode** – Optimized for both light and dark themes.
+- **Multi-User** – Log in using Discord and manage your own finances.
 
 ## Getting Started
 
