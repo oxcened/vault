@@ -60,10 +60,7 @@ export default function NewTransactionDialog({
       onSuccess();
     },
   });
-  const { data: categories = [], isPending: isFetchingCategories } =
-    api.transactionCategory.getAll.useQuery(undefined, {
-      enabled: isOpen,
-    });
+
   const form = useForm({
     defaultValues: {
       currency: APP_CURRENCY,
@@ -79,6 +76,18 @@ export default function NewTransactionDialog({
     if (!isOpen) return;
     form.reset();
   }, [isOpen]);
+
+  const watchType = form.watch("type");
+
+  const { data: categories = [], isPending: isFetchingCategories } =
+    api.transactionCategory.getByType.useQuery(
+      {
+        type: [watchType],
+      },
+      {
+        enabled: isOpen && !!watchType,
+      },
+    );
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
