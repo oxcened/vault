@@ -1,17 +1,37 @@
-# Vault
+<h1 align="center">
+  Vault
+</h1>
 
-**Vault** – A Modern Personal Finance Solution  
-Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple and effective way. Vault is an evolving project, with planned features like **multi-currency support**, **real-time exchange rates**, and **stock and crypto tracking**.
+<h4 align="center">A simple yet powerful personal finance app</h4>
+
+<p align="center">
+  <img alt="GitHub License" src="https://img.shields.io/github/license/oxcened/vault">
+</p>
+
+![Vault Dashboard](docs/screenshots/dashboard.png)
+
+Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple and effective way. Vault is an evolving project, with planned features like **multi-currency support**, **real-time exchange rates**, and **stock tracking**.
 
 ## 📌 Table of Contents
 
+- [Key Features](#-key-features)
 - [Getting Started](#getting-started)
-- [Roadmap](#-roadmap)
 - [Tech Stack](#tech-stack)
   - [Core Technologies](#core-technologies)
   - [UI & Components](#ui--components)
+- [Screenshots](#-screenshots)
 - [Who's Behind This?](#-whos-behind-this)
 - [License](#-license)
+
+## ✨ Key Features
+
+- **Net Worth Tracking** – A simple way to see assets and liabilities in one place.
+- **Cash Flow Insights** – A glance at how money moves over time.
+- **Expense Tracking** – A lightweight way to keep an eye on spending.
+- **Multi-Currency Support** – Potential support for different currencies.
+- **Stock & Crypto Tracking** – Basic market tracking for stocks and crypto.
+- **Slick UI** – A clean and modern interface.
+- **Dark Mode Support** – Optimized for both light and dark themes.
 
 ## Getting Started
 
@@ -132,15 +152,6 @@ npm run start
 
 Now you're ready to start using Vault!
 
-## ✨ Roadmap
-
-- **Net Worth Tracking** – A simple way to see assets and liabilities in one place.
-- **Cash Flow Insights** – A glance at how money moves over time.
-- **Expense Tracking** – A lightweight way to keep an eye on spending.
-- **Multi-Currency Support** – Potential support for different currencies.
-- **Stock & Crypto Tracking** – Basic market tracking for stocks and crypto.
-- **Slick UI** – A clean and modern interface.
-
 ## Tech Stack
 
 Vault is built with the **T3 Stack**, making it scalable and efficient.
@@ -158,6 +169,25 @@ Vault is built with the **T3 Stack**, making it scalable and efficient.
 
 - [Radix UI](https://www.radix-ui.com/) with [shadcn/ui](https://ui.shadcn.com) components.
 - [Lucide Icons](https://lucide.dev/) for sleek and simple icons.
+
+## 📸 Screenshots
+
+Here’s a quick look at Vault in action:
+
+- **Dashboard Overview**
+  ![Vault Dashboard](docs/screenshots/dashboard.png)
+
+- **Assets List**
+  ![Assets List](docs/screenshots/assets.png)
+
+- **Debts List**
+  ![Debts List](docs/screenshots/debts.png)
+
+- **Cash Flow Overview**
+  ![Cash Flow Overview](docs/screenshots/cash-flow.png)
+
+- **Transactions List**
+  ![Transactions List](docs/screenshots/transactions.png)
 
 ## 🛠 Who’s Behind This?
 
