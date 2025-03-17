@@ -3,8 +3,12 @@
  * for Docker builds.
  */
 import "./src/env.js";
+import nextPwa from "next-pwa";
 
-/** @type {import("next").NextConfig} */
-const config = {};
+const withPWA = nextPwa({
+  dest: "public",
+  skipWaiting: true,
+  clientsClaim: true,
+});
 
-export default config;
+export default withPWA({});
