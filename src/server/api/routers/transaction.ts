@@ -39,8 +39,7 @@ export const transactionRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const date = new Date(input.timestamp);
-      date.setUTCHours(0, 0, 0, 0);
+      const date = input.timestamp;
 
       const transaction = await ctx.db.transaction.create({
         data: {
