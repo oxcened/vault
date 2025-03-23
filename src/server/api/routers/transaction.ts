@@ -9,6 +9,8 @@ export const transactionRouter = createTRPCRouter({
         createdById: ctx.session.user.id,
       },
       orderBy: { timestamp: "desc" },
+      // TODO introduce pagination
+      take: 100,
       select: {
         id: true,
         amount: true,
