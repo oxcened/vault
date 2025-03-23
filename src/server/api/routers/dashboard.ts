@@ -14,7 +14,7 @@ async function getRecentTransactions({
       createdById: userId,
     },
     orderBy: {
-      createdAt: "desc",
+      timestamp: "desc",
     },
     take: 5,
     select: {
