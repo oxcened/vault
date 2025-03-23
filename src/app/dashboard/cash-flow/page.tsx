@@ -197,42 +197,6 @@ export default function CashFlowPage() {
               <p className="font-medium">Cash flow by category</p>
               <p className="text-muted-foreground">Current month</p>
             </div>
-            <ChartContainer
-              config={cashFlowByCategoryConfig}
-              className="h-[15rem] w-full"
-            >
-              <BarChart accessibilityLayer data={cashFlowByCategoryData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="category"
-                  tickLine={false}
-                  tickMargin={8}
-                  axisLine={false}
-                />
-                <YAxis
-                  dataKey="cashFlow"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  domain={calculateZeroInclusiveYAxisDomain}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Bar
-                  dataKey="cashFlow"
-                  fill="var(--color-cashFlow)"
-                  barSize={30}
-                  radius={4}
-                />
-              </BarChart>
-            </ChartContainer>
-
-            <div>
-              <p className="font-medium">Cash flow by category</p>
-              <p className="text-muted-foreground">Current month</p>
-            </div>
             <Table>
               <TableHeader>
                 <TableRow>
