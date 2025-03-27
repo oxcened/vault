@@ -16,25 +16,33 @@ import {
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
 import { Currency } from "./ui/number";
-import { ArrowRight, MoreHorizontal } from "lucide-react";
+import {
+  ArrowRight,
+  MoreHorizontal,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import Link from "next/link";
 import { type Prisma, type TransactionType } from "@prisma/client";
 
+export type TransactionRow = {
+  id: string;
+  timestamp: Date;
+  amount: Prisma.Decimal;
+  type: TransactionType;
+  category: {
+    name: string;
+  };
+  description: string;
+  currency: string;
+};
+
 export type TransactionTableProps = {
-  data: {
-    id: string;
-    timestamp: Date;
-    amount: Prisma.Decimal;
-    type: TransactionType;
-    category: {
-      name: string;
-    };
-    description: string;
-    currency: string;
-  }[];
+  data: TransactionRow[];
   showSeeAllLink?: boolean;
   showActions?: boolean;
+  onEditTransaction?: (id: string) => void;
   onDeleteTransaction?: (id: string) => void;
 };
 
@@ -43,6 +51,7 @@ export function TransactionTable({
   showSeeAllLink,
   showActions,
   onDeleteTransaction,
+  onEditTransaction,
 }: TransactionTableProps) {
   if (!data.length) {
     return (
@@ -127,8 +136,15 @@ export function TransactionTable({
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem
+                        onClick={() => onEditTransaction?.(transaction.id)}
+                      >
+                        <PencilIcon />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         onClick={() => onDeleteTransaction?.(transaction.id)}
                       >
+                        <Trash2Icon />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>

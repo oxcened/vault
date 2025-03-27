@@ -11,13 +11,14 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { api } from "~/trpc/react";
+import { api, RouterOutputs } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
 import { TransactionTable } from "~/components/transaction-table";
+import EditTransactionDialog from "./EditTransactionDialog";
 
 export default function TransactionsPage() {
   const { data = [], refetch, isPending } = api.transaction.getAll.useQuery();
@@ -29,7 +30,20 @@ export default function TransactionsPage() {
     },
   });
 
-  const [isNewTransaction, setNewTransaction] = useState(false);
+  const [isNewDialogOpen, setNewDialogOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] =
+    useState<RouterOutputs["transaction"]["getAll"][number]>();
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+
+  function handleEditTransaction(id: string) {
+    const transaction = data.find((t) => t.id === id);
+    if (!transaction) {
+      toast.error("Failed to find the transaction.");
+      return;
+    }
+    setEditingTransaction(transaction);
+    setEditDialogOpen(true);
+  }
 
   return (
     <>
@@ -54,7 +68,7 @@ export default function TransactionsPage() {
           variant="outline"
           className="ml-auto"
           size="icon"
-          onClick={() => setNewTransaction(true)}
+          onClick={() => setNewDialogOpen(true)}
         >
           <Plus />
         </Button>
@@ -67,13 +81,23 @@ export default function TransactionsPage() {
             showActions
             data={data}
             onDeleteTransaction={(id) => deleteTransaction({ id })}
+            onEditTransaction={handleEditTransaction}
           />
         )}
       </div>
 
       <NewTransactionDialog
-        isOpen={isNewTransaction}
-        onOpenChange={setNewTransaction}
+        key={`new-transaction-dialog-${isNewDialogOpen}`}
+        isOpen={isNewDialogOpen}
+        onOpenChange={setNewDialogOpen}
+        onSuccess={refetch}
+      />
+
+      <EditTransactionDialog
+        key={`edit-transaction-dialog-${isEditDialogOpen}`}
+        isOpen={isEditDialogOpen}
+        transaction={editingTransaction}
+        onOpenChange={setEditDialogOpen}
         onSuccess={refetch}
       />
     </>
