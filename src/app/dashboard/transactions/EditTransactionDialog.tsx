@@ -17,6 +17,7 @@ import { Prisma, TransactionType } from "@prisma/client";
 
 export type EditTransactionDialogProps = {
   transaction?: {
+    id: string;
     amount: Prisma.Decimal;
     type: TransactionType;
     timestamp: Date;
