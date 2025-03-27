@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { updateCashFlowFromDate } from "~/server/utils/db";
+import { createTransactionSchema } from "~/trpc/schemas/transaction";
 
 export const transactionRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -30,22 +31,11 @@ export const transactionRouter = createTRPCRouter({
   }),
 
   create: protectedProcedure
-    .input(
-      z.object({
-        currency: z.string().length(3),
-        amount: z.number(),
-        timestamp: z.date(),
-        description: z.string(),
-        type: z.enum(["INCOME", "EXPENSE", "TRANSFER"]),
-        categoryId: z.string(),
-      }),
-    )
+    .input(createTransactionSchema)
     .mutation(async ({ input, ctx }) => {
-      const date = input.timestamp;
-
       const transaction = await ctx.db.transaction.create({
         data: {
-          timestamp: date,
+          timestamp: input.timestamp,
           amount: input.amount,
           currency: input.currency,
           description: input.description,
@@ -58,7 +48,7 @@ export const transactionRouter = createTRPCRouter({
       await updateCashFlowFromDate({
         db: ctx.db,
         createdBy: ctx.session.user.id,
-        date,
+        date: input.timestamp,
       });
 
       return transaction;
