@@ -1,15 +1,19 @@
 "use client";
 
-import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
+import { type QueryClient } from "@tanstack/react-query";
 import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import { useState } from "react";
 import SuperJSON from "superjson";
-
 import { type AppRouter } from "~/server/api/root";
 import { createQueryClient } from "./query-client";
 import { Prisma } from "@prisma/client";
+import {
+  Persister,
+  PersistQueryClientProvider,
+} from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 SuperJSON.registerCustom<Prisma.Decimal, string>(
   {
@@ -28,6 +32,19 @@ const getQueryClient = () => {
   }
   // Browser: use singleton pattern to keep the same query client
   return (clientQueryClientSingleton ??= createQueryClient());
+};
+let clientPersisterSingleton: Persister | undefined = undefined;
+const getPersister = () => {
+  if (typeof window === "undefined") {
+    // Server: no storage
+    return createSyncStoragePersister({
+      storage: undefined,
+    });
+  }
+  // Browser: use singleton pattern to keep the same persister
+  return (clientPersisterSingleton ??= createSyncStoragePersister({
+    storage: window.localStorage,
+  }));
 };
 
 export const api = createTRPCReact<AppRouter>();
@@ -48,6 +65,7 @@ export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
+  const persister = getPersister();
 
   const [trpcClient] = useState(() =>
     api.createClient({
@@ -71,11 +89,14 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister }}
+    >
       <api.Provider client={trpcClient} queryClient={queryClient}>
         {props.children}
       </api.Provider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
 
