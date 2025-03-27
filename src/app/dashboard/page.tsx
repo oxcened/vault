@@ -16,9 +16,10 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
 import { DECIMAL_ZERO } from "~/utils/number";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export default function DashboardPage() {
-  const { data, isLoading } = api.dashboard.getSummary.useQuery();
+  const { data, isPending } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
 
   const netWorthForecast = data?.netWorth?.netValue.plus(
@@ -42,22 +43,26 @@ export default function DashboardPage() {
         </Breadcrumb>
       </header>
 
-      {(isLoading || status === "loading") && (
+      {isPending && (
         <div className="mx-auto w-full max-w-screen-md p-5">
           <TableSkeleton />
         </div>
       )}
 
-      {!isLoading && status !== "loading" && !data && (
+      {!isPending && !data && (
         <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
           You don&apos;t have enough data yet
         </div>
       )}
 
-      {!isLoading && status !== "loading" && data && (
+      {!isPending && data && (
         <>
           <div className="mx-auto w-full max-w-screen-md p-5">
-            <p className="text-3xl">Hey, {session!.user.name}</p>
+            {status === "loading" ? (
+              <Skeleton className="h-9" />
+            ) : (
+              <p className="text-3xl">Hey, {session!.user.name}</p>
+            )}
 
             <div className="mt-10 flex flex-col gap-16">
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">

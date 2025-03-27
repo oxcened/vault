@@ -56,7 +56,7 @@ const cashFlowByCategoryConfig = {
 } satisfies ChartConfig;
 
 export default function CashFlowPage() {
-  const { data, isLoading } = api.cashFlow.getMonthlyCashFlow.useQuery();
+  const { data, isPending } = api.cashFlow.getMonthlyCashFlow.useQuery();
 
   const cashFlowByMonthData = data?.cashFlowByMonth.map((item) => {
     return {
@@ -105,9 +105,9 @@ export default function CashFlowPage() {
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-md flex-col gap-10 p-5">
-        {isLoading && <TableSkeleton />}
+        {isPending && <TableSkeleton />}
 
-        {!isLoading && (
+        {!isPending && (
           <div>
             <div className="flex items-center gap-2">
               <p className="text-muted-foreground">Cash flow</p>
@@ -141,13 +141,13 @@ export default function CashFlowPage() {
           </div>
         )}
 
-        {!isLoading && !cashFlowByMonthData?.length && (
+        {!isPending && !cashFlowByMonthData?.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
             You don&apos;t have a cash flow history yet
           </div>
         )}
 
-        {!isLoading && !!cashFlowByMonthData?.length && (
+        {!isPending && !!cashFlowByMonthData?.length && (
           <>
             <div>
               <p className="font-medium">Cash flow history</p>
@@ -185,13 +185,13 @@ export default function CashFlowPage() {
           </>
         )}
 
-        {!isLoading && !cashFlowByCategoryData?.length && (
+        {!isPending && !cashFlowByCategoryData?.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
             You don&apos;t have a cash flow this month yet
           </div>
         )}
 
-        {!isLoading && !!cashFlowByCategoryData?.length && (
+        {!isPending && !!cashFlowByCategoryData?.length && (
           <>
             <div>
               <p className="font-medium">Cash flow by category</p>

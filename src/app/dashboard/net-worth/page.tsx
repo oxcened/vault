@@ -50,7 +50,7 @@ const netWorthChartConfig = {
 } satisfies ChartConfig;
 
 export default function NetWorthPage() {
-  const { data, isLoading } = api.netWorthOverview.get.useQuery();
+  const { data, isPending } = api.netWorthOverview.get.useQuery();
 
   const chartData = data?.netWorthHistory.map((nw) => ({
     month: formatDate({
@@ -86,9 +86,9 @@ export default function NetWorthPage() {
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-md flex-col gap-10 p-5">
-        {isLoading && <TableSkeleton />}
+        {isPending && <TableSkeleton />}
 
-        {!isLoading && (
+        {!isPending && (
           <div>
             <div className="flex items-center gap-2">
               <p className="text-muted-foreground">Net worth</p>
@@ -125,13 +125,13 @@ export default function NetWorthPage() {
           </div>
         )}
 
-        {!isLoading && !data?.netWorthHistory?.length && (
+        {!isPending && !data?.netWorthHistory?.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
             You don&apos;t have a net worth history yet
           </div>
         )}
 
-        {!isLoading && !!chartData?.length && (
+        {!isPending && !!chartData?.length && (
           <>
             <div>
               <p className="font-medium">Net worth history</p>
