@@ -47,18 +47,18 @@ export default function StockPricesPage() {
     },
   });
 
+  const utils = api.useUtils();
+
   const [editingPrice, setEditingPrice] = useState<StockPriceHistory>();
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 
-  function handleStockCreated() {
-    setNewDialogOpen(false);
+  function handleStockCreatedOrEdited() {
     void refetch();
-  }
-
-  function handleStockEdited() {
-    setEditDialogOpen(false);
-    void refetch();
+    utils.netWorthOverview.get.invalidate();
+    utils.netWorthAsset.getAll.invalidate();
+    utils.netWorthAsset.getDetailById.invalidate();
+    utils.dashboard.getSummary.invalidate();
   }
 
   function handleEditClick(stockPrice: StockPriceHistory) {
@@ -155,8 +155,8 @@ export default function StockPricesPage() {
       <NewStockPriceDialog
         key={`new-stock-price-dialog-${isNewDialogOpen}`}
         isOpen={isNewDialogOpen}
-        onSuccess={handleStockCreated}
         onOpenChange={() => setNewDialogOpen(false)}
+        onSuccess={handleStockCreatedOrEdited}
       />
 
       <EditStockPriceDialog
@@ -164,7 +164,7 @@ export default function StockPricesPage() {
         isOpen={isEditDialogOpen}
         stockPrice={editingPrice}
         onOpenChange={setEditDialogOpen}
-        onSuccess={handleStockEdited}
+        onSuccess={handleStockCreatedOrEdited}
       />
     </>
   );

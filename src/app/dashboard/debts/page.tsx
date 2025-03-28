@@ -18,8 +18,16 @@ export default function AssetsPage() {
     },
   });
 
+  const utils = api.useUtils();
+
   const [detailsDialog, setDetailsDialog] = useState<NetWorthAsset["id"]>();
   const [newDialog, setNewDialog] = useState(false);
+
+  function handleDebtSuccess() {
+    refetch();
+    utils.netWorthOverview.get.invalidate();
+    utils.dashboard.getSummary.invalidate();
+  }
 
   return (
     <>
@@ -37,7 +45,7 @@ export default function AssetsPage() {
         key={String(newDialog)}
         isOpen={newDialog}
         onOpenChange={setNewDialog}
-        onSuccess={refetch}
+        onSuccess={handleDebtSuccess}
       />
 
       <DebtDetailDialog

@@ -57,6 +57,18 @@ export default function ExchangeRatesPage() {
 
   const [isNewDialog, setNewDialog] = useState(false);
 
+  const utils = api.useUtils();
+
+  function handleRateCreatedOrEdited() {
+    void refetch();
+    utils.netWorthOverview.get.invalidate();
+    utils.netWorthAsset.getAll.invalidate();
+    utils.netWorthAsset.getDetailById.invalidate();
+    utils.netWorthDebt.getAll.invalidate();
+    utils.netWorthDebt.getDetailById.invalidate();
+    utils.dashboard.getSummary.invalidate();
+  }
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -146,14 +158,14 @@ export default function ExchangeRatesPage() {
         isOpen={isEditDialog}
         exchangeRate={editingRate}
         onOpenChange={setEditDialog}
-        onSuccess={refetch}
+        onSuccess={handleRateCreatedOrEdited}
       />
 
       <NewExchangeRateDialog
         key={`new-exchange-rate-dialog-${isNewDialog}`}
         isOpen={isNewDialog}
         onOpenChange={setNewDialog}
-        onSuccess={refetch}
+        onSuccess={handleRateCreatedOrEdited}
       />
     </>
   );

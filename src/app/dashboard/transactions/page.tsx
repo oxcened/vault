@@ -50,7 +50,7 @@ export default function TransactionsPage() {
     refetch();
     utils.cashFlow.getMonthlyCashFlow.invalidate();
     utils.dashboard.getSummary.invalidate();
-  };
+  }
 
   return (
     <>
