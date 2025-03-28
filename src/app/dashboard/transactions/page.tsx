@@ -22,6 +22,7 @@ import EditTransactionDialog from "./EditTransactionDialog";
 
 export default function TransactionsPage() {
   const { data = [], refetch, isPending } = api.transaction.getAll.useQuery();
+  const utils = api.useUtils();
 
   const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
     onSuccess: () => {
@@ -44,6 +45,12 @@ export default function TransactionsPage() {
     setEditingTransaction(transaction);
     setEditDialogOpen(true);
   }
+
+  function handleTransactionSuccess() {
+    refetch();
+    utils.cashFlow.getMonthlyCashFlow.invalidate();
+    utils.dashboard.getSummary.invalidate();
+  };
 
   return (
     <>
@@ -90,7 +97,7 @@ export default function TransactionsPage() {
         key={`new-transaction-dialog-${isNewDialogOpen}`}
         isOpen={isNewDialogOpen}
         onOpenChange={setNewDialogOpen}
-        onSuccess={refetch}
+        onSuccess={handleTransactionSuccess}
       />
 
       <EditTransactionDialog
@@ -98,7 +105,7 @@ export default function TransactionsPage() {
         isOpen={isEditDialogOpen}
         transaction={editingTransaction}
         onOpenChange={setEditDialogOpen}
-        onSuccess={refetch}
+        onSuccess={handleTransactionSuccess}
       />
     </>
   );
