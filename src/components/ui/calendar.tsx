@@ -222,7 +222,6 @@ function Calendar({
         ),
         MonthGrid: ({ className, children, ...props }) => (
           <MonthGrid
-            children={children}
             className={className}
             displayYears={displayYears}
             startMonth={startMonth}
@@ -230,7 +229,9 @@ function Calendar({
             navView={navView}
             setNavView={setNavView}
             {...props}
-          />
+          >
+            {children}
+          </MonthGrid>
         ),
       }}
       numberOfMonths={columnsDisplayed}
@@ -270,7 +271,7 @@ function Nav({
           differenceInCalendarDays(
             new Date(displayYears.from - 1, 0, 1),
             startMonth,
-          ) < 0) ||
+          ) < 0) ??
         (endMonth &&
           differenceInCalendarDays(
             new Date(displayYears.from - 1, 0, 1),
@@ -288,7 +289,7 @@ function Nav({
           differenceInCalendarDays(
             new Date(displayYears.to + 1, 0, 1),
             startMonth,
-          ) < 0) ||
+          ) < 0) ??
         (endMonth &&
           differenceInCalendarDays(
             new Date(displayYears.to + 1, 0, 1),
