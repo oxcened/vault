@@ -33,7 +33,6 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Calendar } from "~/components/ui/calendar";
-import { localTimeToUTCTime } from "~/utils/date";
 import { cn } from "~/lib/utils";
 import { forwardRef, useImperativeHandle } from "react";
 
@@ -220,9 +219,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date) =>
-                          date && field.onChange(localTimeToUTCTime({ date }))
-                        }
+                        onSelect={field.onChange}
                         disabled={(date) => date > new Date()}
                         initialFocus
                       />

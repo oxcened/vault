@@ -22,7 +22,6 @@ import {
   type CreateExchangeRate,
   createExchangeRateSchema,
 } from "~/trpc/schemas/exchangeRate";
-import { localTimeToUTCTime } from "~/utils/date";
 
 export type ExchangeRateDialogFormProps = {
   initialData?: CreateExchangeRate;
@@ -127,10 +126,9 @@ export function ExchangeRateDialogForm({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
+                    timeZone="UTC"
                     selected={field.value}
-                    onSelect={(date) =>
-                      date && field.onChange(localTimeToUTCTime({ date }))
-                    }
+                    onSelect={field.onChange}
                     disabled={(date) => date > new Date()}
                     initialFocus
                   />

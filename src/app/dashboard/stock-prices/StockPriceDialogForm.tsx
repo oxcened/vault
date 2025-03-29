@@ -30,7 +30,6 @@ import {
   type CreateStockPrice,
   createStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
-import { localTimeToUTCTime } from "~/utils/date";
 
 export type StockPriceDialogFormProps = {
   initialData?: CreateStockPrice;
@@ -140,10 +139,9 @@ export function StockPriceDialogForm({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
+                    timeZone="UTC"
                     selected={field.value}
-                    onSelect={(date) =>
-                      date && field.onChange(localTimeToUTCTime({ date }))
-                    }
+                    onSelect={field.onChange}
                     disabled={(date) => date > new Date()}
                     initialFocus
                   />
