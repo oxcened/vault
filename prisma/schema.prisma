@@ -78,8 +78,8 @@ model NetWorth {
     createdById String
     createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
-    @@unique([timestamp])
-    @@index([timestamp])
+    @@unique([timestamp, createdById])
+    @@index([timestamp, createdById])
 }
 
 enum NetWorthCategoryType {
@@ -229,6 +229,6 @@ model CashFlow {
     updatedAt   DateTime @updatedAt
     createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
-    @@unique([timestamp])
-    @@index([timestamp])
+    @@unique([timestamp, createdById])
+    @@index([timestamp, createdById])
 }
