@@ -61,12 +61,12 @@ export default function ExchangeRatesPage() {
 
   function handleRateCreatedOrEdited() {
     void refetch();
-    utils.netWorthOverview.get.invalidate();
-    utils.netWorthAsset.getAll.invalidate();
-    utils.netWorthAsset.getDetailById.invalidate();
-    utils.netWorthDebt.getAll.invalidate();
-    utils.netWorthDebt.getDetailById.invalidate();
-    utils.dashboard.getSummary.invalidate();
+    void utils.netWorthOverview.get.invalidate();
+    void utils.netWorthAsset.getAll.invalidate();
+    void utils.netWorthAsset.getDetailById.invalidate();
+    void utils.netWorthDebt.getAll.invalidate();
+    void utils.netWorthDebt.getDetailById.invalidate();
+    void utils.dashboard.getSummary.invalidate();
   }
 
   return (

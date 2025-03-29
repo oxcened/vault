@@ -12,8 +12,8 @@ import {
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import TransactionForm from "./TransactionForm";
-import { CreateTransaction } from "~/trpc/schemas/transaction";
-import { Prisma, TransactionType } from "@prisma/client";
+import { type CreateTransaction } from "~/trpc/schemas/transaction";
+import { type Prisma, type TransactionType } from "@prisma/client";
 
 export type EditTransactionDialogProps = {
   transaction?: {

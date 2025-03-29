@@ -29,26 +29,12 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ComposedChart,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, CartesianGrid, ComposedChart, XAxis, YAxis } from "recharts";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
 
 const cashFlowByMonthConfig = {
-  cashFlow: {
-    label: "Cash flow",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
-
-const cashFlowByCategoryConfig = {
   cashFlow: {
     label: "Cash flow",
     color: "hsl(var(--chart-1))",

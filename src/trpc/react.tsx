@@ -10,7 +10,7 @@ import { type AppRouter } from "~/server/api/root";
 import { createQueryClient } from "./query-client";
 import { Prisma } from "@prisma/client";
 import {
-  Persister,
+  type Persister,
   PersistQueryClientProvider,
 } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";

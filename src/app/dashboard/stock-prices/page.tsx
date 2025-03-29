@@ -55,10 +55,10 @@ export default function StockPricesPage() {
 
   function handleStockCreatedOrEdited() {
     void refetch();
-    utils.netWorthOverview.get.invalidate();
-    utils.netWorthAsset.getAll.invalidate();
-    utils.netWorthAsset.getDetailById.invalidate();
-    utils.dashboard.getSummary.invalidate();
+    void utils.netWorthOverview.get.invalidate();
+    void utils.netWorthAsset.getAll.invalidate();
+    void utils.netWorthAsset.getDetailById.invalidate();
+    void utils.dashboard.getSummary.invalidate();
   }
 
   function handleEditClick(stockPrice: StockPriceHistory) {

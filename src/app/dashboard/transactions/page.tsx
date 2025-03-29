@@ -11,7 +11,7 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { api, RouterOutputs } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
@@ -47,9 +47,9 @@ export default function TransactionsPage() {
   }
 
   function handleTransactionSuccess() {
-    refetch();
-    utils.cashFlow.getMonthlyCashFlow.invalidate();
-    utils.dashboard.getSummary.invalidate();
+    void refetch();
+    void utils.cashFlow.getMonthlyCashFlow.invalidate();
+    void utils.dashboard.getSummary.invalidate();
   }
 
   return (

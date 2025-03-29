@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
-  CreateTransaction,
+  type CreateTransaction,
   createTransactionSchema,
 } from "~/trpc/schemas/transaction";
 import { TransactionType } from "@prisma/client";

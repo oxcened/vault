@@ -24,9 +24,9 @@ export default function AssetsPage() {
   const [newDialog, setNewDialog] = useState(false);
 
   function handleAssetSuccess() {
-    refetch();
-    utils.netWorthOverview.get.invalidate();
-    utils.dashboard.getSummary.invalidate();
+    void refetch();
+    void utils.netWorthOverview.get.invalidate();
+    void utils.dashboard.getSummary.invalidate();
   }
 
   return (
