@@ -35,6 +35,7 @@ import {
 import { Calendar } from "~/components/ui/calendar";
 import { cn } from "~/lib/utils";
 import { forwardRef, useImperativeHandle } from "react";
+import { TimePicker } from "~/components/ui/time-picker";
 
 export type TransactionFormRef = { reset: () => void };
 
@@ -223,6 +224,12 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                         disabled={(date) => date > new Date()}
                         initialFocus
                       />
+                      <div className="border-t border-border p-3">
+                        <TimePicker
+                          date={field.value}
+                          setDate={field.onChange}
+                        />
+                      </div>
                     </PopoverContent>
                   </Popover>
                   <FormMessage />
