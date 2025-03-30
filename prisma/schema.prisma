@@ -232,3 +232,19 @@ model CashFlow {
     @@unique([timestamp, createdById])
     @@index([timestamp, createdById])
 }
+
+model DerivedDataDependency {
+    id String @id @default(cuid())
+
+    targetType String
+    targetKey  String
+
+    dependencyType String
+    dependencyKey  String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([targetType, targetKey])
+    @@index([dependencyType, dependencyKey])
+}

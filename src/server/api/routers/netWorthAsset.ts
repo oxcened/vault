@@ -5,7 +5,7 @@ import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
-import { updateNetWorthFromDate } from "~/server/utils/db";
+import { recomputeNetWorthForUserFrom } from "~/server/utils/db";
 import { evaluate } from "mathjs";
 
 export const netWorthAssetRouter = createTRPCRouter({
@@ -85,11 +85,10 @@ export const netWorthAssetRouter = createTRPCRouter({
           });
         }
 
-        // Update net worth
-        await updateNetWorthFromDate({
+        await recomputeNetWorthForUserFrom({
           db: tx,
-          date,
-          createdBy: ctx.session.user.id,
+          userId: ctx.session.user.id,
+          startDate: date,
         });
 
         return {
@@ -121,10 +120,10 @@ export const netWorthAssetRouter = createTRPCRouter({
         if (startDate) {
           startDate?.setUTCHours(0, 0, 0, 0);
 
-          await updateNetWorthFromDate({
+          await recomputeNetWorthForUserFrom({
             db: tx,
-            date: startDate,
-            createdBy: ctx.session.user.id,
+            userId: ctx.session.user.id,
+            startDate,
           });
         }
 

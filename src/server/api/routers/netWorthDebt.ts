@@ -4,7 +4,7 @@ import { getNetWorthDebtHistory, getNetWorthDebts } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
-import { updateNetWorthFromDate } from "~/server/utils/db";
+import { recomputeNetWorthForUserFrom } from "~/server/utils/db";
 import { evaluate } from "mathjs";
 
 export const netWorthDebtRouter = createTRPCRouter({
@@ -61,10 +61,10 @@ export const netWorthDebtRouter = createTRPCRouter({
           });
         }
 
-        await updateNetWorthFromDate({
+        await recomputeNetWorthForUserFrom({
           db: tx,
-          date,
-          createdBy: ctx.session.user.id,
+          userId: ctx.session.user.id,
+          startDate: date,
         });
 
         return {
@@ -95,10 +95,10 @@ export const netWorthDebtRouter = createTRPCRouter({
         if (startDate) {
           startDate?.setUTCHours(0, 0, 0, 0);
 
-          await updateNetWorthFromDate({
+          await recomputeNetWorthForUserFrom({
             db: tx,
-            date: startDate,
-            createdBy: ctx.session.user.id,
+            userId: ctx.session.user.id,
+            startDate,
           });
         }
 

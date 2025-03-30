@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { updateNetWorthFromDate } from "~/server/utils/db";
 
 export const netWorthRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -31,17 +30,4 @@ export const netWorthRouter = createTRPCRouter({
       },
     });
   }),
-  updateFromDate: protectedProcedure
-    .input(
-      z.object({
-        date: z.date(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return updateNetWorthFromDate({
-        db: ctx.db,
-        date: input.date,
-        createdBy: ctx.session.user.id,
-      });
-    }),
 });

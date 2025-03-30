@@ -4,7 +4,7 @@ import {
   createStockPriceSchema,
   updateStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
-import { updateNetWorthFromDate } from "~/server/utils/db";
+import { recomputeDerivedDataForDependency } from "~/server/utils/db";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -20,24 +20,13 @@ export const stockPriceRouter = createTRPCRouter({
     .input(createStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
       return ctx.db.$transaction(async (transaction) => {
-        const timestamp = new Date(input.timestamp);
-        timestamp.setUTCHours(0, 0, 0, 0);
-
         const created = transaction.stockPriceHistory.create({
           data: {
             tickerId: input.tickerId,
             price: input.price,
-            timestamp: timestamp,
+            timestamp: input.timestamp,
           },
         });
-
-        if (timestamp) {
-          await updateNetWorthFromDate({
-            db: transaction,
-            date: timestamp,
-            createdBy: ctx.session.user.id,
-          });
-        }
 
         return created;
       });
@@ -50,27 +39,13 @@ export const stockPriceRouter = createTRPCRouter({
         const updated = await tx.stockPriceHistory.update({
           where: { id: input.id },
           data: { price: input.price, timestamp: input.timestamp },
-          include: { ticker: true },
         });
 
-        const earliest = await tx.netWorthAssetQuantity.findFirst({
-          where: {
-            netWorthAsset: {
-              tickerId: updated.tickerId,
-            },
-          },
-          orderBy: {
-            timestamp: "asc",
-          },
+        await recomputeDerivedDataForDependency({
+          db: tx,
+          dependencyType: "StockPrice",
+          dependencyKey: updated.id,
         });
-
-        if (earliest) {
-          await updateNetWorthFromDate({
-            db: tx,
-            date: earliest.timestamp,
-            createdBy: ctx.session.user.id,
-          });
-        }
 
         return updated;
       });
@@ -79,8 +54,18 @@ export const stockPriceRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.stockPriceHistory.delete({
-        where: { id: input.id },
+      return ctx.db.$transaction(async (tx) => {
+        const deleted = await tx.stockPriceHistory.delete({
+          where: { id: input.id },
+        });
+
+        await recomputeDerivedDataForDependency({
+          db: tx,
+          dependencyType: "StockPrice",
+          dependencyKey: deleted.id,
+        });
+
+        return deleted;
       });
     }),
 });
