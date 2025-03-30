@@ -5,14 +5,14 @@ import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
-import { recomputeNetWorthForUserFrom } from "~/server/utils/db";
 import { evaluate } from "mathjs";
+import { appEmitter } from "~/server/eventBus";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createNetWorthAssetSchema)
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
+      const result = await ctx.db.$transaction(async (tx) => {
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
@@ -39,6 +39,9 @@ export const netWorthAssetRouter = createTRPCRouter({
             quantity,
             timestamp: date,
             quantityFormula: input.initialQuantity,
+          },
+          select: {
+            timestamp: true,
           },
         });
 
@@ -85,12 +88,6 @@ export const netWorthAssetRouter = createTRPCRouter({
           });
         }
 
-        await recomputeNetWorthForUserFrom({
-          db: tx,
-          userId: ctx.session.user.id,
-          startDate: date,
-        });
-
         return {
           asset: assetRecord,
           quantity: quantityRecord,
@@ -98,37 +95,38 @@ export const netWorthAssetRouter = createTRPCRouter({
           exchangeRate: exchangeRateRecord,
         };
       });
+
+      appEmitter.emit("netWorthAssetQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: result.quantity.timestamp,
+      });
+
+      return result;
     }),
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const deletedAsset = await tx.netWorthAsset.delete({
-          where: { id: input.id },
-          include: {
-            quantities: {
-              orderBy: {
-                timestamp: "asc",
-              },
-              take: 1,
-            },
+      const deletedAsset = await ctx.db.netWorthAsset.delete({
+        where: { id: input.id },
+        select: {
+          quantities: {
+            orderBy: { timestamp: "asc" },
+            take: 1,
+            select: { timestamp: true },
           },
-        });
-
-        const startDate = deletedAsset.quantities[0]?.timestamp;
-
-        if (startDate) {
-          startDate?.setUTCHours(0, 0, 0, 0);
-
-          await recomputeNetWorthForUserFrom({
-            db: tx,
-            userId: ctx.session.user.id,
-            startDate,
-          });
-        }
-
-        return deletedAsset;
+        },
       });
+
+      const firstQuantity = deletedAsset.quantities[0];
+
+      if (firstQuantity) {
+        appEmitter.emit("netWorthAssetQuantity:updated", {
+          userId: ctx.session.user.id,
+          timestamp: firstQuantity.timestamp,
+        });
+      }
+
+      return deletedAsset;
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.$queryRawTyped(
