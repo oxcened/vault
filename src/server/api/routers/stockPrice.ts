@@ -4,7 +4,7 @@ import {
   createStockPriceSchema,
   updateStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
-import { recomputeDerivedDataForDependency } from "~/server/utils/db";
+import { appEmitter } from "~/server/eventBus";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -19,53 +19,37 @@ export const stockPriceRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (transaction) => {
-        const created = transaction.stockPriceHistory.create({
-          data: {
-            tickerId: input.tickerId,
-            price: input.price,
-            timestamp: input.timestamp,
-          },
-        });
-
-        return created;
+      return ctx.db.stockPriceHistory.create({
+        data: {
+          tickerId: input.tickerId,
+          price: input.price,
+          timestamp: input.timestamp,
+        },
       });
     }),
 
   update: protectedProcedure
     .input(updateStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const updated = await tx.stockPriceHistory.update({
-          where: { id: input.id },
-          data: { price: input.price, timestamp: input.timestamp },
-        });
-
-        await recomputeDerivedDataForDependency({
-          db: tx,
-          dependencyType: "StockPrice",
-          dependencyKey: updated.id,
-        });
-
-        return updated;
+      const updated = await ctx.db.stockPriceHistory.update({
+        where: { id: input.id },
+        data: { price: input.price, timestamp: input.timestamp },
       });
+
+      appEmitter.emit("stockPrice:updated", { stockPriceId: updated.id });
+
+      return updated;
     }),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const deleted = await tx.stockPriceHistory.delete({
-          where: { id: input.id },
-        });
-
-        await recomputeDerivedDataForDependency({
-          db: tx,
-          dependencyType: "StockPrice",
-          dependencyKey: deleted.id,
-        });
-
-        return deleted;
+      const deleted = await ctx.db.stockPriceHistory.delete({
+        where: { id: input.id },
       });
+
+      appEmitter.emit("stockPrice:updated", { stockPriceId: deleted.id });
+
+      return deleted;
     }),
 });
