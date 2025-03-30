@@ -38,7 +38,17 @@ export function ExchangeRateDialogForm({
     defaultValues: initialData ?? {
       baseCurrency: "",
       quoteCurrency: "",
-      timestamp: new Date(),
+      timestamp: new Date(
+        Date.UTC(
+          new Date().getUTCFullYear(),
+          new Date().getUTCMonth(),
+          new Date().getUTCDate(),
+          0,
+          0,
+          0,
+          0,
+        ),
+      ),
     },
     resolver: yupResolver(createExchangeRateSchema),
   });

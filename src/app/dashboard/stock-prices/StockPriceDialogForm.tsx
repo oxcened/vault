@@ -45,7 +45,17 @@ export function StockPriceDialogForm({
   const form = useForm({
     defaultValues: initialData ?? {
       tickerId: "",
-      timestamp: new Date(),
+      timestamp: new Date(
+        Date.UTC(
+          new Date().getUTCFullYear(),
+          new Date().getUTCMonth(),
+          new Date().getUTCDate(),
+          0,
+          0,
+          0,
+          0,
+        ),
+      ),
     },
     resolver: yupResolver(createStockPriceSchema),
   });
