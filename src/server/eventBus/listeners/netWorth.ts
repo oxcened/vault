@@ -1,5 +1,5 @@
 import { recomputeNetWorthForUserFrom } from "~/server/utils/db";
-import { appEmitter } from "..";
+import { appEmitter } from "../emitter";
 import { db } from "~/server/db";
 
 appEmitter.on("netWorthAssetQuantity:updated", ({ userId, timestamp }) => {
