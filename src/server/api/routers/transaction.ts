@@ -1,11 +1,11 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
-import { recomputeCashFlowForUserFrom } from "~/server/utils/db";
 import {
   createTransactionSchema,
   updateTransactionSchema,
 } from "~/trpc/schemas/transaction";
 import { APP_CURRENCY } from "~/constants";
+import { appEmitter } from "~/server/eventBus";
 
 export const transactionRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -36,8 +36,8 @@ export const transactionRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createTransactionSchema)
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const transaction = await tx.transaction.create({
+      const result = await ctx.db.$transaction(async (tx) => {
+        const created = await tx.transaction.create({
           data: {
             timestamp: input.timestamp,
             amount: input.amount,
@@ -72,50 +72,45 @@ export const transactionRouter = createTRPCRouter({
           });
         }
 
-        await recomputeCashFlowForUserFrom({
-          db: tx,
-          userId: ctx.session.user.id,
-          startDate: input.timestamp,
-        });
-
-        return transaction;
+        return created;
       });
+
+      appEmitter.emit("transaction:updated", {
+        userId: ctx.session.user.id,
+        timestamp: result.timestamp,
+      });
+
+      return result;
     }),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const transaction = await tx.transaction.delete({
-          where: { id: input.id },
-        });
-
-        await recomputeCashFlowForUserFrom({
-          db: tx,
-          userId: ctx.session.user.id,
-          startDate: transaction.timestamp,
-        });
-
-        return transaction;
+      const deleted = await ctx.db.transaction.delete({
+        where: { id: input.id },
       });
+
+      appEmitter.emit("transaction:updated", {
+        userId: ctx.session.user.id,
+        timestamp: deleted.timestamp,
+      });
+
+      return deleted;
     }),
 
   update: protectedProcedure
     .input(updateTransactionSchema)
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const transaction = await tx.transaction.update({
-          where: { id: input.id },
-          data: input,
-        });
-
-        await recomputeCashFlowForUserFrom({
-          db: tx,
-          userId: ctx.session.user.id,
-          startDate: transaction.timestamp,
-        });
-
-        return transaction;
+      const updated = await ctx.db.transaction.update({
+        where: { id: input.id },
+        data: input,
       });
+
+      appEmitter.emit("transaction:updated", {
+        userId: ctx.session.user.id,
+        timestamp: updated.timestamp,
+      });
+
+      return updated;
     }),
 });
