@@ -12,3 +12,11 @@ appEmitter.on(
     });
   },
 );
+
+appEmitter.on("netWorthDebtQuantity:updated", async ({ userId, timestamp }) => {
+  await recomputeNetWorthForUserFrom({
+    db,
+    userId,
+    startDate: timestamp,
+  });
+});

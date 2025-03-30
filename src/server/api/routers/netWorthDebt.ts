@@ -4,14 +4,14 @@ import { getNetWorthDebtHistory, getNetWorthDebts } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
-import { recomputeNetWorthForUserFrom } from "~/server/utils/db";
 import { evaluate } from "mathjs";
+import { appEmitter } from "~/server/eventBus";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createNetWorthDebtSchema)
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
+      const result = await ctx.db.$transaction(async (tx) => {
         const date = new Date();
         date.setUTCHours(0, 0, 0, 0);
 
@@ -61,49 +61,45 @@ export const netWorthDebtRouter = createTRPCRouter({
           });
         }
 
-        await recomputeNetWorthForUserFrom({
-          db: tx,
-          userId: ctx.session.user.id,
-          startDate: date,
-        });
-
         return {
           asset: debtRecord,
           quantity: quantityRecord,
           exchangeRate: exchangeRateRecord,
         };
       });
+
+      appEmitter.emit("netWorthDebtQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: result.quantity.timestamp,
+      });
+
+      return result;
     }),
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return ctx.db.$transaction(async (tx) => {
-        const deleted = await tx.netWorthDebt.delete({
-          where: { id: input.id },
-          include: {
-            quantities: {
-              orderBy: {
-                timestamp: "asc",
-              },
-              take: 1,
+      const deleted = await ctx.db.netWorthDebt.delete({
+        where: { id: input.id },
+        include: {
+          quantities: {
+            orderBy: {
+              timestamp: "asc",
             },
+            take: 1,
           },
-        });
-
-        const startDate = deleted.quantities[0]?.timestamp;
-
-        if (startDate) {
-          startDate?.setUTCHours(0, 0, 0, 0);
-
-          await recomputeNetWorthForUserFrom({
-            db: tx,
-            userId: ctx.session.user.id,
-            startDate,
-          });
-        }
-
-        return deleted;
+        },
       });
+
+      const firstQuantity = deleted.quantities[0];
+
+      if (firstQuantity) {
+        appEmitter.emit("netWorthDebtQuantity:updated", {
+          userId: ctx.session.user.id,
+          timestamp: firstQuantity.timestamp,
+        });
+      }
+
+      return deleted;
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.$queryRawTyped(
