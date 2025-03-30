@@ -40,9 +40,6 @@ export const netWorthAssetRouter = createTRPCRouter({
             timestamp: date,
             quantityFormula: input.initialQuantity,
           },
-          select: {
-            timestamp: true,
-          },
         });
 
         // For stock assets, create a stock price history record.
@@ -112,7 +109,6 @@ export const netWorthAssetRouter = createTRPCRouter({
           quantities: {
             orderBy: { timestamp: "asc" },
             take: 1,
-            select: { timestamp: true },
           },
         },
       });
