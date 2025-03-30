@@ -23,6 +23,7 @@ Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple
   - [Core Technologies](#core-technologies)
   - [UI & Components](#ui--components)
 - [Screenshots](#-screenshots)
+- [Reactive Architecture](#-reactive-architecture)
 - [Who's Behind This?](#-whos-behind-this)
 - [License](#-license)
 
@@ -180,6 +181,46 @@ Here’s a quick look at Vault in action:
 
 - **Transactions List**
   ![Transactions List](docs/screenshots/transactions.png)
+
+## 🧠 Reactive Architecture
+
+This app uses a fully reactive, event-driven architecture to keep derived financial data accurate and efficient. Here's how it works:
+
+### Event-Driven Data Flow
+
+Whenever core data changes — like assets, debts, transactions, stock prices, or exchange rates — the system emits events that represent **facts** about what happened. These events are handled by dedicated listeners that determine whether and how to trigger updates to derived data.
+
+**Example event types:**
+
+- `asset:updated`
+- `debt:updated`
+- `transaction:updated`
+- `exchangeRate:updated`
+- `stockPrice:updated`
+
+### Derived Data & Smart Recomputes
+
+Derived data (like Net Worth or Cash Flow) is not recomputed blindly. Instead:
+
+- **Shared data changes** (e.g. stock prices, exchange rates) trigger recomputes **only for affected snapshots**, based on a `DerivedDataDependency` table.
+- **User-specific changes** (assets, debts, transactions) use smart recompute functions like:
+  - `recomputeNetWorthForUserFrom(...)`
+  - `recomputeCashFlowForUserFrom(...)`
+
+These functions only recompute data from the earliest relevant timestamp forward.
+
+### Dependency Graph
+
+Every derived data snapshot tracks the specific inputs it used:
+
+- Exchange rates
+- Stock prices
+
+This allows:
+
+- ✅ Precise invalidation when inputs change
+- ✅ No over-computation
+- ✅ Full traceability of what influenced what
 
 ## 🛠 Who’s Behind This?
 
