@@ -1,12 +1,14 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { getNetWorthAssetHistory, getNetWorthAssets } from "@prisma/client/sql";
+import { getNetWorthAssetHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
+import { getAssetValuesForUserMonth } from "~/server/utils/db";
+import * as yup from "yup";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
@@ -124,11 +126,19 @@ export const netWorthAssetRouter = createTRPCRouter({
 
       return deletedAsset;
     }),
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.$queryRawTyped(
-      getNetWorthAssets(APP_CURRENCY, APP_CURRENCY, ctx.session.user.id),
-    );
-  }),
+  getAll: protectedProcedure
+    .input(
+      yup.object({
+        date: yup.date().required(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return getAssetValuesForUserMonth({
+        db: ctx.db,
+        startDate: input.date,
+        userId: ctx.session.user.id,
+      });
+    }),
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

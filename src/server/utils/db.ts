@@ -1,4 +1,4 @@
-import { type PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 import { APP_CURRENCY } from "~/constants";
 
 export async function recomputeDerivedDataForDependency({
@@ -47,4 +47,62 @@ export async function recomputeCashFlowForUserMonth({
   date: Date;
 }) {
   return db.$executeRaw`SELECT update_cash_flow_for_user_month(${userId}::TEXT, ${date}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;
+}
+
+export async function getAssetValuesForUserMonth({
+  db,
+  userId,
+  startDate,
+}: {
+  db: Pick<PrismaClient, "$queryRaw">;
+  userId: string;
+  startDate: Date;
+}): Promise<
+  {
+    quantityId: string;
+    createdById: string;
+    timestamp: Date;
+    quantity: Prisma.Decimal;
+    assetCurrency: string;
+    tickerId: string | null;
+    stockPrice: Prisma.Decimal | null;
+    stockPriceId: string | null;
+    fxRate: string | null;
+    exchangeRateId: string | null;
+    valueInTarget: Prisma.Decimal;
+    assetId: string;
+    assetName: string;
+    stockTicker: string | null;
+    categoryId: string | null;
+    categoryName: string | null;
+  }[]
+> {
+  return db.$queryRaw`SELECT * FROM get_asset_values_for_user_month(${userId}::TEXT, ${startDate}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;
+}
+
+export async function getDebtValuesForUserMonth({
+  db,
+  userId,
+  startDate,
+}: {
+  db: Pick<PrismaClient, "$queryRaw">;
+  userId: string;
+  startDate: Date;
+}): Promise<
+  {
+    quantityId: string;
+    createdById: string;
+    timestamp: Date;
+    quantity: Prisma.Decimal;
+    debtCurrency: string;
+    fxRate: string | null;
+    exchangeRateId: string | null;
+    valueInTarget: Prisma.Decimal;
+    debtId: string;
+    debtName: string;
+    categoryId: string | null;
+    categoryName: string | null;
+  }[]
+> {
+  return db.$queryRaw`SELECT * FROM get_debt_values_for_user_month(${userId}::TEXT, ${startDate}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;
 }

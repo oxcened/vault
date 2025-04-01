@@ -6,10 +6,26 @@ import NewAssetDialog from "./NewAssetDialog";
 import { AssetDetailDialog } from "./AssetDetailDialog";
 import { type NetWorthAsset } from "@prisma/client";
 import { toast } from "sonner";
-import NetWorthHoldings from "~/components/net-worth-holdings";
+import NetWorthHoldings, { Holding } from "~/components/net-worth-holdings";
 
 export default function AssetsPage() {
-  const { data = [], refetch, isPending } = api.netWorthAsset.getAll.useQuery();
+  const [date, setDate] = useState<Date>(
+    new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+      ),
+    ),
+  );
+
+  const {
+    data = [],
+    refetch,
+    isPending,
+  } = api.netWorthAsset.getAll.useQuery({
+    date,
+  });
 
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
     onSuccess: () => {
@@ -21,6 +37,7 @@ export default function AssetsPage() {
   const utils = api.useUtils();
 
   const [detailsDialog, setDetailsDialog] = useState<NetWorthAsset["id"]>();
+
   const [newDialog, setNewDialog] = useState(false);
 
   function handleAssetSuccess() {
@@ -29,13 +46,22 @@ export default function AssetsPage() {
     void utils.dashboard.getSummary.invalidate();
   }
 
+  const mappedData: Holding[] = data.map((row) => ({
+    ...row,
+    id: row.assetId,
+    name: row.assetName,
+    currency: row.assetCurrency,
+  }));
+
   return (
     <>
-      <NetWorthHoldings<(typeof data)[number]>
-        holdings={data}
+      <NetWorthHoldings
+        holdings={mappedData}
         isFetching={isPending}
         holdingLabel="Asset"
         holdingLabelPlural="Assets"
+        date={date}
+        onDateChange={setDate}
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={(holding) => setDetailsDialog(holding.id)}
         onDeleteHolding={(holding) => deleteAsset({ id: holding.id })}

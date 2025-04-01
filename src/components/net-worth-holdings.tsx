@@ -27,20 +27,34 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { CalendarIcon, MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { type Prisma } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { cn } from "~/lib/utils";
+import { MonthPicker } from "./ui/month-picker";
+import { lastDayOfMonth } from "date-fns";
 
 export type Holding = {
+  quantityId: string;
+  createdById: string;
+  timestamp: Date;
+  quantity: Prisma.Decimal;
+  fxRate: string | null;
+  exchangeRateId: string | null;
+  valueInTarget: Prisma.Decimal;
+  categoryId: string | null;
+  categoryName: string | null;
   id: string;
   name: string;
-  category: string;
-  convertedValue: Prisma.Decimal | null;
-  quantity: Prisma.Decimal | null;
-  ticker?: string | null;
+  currency: string;
+  stockPrice?: Prisma.Decimal | null;
+  stockPriceId?: string | null;
+  stockTicker?: string | null;
+  tickerId?: string | null;
 };
 
 export type NetWorthHoldingsProps<T> = {
@@ -48,6 +62,8 @@ export type NetWorthHoldingsProps<T> = {
   isFetching: boolean;
   holdingLabel: string;
   holdingLabelPlural: string;
+  date: Date;
+  onDateChange?: (date: Date) => void;
   onNewHolding: () => void;
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
@@ -58,28 +74,29 @@ export default function NetWorthHoldings<T extends Holding>({
   isFetching,
   holdingLabel,
   holdingLabelPlural,
+  date,
+  onDateChange,
   onNewHolding,
   onEditHolding,
   onDeleteHolding,
 }: NetWorthHoldingsProps<T>) {
-  const categories = [...new Set(holdings.map((item) => item.category))];
+  const categories = [...new Set(holdings.map((item) => item.categoryName))];
 
   const dataByCategory = categories.map((category) => {
-    const results = holdings.filter((item) => item.category === category);
+    const results = holdings.filter((item) => item.categoryName === category);
     return {
       category,
       results,
       total: results.reduce(
         (prev, curr) =>
-          curr.convertedValue ? prev.plus(curr.convertedValue) : prev,
+          curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev,
         DECIMAL_ZERO,
       ),
     };
   });
 
   const total = holdings.reduce(
-    (prev, curr) =>
-      curr.convertedValue ? prev.plus(curr.convertedValue) : prev,
+    (prev, curr) => (curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev),
     DECIMAL_ZERO,
   );
 
@@ -116,14 +133,38 @@ export default function NetWorthHoldings<T extends Holding>({
         {isFetching && <TableSkeleton />}
 
         {!isFetching && (
-          <>
-            <p className="text-muted-foreground">
-              Total {holdingLabelPlural.toLocaleLowerCase()}
-            </p>
-            <p className="text-3xl">
-              <RoundedCurrency value={total} />
-            </p>
-          </>
+          <div className="flex">
+            <div className="mr-auto">
+              <p className="text-muted-foreground">
+                Total {holdingLabelPlural.toLocaleLowerCase()}
+              </p>
+              <p className="text-3xl">
+                <RoundedCurrency value={total} />
+              </p>
+            </div>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "pl-3 text-left font-normal",
+                    !date && "text-muted-foreground",
+                  )}
+                >
+                  {date ? date.toLocaleDateString() : <span>Pick a date</span>}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <MonthPicker
+                  value={date}
+                  disabled={(date) => date > new Date()}
+                  onChange={(date) => onDateChange?.(lastDayOfMonth(date))}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         )}
 
         {!holdings.length && !isFetching && (
@@ -149,14 +190,14 @@ export default function NetWorthHoldings<T extends Holding>({
                   <TableRow key={row.id}>
                     <TableCell>
                       <div>{row.name}</div>
-                      {row.ticker && (
+                      {row.stockTicker && (
                         <div className="text-xs text-neutral-500">
-                          {row.ticker} &middot; Qty {Number(row.quantity)}
+                          {row.stockTicker} &middot; Qty {Number(row.quantity)}
                         </div>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <RoundedCurrency value={row.convertedValue} />
+                      <RoundedCurrency value={row.valueInTarget} />
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

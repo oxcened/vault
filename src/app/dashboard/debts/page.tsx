@@ -6,10 +6,26 @@ import NewDebtDialog from "./NewDebtDialog";
 import { type NetWorthAsset } from "@prisma/client";
 import { DebtDetailDialog } from "./DebtDetailDialog";
 import { toast } from "sonner";
-import NetWorthHoldings from "~/components/net-worth-holdings";
+import NetWorthHoldings, { Holding } from "~/components/net-worth-holdings";
 
 export default function AssetsPage() {
-  const { data = [], refetch, isPending } = api.netWorthDebt.getAll.useQuery();
+  const [date, setDate] = useState<Date>(
+    new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+      ),
+    ),
+  );
+
+  const {
+    data = [],
+    refetch,
+    isPending,
+  } = api.netWorthDebt.getAll.useQuery({
+    date,
+  });
 
   const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
     onSuccess: () => {
@@ -29,16 +45,25 @@ export default function AssetsPage() {
     void utils.dashboard.getSummary.invalidate();
   }
 
+  const mappedData: Holding[] = data.map((row) => ({
+    ...row,
+    id: row.debtId,
+    name: row.debtName,
+    currency: row.debtCurrency,
+  }));
+
   return (
     <>
-      <NetWorthHoldings<(typeof data)[number]>
-        holdings={data}
+      <NetWorthHoldings
+        holdings={mappedData}
         isFetching={isPending}
         holdingLabel="Debt"
         holdingLabelPlural="Debts"
+        date={date}
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={(holding) => setDetailsDialog(holding.id)}
         onDeleteHolding={(holding) => deleteDebt({ id: holding.id })}
+        onDateChange={setDate}
       />
 
       <NewDebtDialog

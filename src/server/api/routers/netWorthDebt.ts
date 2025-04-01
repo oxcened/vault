@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { getNetWorthDebtHistory, getNetWorthDebts } from "@prisma/client/sql";
+import { getNetWorthDebtHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
+import * as yup from "yup";
+import { getDebtValuesForUserMonth } from "~/server/utils/db";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
@@ -101,11 +103,19 @@ export const netWorthDebtRouter = createTRPCRouter({
 
       return deleted;
     }),
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.$queryRawTyped(
-      getNetWorthDebts(APP_CURRENCY, APP_CURRENCY, ctx.session.user.id),
-    );
-  }),
+  getAll: protectedProcedure
+    .input(
+      yup.object({
+        date: yup.date().required(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return getDebtValuesForUserMonth({
+        db: ctx.db,
+        startDate: input.date,
+        userId: ctx.session.user.id,
+      });
+    }),
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
