@@ -36,3 +36,15 @@ export async function recomputeCashFlowForUserFrom({
 }) {
   return db.$executeRaw`SELECT recompute_cash_flow_for_user_from(${userId}::TEXT, ${startDate}::DATE, ${APP_CURRENCY}::VARCHAR)`;
 }
+
+export async function recomputeCashFlowForUserMonth({
+  db,
+  userId,
+  date,
+}: {
+  db: Pick<PrismaClient, "$executeRaw">;
+  userId: string;
+  date: Date;
+}) {
+  return db.$executeRaw`SELECT update_cash_flow_for_user_month(${userId}::TEXT, ${date}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;
+}
