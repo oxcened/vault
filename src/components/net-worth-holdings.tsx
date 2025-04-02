@@ -36,7 +36,7 @@ import { DECIMAL_ZERO } from "~/utils/number";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "~/lib/utils";
 import { MonthPicker } from "./ui/month-picker";
-import { lastDayOfMonth } from "date-fns";
+import { format, lastDayOfMonth } from "date-fns";
 
 export type Holding = {
   quantityId: string;
@@ -152,7 +152,7 @@ export default function NetWorthHoldings<T extends Holding>({
                     !date && "text-muted-foreground",
                   )}
                 >
-                  {date ? date.toLocaleDateString() : <span>Pick a date</span>}
+                  {date ? format(date, "MMMM yyyy") : <span>Pick a date</span>}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
