@@ -36,6 +36,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { cn } from "~/lib/utils";
 import { forwardRef, useImperativeHandle } from "react";
 import { TimePicker } from "~/components/ui/time-picker";
+import { mergeDateAndTime } from "~/utils/date";
 
 export type TransactionFormRef = { reset: () => void };
 
@@ -220,7 +221,10 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={(date) =>
+                          date &&
+                          field.onChange(mergeDateAndTime(date, field.value))
+                        }
                         disabled={(date) => date > new Date()}
                         initialFocus
                       />
