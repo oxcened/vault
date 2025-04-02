@@ -20,6 +20,7 @@ import {
 import { formatDate } from "~/utils/date";
 import { APP_CURRENCY } from "~/constants";
 import { Currency } from "~/components/ui/number";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 export type DebtDetailDialogProps = {
   isOpen: boolean;
@@ -83,30 +84,32 @@ export function DebtDetailDialog({
 
           <TabsContent value="value">
             <div className="mt-5 rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Value</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data?.valueHistory.map((row) => (
-                    <TableRow key={row.quantityId}>
-                      <TableCell>
-                        {row.timestamp
-                          ? formatDate({ date: row.timestamp })
-                          : "n/a"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <p>
-                          <Currency value={row.computedValue} />
-                        </p>
-                      </TableCell>
+              <ScrollArea className="h-[12rem]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-right">Value</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data?.valueHistory.map((row) => (
+                      <TableRow key={row.quantityId}>
+                        <TableCell>
+                          {row.timestamp
+                            ? formatDate({ date: row.timestamp })
+                            : "n/a"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <p>
+                            <Currency value={row.computedValue} />
+                          </p>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
             </div>
           </TabsContent>
         </Tabs>
