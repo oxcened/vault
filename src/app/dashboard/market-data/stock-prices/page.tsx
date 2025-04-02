@@ -27,9 +27,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, PencilIcon, Plus, Trash2Icon } from "lucide-react";
 import EditStockPriceDialog from "./EditStockPriceDialog";
 import { type StockPriceHistory } from "@prisma/client";
 import NewStockPriceDialog from "./NewStockPriceDialog";
@@ -130,14 +131,17 @@ export default function StockPricesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleEditClick(price)}
                         >
+                          <PencilIcon />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => deleteStockPrice({ id: price.id })}
                         >
+                          <Trash2Icon />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

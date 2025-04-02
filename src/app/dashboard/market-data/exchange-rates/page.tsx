@@ -27,9 +27,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, PencilIcon, Plus, Trash2Icon } from "lucide-react";
 import EditExchangeRateDialog from "./EditExchangeRateDialog";
 import { type ExchangeRate } from "@prisma/client";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
@@ -133,12 +134,15 @@ export default function ExchangeRatesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleEditClick(rate)}>
+                          <PencilIcon />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => deleteExchangeRate({ id: rate.id })}
                         >
+                          <Trash2Icon />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

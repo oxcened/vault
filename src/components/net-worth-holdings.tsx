@@ -31,9 +31,11 @@ import {
 } from "~/components/ui/dropdown-menu";
 import {
   CalendarIcon,
+  EyeIcon,
   ListFilterIcon,
   MoreHorizontal,
   Plus,
+  Trash2Icon,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { type Prisma } from "@prisma/client";
@@ -271,12 +273,15 @@ export default function NetWorthHoldings<T extends Holding>({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => onEditHolding(row)}>
+                            <EyeIcon />
                             Details
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => onDeleteHolding(row)}
                           >
+                            <Trash2Icon />
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
