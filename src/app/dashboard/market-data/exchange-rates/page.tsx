@@ -30,40 +30,43 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { MoreHorizontal, Plus } from "lucide-react";
-import EditStockPriceDialog from "./EditStockPriceDialog";
-import { type StockPriceHistory } from "@prisma/client";
-import NewStockPriceDialog from "./NewStockPriceDialog";
+import EditExchangeRateDialog from "./EditExchangeRateDialog";
+import { type ExchangeRate } from "@prisma/client";
+import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
 
-export default function StockPricesPage() {
-  const { data = [], refetch, isPending } = api.stockPrice.getAll.useQuery();
+export default function ExchangeRatesPage() {
+  const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
 
-  const { mutate: deleteStockPrice } = api.stockPrice.delete.useMutation({
+  const { mutate: deleteExchangeRate } = api.exchangeRate.delete.useMutation({
     onSuccess: () => {
-      toast.success("Stock price deleted.");
+      toast.success("Exchange rate deleted.");
       void refetch();
     },
   });
 
+  const [editingRate, setEditingRate] = useState<ExchangeRate>();
+  const [isEditDialog, setEditDialog] = useState(false);
+
+  function handleEditClick(rate: ExchangeRate) {
+    setEditingRate(rate);
+    setEditDialog(true);
+  }
+
+  const [isNewDialog, setNewDialog] = useState(false);
+
   const utils = api.useUtils();
 
-  const [editingPrice, setEditingPrice] = useState<StockPriceHistory>();
-  const [isNewDialogOpen, setNewDialogOpen] = useState(false);
-  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-
-  function handleStockCreatedOrEdited() {
+  function handleRateCreatedOrEdited() {
     void refetch();
     void utils.netWorthOverview.get.invalidate();
     void utils.netWorthAsset.getAll.invalidate();
     void utils.netWorthAsset.getDetailById.invalidate();
+    void utils.netWorthDebt.getAll.invalidate();
+    void utils.netWorthDebt.getDetailById.invalidate();
     void utils.dashboard.getSummary.invalidate();
-  }
-
-  function handleEditClick(stockPrice: StockPriceHistory) {
-    setEditingPrice(stockPrice);
-    setEditDialogOpen(true);
   }
 
   return (
@@ -74,54 +77,52 @@ export default function StockPricesPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/net-worth">
-                Net worth
-              </BreadcrumbLink>
+              <BreadcrumbPage>Market data</BreadcrumbPage>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Stock prices</BreadcrumbPage>
+              <BreadcrumbPage>Exchange rates</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setNewDialogOpen(true)}
-          >
-            <Plus />
-          </Button>
-        </div>
+
+        <Button
+          variant="outline"
+          className="ml-auto"
+          size="icon"
+          onClick={() => setNewDialog(true)}
+        >
+          <Plus />
+        </Button>
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
         {isPending && <TableSkeleton />}
         {!isPending && !data.length && (
           <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don&apos;t have any stock prices yet
+            You don&apos;t have any exchange rates yet
           </div>
         )}
         {!isPending && !!data.length && (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Ticker</TableHead>
-                <TableHead>Exchange</TableHead>
-                <TableHead className="text-right">Price</TableHead>
+                <TableHead>Base Currency</TableHead>
+                <TableHead>Quote Currency</TableHead>
+                <TableHead className="text-right">Rate</TableHead>
                 <TableHead>Timestamp</TableHead>
                 <TableHead className="w-0"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((price) => (
-                <TableRow key={price.id}>
-                  <TableCell>{price.ticker.ticker}</TableCell>
-                  <TableCell>{price.ticker.exchange}</TableCell>
+              {data.map((rate) => (
+                <TableRow key={rate.id}>
+                  <TableCell>{rate.baseCurrency}</TableCell>
+                  <TableCell>{rate.quoteCurrency}</TableCell>
                   <TableCell className="text-right">
-                    <Number value={price.price} />
+                    <Number value={rate.rate} />
                   </TableCell>
-                  <TableCell>{formatDate({ date: price.timestamp })}</TableCell>
+                  <TableCell>{formatDate({ date: rate.timestamp })}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -132,13 +133,11 @@ export default function StockPricesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() => handleEditClick(price)}
-                        >
+                        <DropdownMenuItem onClick={() => handleEditClick(rate)}>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => deleteStockPrice({ id: price.id })}
+                          onClick={() => deleteExchangeRate({ id: rate.id })}
                         >
                           Delete
                         </DropdownMenuItem>
@@ -152,19 +151,19 @@ export default function StockPricesPage() {
         )}
       </div>
 
-      <NewStockPriceDialog
-        key={`new-stock-price-dialog-${isNewDialogOpen}`}
-        isOpen={isNewDialogOpen}
-        onOpenChange={() => setNewDialogOpen(false)}
-        onSuccess={handleStockCreatedOrEdited}
+      <EditExchangeRateDialog
+        key={`edit-exchange-rate-dialog-${isEditDialog}`}
+        isOpen={isEditDialog}
+        exchangeRate={editingRate}
+        onOpenChange={setEditDialog}
+        onSuccess={handleRateCreatedOrEdited}
       />
 
-      <EditStockPriceDialog
-        key={`edit-stock-price-dialog-${isEditDialogOpen}`}
-        isOpen={isEditDialogOpen}
-        stockPrice={editingPrice}
-        onOpenChange={setEditDialogOpen}
-        onSuccess={handleStockCreatedOrEdited}
+      <NewExchangeRateDialog
+        key={`new-exchange-rate-dialog-${isNewDialog}`}
+        isOpen={isNewDialog}
+        onOpenChange={setNewDialog}
+        onSuccess={handleRateCreatedOrEdited}
       />
     </>
   );

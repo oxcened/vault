@@ -6,6 +6,7 @@ import { Separator } from "~/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
 } from "~/components/ui/breadcrumb";
@@ -17,8 +18,9 @@ import { TransactionTable } from "~/components/transaction-table";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
 import { DECIMAL_ZERO } from "~/utils/number";
 import { Skeleton } from "~/components/ui/skeleton";
+import { BreadcrumbSeparator } from "~/components/ui/breadcrumb";
 
-export default function DashboardPage() {
+export default function OverviewPage() {
   const { data, isPending } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
 
@@ -37,7 +39,7 @@ export default function DashboardPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              <BreadcrumbPage>Overview</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

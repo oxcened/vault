@@ -30,39 +30,11 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Overview",
-      url: "#",
+      url: "/dashboard",
       icon: LayoutDashboard,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-        },
-      ],
     },
     {
       title: "Net worth",
@@ -70,16 +42,16 @@ const data = {
       icon: Wallet,
       items: [
         {
-          title: "Dashboard",
+          title: "Overview",
           url: "/dashboard/net-worth",
         },
         {
           title: "Assets",
-          url: "/dashboard/assets",
+          url: "/dashboard/net-worth/assets",
         },
         {
           title: "Debts",
-          url: "/dashboard/debts",
+          url: "/dashboard/net-worth/debts",
         },
       ],
     },
@@ -89,12 +61,12 @@ const data = {
       icon: ArrowLeftRight,
       items: [
         {
-          title: "Dashboard",
+          title: "Overview",
           url: "/dashboard/cash-flow",
         },
         {
           title: "Transactions",
-          url: "/dashboard/transactions",
+          url: "/dashboard/cash-flow/transactions",
         },
       ],
     },
@@ -105,7 +77,7 @@ const data = {
       items: [
         {
           title: "Net worth history",
-          url: "/dashboard/nw-history",
+          url: "/dashboard/performance/net-worth-history",
         },
       ],
     },
@@ -116,11 +88,11 @@ const data = {
       items: [
         {
           title: "Exchange rates",
-          url: "/dashboard/exchange-rates",
+          url: "/dashboard/market-data/exchange-rates",
         },
         {
           title: "Stock prices",
-          url: "/dashboard/stock-prices",
+          url: "/dashboard/market-data/stock-prices",
         },
       ],
     },

@@ -78,7 +78,7 @@ export default function CashFlowPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/net-worth">
+              <BreadcrumbLink href="/dashboard/cash-flow">
                 Cash flow
               </BreadcrumbLink>
             </BreadcrumbItem>

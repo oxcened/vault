@@ -60,7 +60,7 @@ export default function TransactionsPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/net-worth">
+              <BreadcrumbLink href="/dashboard/cash-flow">
                 Cash flow
               </BreadcrumbLink>
             </BreadcrumbItem>
