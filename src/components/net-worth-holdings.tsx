@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,12 +22,19 @@ import {
 } from "~/components/ui/table";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { CalendarIcon, MoreHorizontal, Plus } from "lucide-react";
+import {
+  CalendarIcon,
+  ListFilterIcon,
+  MoreHorizontal,
+  Plus,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { type Prisma } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
@@ -36,7 +43,13 @@ import { DECIMAL_ZERO } from "~/utils/number";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "~/lib/utils";
 import { MonthPicker } from "./ui/month-picker";
-import { format, lastDayOfMonth } from "date-fns";
+import { format, lastDayOfMonth, subMonths } from "date-fns";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 export type Holding = {
   quantityId: string;
@@ -80,10 +93,26 @@ export default function NetWorthHoldings<T extends Holding>({
   onEditHolding,
   onDeleteHolding,
 }: NetWorthHoldingsProps<T>) {
-  const categories = [...new Set(holdings.map((item) => item.categoryName))];
+  const [hideStaleHoldings, setHideStaleHoldings] = useState(true);
+
+  const nowMinusSixMonths = subMonths(new Date(), 6);
+
+  const filteredHoldings = holdings.filter((holding) => {
+    const isZero = holding.valueInTarget.equals(DECIMAL_ZERO);
+    const isOld = holding.timestamp < nowMinusSixMonths;
+    const isStale = isZero && isOld;
+    if (hideStaleHoldings && isStale) return false;
+    return true;
+  });
+
+  const categories = [
+    ...new Set(filteredHoldings.map((item) => item.categoryName)),
+  ];
 
   const dataByCategory = categories.map((category) => {
-    const results = holdings.filter((item) => item.categoryName === category);
+    const results = filteredHoldings.filter(
+      (item) => item.categoryName === category,
+    );
     return {
       category,
       results,
@@ -95,7 +124,7 @@ export default function NetWorthHoldings<T extends Holding>({
     };
   });
 
-  const total = holdings.reduce(
+  const total = filteredHoldings.reduce(
     (prev, curr) => (curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev),
     DECIMAL_ZERO,
   );
@@ -133,7 +162,7 @@ export default function NetWorthHoldings<T extends Holding>({
         {isFetching && <TableSkeleton />}
 
         {!isFetching && (
-          <div className="flex">
+          <div className="flex gap-2">
             <div className="mr-auto">
               <p className="text-muted-foreground">
                 Total {holdingLabelPlural.toLocaleLowerCase()}
@@ -146,7 +175,7 @@ export default function NetWorthHoldings<T extends Holding>({
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant={"outline"}
+                  variant="outline"
                   className={cn(
                     "pl-3 text-left font-normal",
                     !date && "text-muted-foreground",
@@ -164,10 +193,43 @@ export default function NetWorthHoldings<T extends Holding>({
                 />
               </PopoverContent>
             </Popover>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <span className="sr-only">Open menu</span>
+                  <ListFilterIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  Filter {holdingLabelPlural.toLocaleLowerCase()}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuCheckboxItem
+                        checked={hideStaleHoldings}
+                        onCheckedChange={setHideStaleHoldings}
+                      >
+                        Hide stale {holdingLabelPlural.toLocaleLowerCase()}
+                      </DropdownMenuCheckboxItem>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>
+                        {holdingLabelPlural} with 0 as value and no updates in
+                        6+ months
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
-        {!holdings.length && !isFetching && (
+        {!filteredHoldings.length && !isFetching && (
           <div className="mt-10 rounded-xl bg-muted p-10 text-center text-muted-foreground">
             You don&apos;t have any {holdingLabelPlural.toLocaleLowerCase()} yet
           </div>
