@@ -9,22 +9,18 @@ import { toast } from "sonner";
 import NetWorthHoldings, { Holding } from "~/components/net-worth-holdings";
 
 export default function AssetsPage() {
-  const [date, setDate] = useState<Date>(
-    new Date(
+  const {
+    data = [],
+    refetch,
+    isPending,
+  } = api.netWorthAsset.getAll.useQuery({
+    date: new Date(
       Date.UTC(
         new Date().getUTCFullYear(),
         new Date().getUTCMonth(),
         new Date().getUTCDate(),
       ),
     ),
-  );
-
-  const {
-    data = [],
-    refetch,
-    isPending,
-  } = api.netWorthAsset.getAll.useQuery({
-    date,
   });
 
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
@@ -60,8 +56,6 @@ export default function AssetsPage() {
         isFetching={isPending}
         holdingLabel="Asset"
         holdingLabelPlural="Assets"
-        date={date}
-        onDateChange={setDate}
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={(holding) => setDetailsDialog(holding.id)}
         onDeleteHolding={(holding) => deleteAsset({ id: holding.id })}

@@ -30,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
-  CalendarIcon,
   EyeIcon,
   ListFilterIcon,
   MoreHorizontal,
@@ -42,10 +41,7 @@ import { type Prisma } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { cn } from "~/lib/utils";
-import { MonthPicker } from "./ui/month-picker";
-import { format, lastDayOfMonth, subMonths } from "date-fns";
+import { subMonths } from "date-fns";
 import {
   Tooltip,
   TooltipContent,
@@ -77,8 +73,6 @@ export type NetWorthHoldingsProps<T> = {
   isFetching: boolean;
   holdingLabel: string;
   holdingLabelPlural: string;
-  date: Date;
-  onDateChange?: (date: Date) => void;
   onNewHolding: () => void;
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
@@ -89,8 +83,6 @@ export default function NetWorthHoldings<T extends Holding>({
   isFetching,
   holdingLabel,
   holdingLabelPlural,
-  date,
-  onDateChange,
   onNewHolding,
   onEditHolding,
   onDeleteHolding,
@@ -173,28 +165,6 @@ export default function NetWorthHoldings<T extends Holding>({
                 <RoundedCurrency value={total} />
               </p>
             </div>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "pl-3 text-left font-normal",
-                    !date && "text-muted-foreground",
-                  )}
-                >
-                  {date ? format(date, "MMMM yyyy") : <span>Pick a date</span>}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <MonthPicker
-                  value={date}
-                  disabled={(date) => date > new Date()}
-                  onChange={(date) => onDateChange?.(lastDayOfMonth(date))}
-                />
-              </PopoverContent>
-            </Popover>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
