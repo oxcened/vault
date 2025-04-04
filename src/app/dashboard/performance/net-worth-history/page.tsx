@@ -53,7 +53,7 @@ export default async function NwHistoryPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Net worth</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead className="w-32 text-right">Assets</TableHead>
                 <TableHead className="w-32 text-right">Debts</TableHead>
                 <TableHead className="w-32 text-right">Net value</TableHead>
