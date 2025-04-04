@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
+  ArchiveIcon,
   EyeIcon,
   ListFilterIcon,
   MoreHorizontal,
@@ -41,13 +42,6 @@ import { type Prisma } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
-import { subMonths } from "date-fns";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 
 export type Holding = {
   quantityId: string;
@@ -66,6 +60,7 @@ export type Holding = {
   stockPriceId?: string | null;
   stockTicker?: string | null;
   tickerId?: string | null;
+  archivedAt: Date | null;
 };
 
 export type NetWorthHoldingsProps<T> = {
@@ -76,6 +71,7 @@ export type NetWorthHoldingsProps<T> = {
   onNewHolding: () => void;
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
+  onArchiveHolding: (holding: T) => void;
 };
 
 export default function NetWorthHoldings<T extends Holding>({
@@ -86,16 +82,14 @@ export default function NetWorthHoldings<T extends Holding>({
   onNewHolding,
   onEditHolding,
   onDeleteHolding,
+  onArchiveHolding,
 }: NetWorthHoldingsProps<T>) {
-  const [hideStaleHoldings, setHideStaleHoldings] = useState(true);
-
-  const nowMinusSixMonths = subMonths(new Date(), 6);
+  const [hideArchivedHolding, setHideArchivedHoldings] = useState(true);
 
   const filteredHoldings = holdings.filter((holding) => {
-    const isZero = holding.valueInTarget.equals(DECIMAL_ZERO);
-    const isOld = holding.timestamp < nowMinusSixMonths;
-    const isStale = isZero && isOld;
-    if (hideStaleHoldings && isStale) return false;
+    if (hideArchivedHolding && holding.archivedAt) {
+      return false;
+    }
     return true;
   });
 
@@ -178,24 +172,12 @@ export default function NetWorthHoldings<T extends Holding>({
                   Filter {holdingLabelPlural.toLocaleLowerCase()}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuCheckboxItem
-                        checked={hideStaleHoldings}
-                        onCheckedChange={setHideStaleHoldings}
-                      >
-                        Hide stale {holdingLabelPlural.toLocaleLowerCase()}
-                      </DropdownMenuCheckboxItem>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>
-                        {holdingLabelPlural} with 0 as value and no updates in
-                        6+ months
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <DropdownMenuCheckboxItem
+                  checked={hideArchivedHolding}
+                  onCheckedChange={setHideArchivedHoldings}
+                >
+                  Hide archived
+                </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -247,6 +229,13 @@ export default function NetWorthHoldings<T extends Holding>({
                           <DropdownMenuItem onClick={() => onEditHolding(row)}>
                             <EyeIcon />
                             Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            disabled={!row.quantity.eq(0)}
+                            onClick={() => onArchiveHolding(row)}
+                          >
+                            <ArchiveIcon />
+                            Archive
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => onDeleteHolding(row)}

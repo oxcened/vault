@@ -106,6 +106,7 @@ model NetWorthAsset {
     createdAt   DateTime                @default(now())
     updatedAt   DateTime                @updatedAt
     createdById String
+    archivedAt  DateTime?
     createdBy   User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
     ticker      StockTicker?            @relation(fields: [tickerId], references: [id])
     quantities  NetWorthAssetQuantity[]
@@ -132,6 +133,7 @@ model NetWorthDebt {
     createdAt   DateTime               @default(now())
     updatedAt   DateTime               @updatedAt
     createdById String
+    archivedAt  DateTime?
     createdBy   User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
     quantities  NetWorthDebtQuantity[]
     category    NetWorthCategory       @relation(fields: [categoryId], references: [id])

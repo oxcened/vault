@@ -75,6 +75,7 @@ export async function getAssetValuesForUserMonth({
     stockTicker: string | null;
     categoryId: string | null;
     categoryName: string | null;
+    assetArchivedAt: Date | null;
   }[]
 > {
   return db.$queryRaw`SELECT * FROM get_asset_values_for_user_month(${userId}::TEXT, ${startDate}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;
@@ -102,6 +103,7 @@ export async function getDebtValuesForUserMonth({
     debtName: string;
     categoryId: string | null;
     categoryName: string | null;
+    debtArchivedAt: Date | null;
   }[]
 > {
   return db.$queryRaw`SELECT * FROM get_debt_values_for_user_month(${userId}::TEXT, ${startDate}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;

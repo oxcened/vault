@@ -30,6 +30,13 @@ export default function AssetsPage() {
     },
   });
 
+  const { mutate: archiveDebt } = api.netWorthDebt.update.useMutation({
+    onSuccess: () => {
+      toast.success("Debt archived.");
+      void refetch();
+    },
+  });
+
   const utils = api.useUtils();
 
   const [detailsDialog, setDetailsDialog] = useState<NetWorthAsset["id"]>();
@@ -46,6 +53,7 @@ export default function AssetsPage() {
     id: row.debtId,
     name: row.debtName,
     currency: row.debtCurrency,
+    archivedAt: row.debtArchivedAt,
   }));
 
   return (
@@ -58,6 +66,9 @@ export default function AssetsPage() {
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={(holding) => setDetailsDialog(holding.id)}
         onDeleteHolding={(holding) => deleteDebt({ id: holding.id })}
+        onArchiveHolding={(holding) =>
+          archiveDebt({ id: holding.id, archivedAt: new Date() })
+        }
       />
 
       <NewDebtDialog

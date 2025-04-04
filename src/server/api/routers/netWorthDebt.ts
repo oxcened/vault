@@ -160,4 +160,26 @@ export const netWorthDebtRouter = createTRPCRouter({
         };
       });
     }),
+  update: protectedProcedure
+    .input(
+      yup.object({
+        id: yup.string().required(),
+        name: yup.string(),
+        categoryId: yup.string(),
+        archivedAt: yup.date(),
+        currency: yup.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, categoryId, ...data } = input;
+      const updatedAsset = await ctx.db.netWorthDebt.update({
+        where: { id: input.id },
+        data: {
+          ...data,
+          category: categoryId ? { connect: { id: categoryId } } : undefined,
+        },
+      });
+
+      return updatedAsset;
+    }),
 });

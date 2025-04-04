@@ -197,4 +197,28 @@ export const netWorthAssetRouter = createTRPCRouter({
         };
       });
     }),
+  update: protectedProcedure
+    .input(
+      yup.object({
+        id: yup.string().required(),
+        name: yup.string(),
+        categoryId: yup.string(),
+        archivedAt: yup.date(),
+        tickerId: yup.string(),
+        currency: yup.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, categoryId, tickerId, ...data } = input;
+      const updatedAsset = await ctx.db.netWorthAsset.update({
+        where: { id: input.id },
+        data: {
+          ...data,
+          ticker: tickerId ? { connect: { id: tickerId } } : undefined,
+          category: categoryId ? { connect: { id: categoryId } } : undefined,
+        },
+      });
+
+      return updatedAsset;
+    }),
 });
