@@ -119,4 +119,14 @@ export const cashFlowRouter = createTRPCRouter({
       cashFlowTrend,
     };
   }),
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.cashFlow.findMany({
+      where: {
+        createdById: ctx.session.user.id,
+      },
+      orderBy: {
+        timestamp: "desc",
+      },
+    });
+  }),
 });

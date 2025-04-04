@@ -87,6 +87,10 @@ const data = {
           title: "Debts history",
           url: "/dashboard/performance/debts-history",
         },
+        {
+          title: "Cash flow history",
+          url: "/dashboard/performance/cash-flow-history",
+        },
       ],
     },
     {
