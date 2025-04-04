@@ -79,6 +79,14 @@ const data = {
           title: "Net worth history",
           url: "/dashboard/performance/net-worth-history",
         },
+        {
+          title: "Assets history",
+          url: "/dashboard/performance/assets-history",
+        },
+        {
+          title: "Debts history",
+          url: "/dashboard/performance/debts-history",
+        },
       ],
     },
     {
