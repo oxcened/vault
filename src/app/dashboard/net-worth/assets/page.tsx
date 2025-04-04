@@ -7,6 +7,7 @@ import { AssetDetailDialog } from "./AssetDetailDialog";
 import { type NetWorthAsset } from "@prisma/client";
 import { toast } from "sonner";
 import NetWorthHoldings, { Holding } from "~/components/net-worth-holdings";
+import { useConfirmDelete } from "~/components/confirm-delete-modal";
 
 export default function AssetsPage() {
   const {
@@ -57,6 +58,8 @@ export default function AssetsPage() {
     archivedAt: row.assetArchivedAt,
   }));
 
+  const { confirm, modal } = useConfirmDelete();
+
   return (
     <>
       <NetWorthHoldings
@@ -66,7 +69,13 @@ export default function AssetsPage() {
         holdingLabelPlural="Assets"
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={(holding) => setDetailsDialog(holding.id)}
-        onDeleteHolding={(holding) => deleteAsset({ id: holding.id })}
+        onDeleteHolding={(holding) =>
+          confirm({
+            itemType: "asset",
+            itemName: holding.name,
+            onConfirm: () => deleteAsset({ id: holding.id }),
+          })
+        }
         onArchiveHolding={(holding) =>
           archiveAsset({ id: holding.id, archivedAt: new Date() })
         }
@@ -84,6 +93,8 @@ export default function AssetsPage() {
         assetId={detailsDialog}
         onOpenChange={() => setDetailsDialog(undefined)}
       />
+
+      {modal}
     </>
   );
 }

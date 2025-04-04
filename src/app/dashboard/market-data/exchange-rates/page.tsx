@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -37,6 +36,7 @@ import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
+import { useConfirmDelete } from "~/components/confirm-delete-modal";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
@@ -69,6 +69,8 @@ export default function ExchangeRatesPage() {
     void utils.netWorthDebt.getDetailById.invalidate();
     void utils.dashboard.getSummary.invalidate();
   }
+
+  const { confirm, modal } = useConfirmDelete();
 
   return (
     <>
@@ -140,7 +142,14 @@ export default function ExchangeRatesPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => deleteExchangeRate({ id: rate.id })}
+                          onClick={() =>
+                            confirm({
+                              itemType: "exchange rate",
+                              itemName: `${rate.baseCurrency} / ${rate.quoteCurrency}`,
+                              onConfirm: () =>
+                                deleteExchangeRate({ id: rate.id }),
+                            })
+                          }
                         >
                           <Trash2Icon />
                           Delete
@@ -169,6 +178,8 @@ export default function ExchangeRatesPage() {
         onOpenChange={setNewDialog}
         onSuccess={handleRateCreatedOrEdited}
       />
+
+      {modal}
     </>
   );
 }

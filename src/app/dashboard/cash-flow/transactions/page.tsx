@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
 import { TransactionTable } from "~/components/transaction-table";
 import EditTransactionDialog from "./EditTransactionDialog";
+import { useConfirmDelete } from "~/components/confirm-delete-modal";
 
 export default function TransactionsPage() {
   const { data = [], refetch, isPending } = api.transaction.getAll.useQuery();
@@ -51,6 +52,8 @@ export default function TransactionsPage() {
     void utils.cashFlow.getMonthlyCashFlow.invalidate();
     void utils.dashboard.getSummary.invalidate();
   }
+
+  const { confirm, modal } = useConfirmDelete();
 
   return (
     <>
@@ -87,7 +90,13 @@ export default function TransactionsPage() {
           <TransactionTable
             showActions
             data={data}
-            onDeleteTransaction={(id) => deleteTransaction({ id })}
+            onDeleteTransaction={(transaction) =>
+              confirm({
+                itemType: "transaction",
+                itemName: transaction.description,
+                onConfirm: () => deleteTransaction({ id: transaction.id }),
+              })
+            }
             onEditTransaction={handleEditTransaction}
           />
         )}
@@ -107,6 +116,8 @@ export default function TransactionsPage() {
         onOpenChange={setEditDialogOpen}
         onSuccess={handleTransactionSuccess}
       />
+
+      {modal}
     </>
   );
 }

@@ -44,7 +44,7 @@ export type TransactionTableProps = {
   showSeeAllLink?: boolean;
   showActions?: boolean;
   onEditTransaction?: (id: string) => void;
-  onDeleteTransaction?: (id: string) => void;
+  onDeleteTransaction?: (transaction: TransactionRow) => void;
 };
 
 export function TransactionTable({
@@ -144,7 +144,7 @@ export function TransactionTable({
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => onDeleteTransaction?.(transaction.id)}
+                        onClick={() => onDeleteTransaction?.(transaction)}
                       >
                         <Trash2Icon />
                         Delete

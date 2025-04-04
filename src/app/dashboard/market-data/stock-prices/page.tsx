@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -37,6 +36,7 @@ import NewStockPriceDialog from "./NewStockPriceDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
+import { useConfirmDelete } from "~/components/confirm-delete-modal";
 
 export default function StockPricesPage() {
   const { data = [], refetch, isPending } = api.stockPrice.getAll.useQuery();
@@ -66,6 +66,8 @@ export default function StockPricesPage() {
     setEditingPrice(stockPrice);
     setEditDialogOpen(true);
   }
+
+  const { confirm, modal } = useConfirmDelete();
 
   return (
     <>
@@ -139,7 +141,14 @@ export default function StockPricesPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => deleteStockPrice({ id: price.id })}
+                          onClick={() =>
+                            confirm({
+                              itemType: "stock price",
+                              itemName: price.ticker.ticker,
+                              onConfirm: () =>
+                                deleteStockPrice({ id: price.id }),
+                            })
+                          }
                         >
                           <Trash2Icon />
                           Delete
@@ -168,6 +177,8 @@ export default function StockPricesPage() {
         onOpenChange={setEditDialogOpen}
         onSuccess={handleStockCreatedOrEdited}
       />
+
+      {modal}
     </>
   );
 }
