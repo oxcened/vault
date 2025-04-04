@@ -25,6 +25,9 @@ export const netWorthRouter = createTRPCRouter({
     }),
   getLatest: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.netWorth.findFirst({
+      where: {
+        createdById: ctx.session.user.id,
+      },
       orderBy: {
         timestamp: "desc",
       },
