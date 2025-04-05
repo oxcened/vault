@@ -1,9 +1,15 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { PiggyBank } from "lucide-react";
+import { HelpCircleIcon, PiggyBank } from "lucide-react";
 import { Duration } from "luxon";
 import { DECIMAL_ZERO } from "~/utils/number";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 export default function FinancialRunway() {
   const { data } = api.dashboard.getSummary.useQuery();
@@ -43,7 +49,21 @@ export default function FinancialRunway() {
         <PiggyBank />
       </div>
       <div>
-        <p className="text-sm text-muted-foreground">Financial runway</p>
+        <div className="flex items-center gap-1">
+          <p className="text-sm text-muted-foreground">Financial runway</p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircleIcon className="size-4 opacity-50" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  Based on your average monthly expenses over the last 6 months.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <p>
           At your current spending rate, your assets could sustain you for{" "}
           {formattedRunwayDuration}.
