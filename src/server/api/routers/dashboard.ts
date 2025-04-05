@@ -88,12 +88,25 @@ export const dashboardRouter = createTRPCRouter({
         userId,
       });
 
+      const cashFlowAvgLast6Months = await ctx.db.cashFlow.aggregate({
+        _avg: {
+          netFlow: true,
+          expenses: true,
+          income: true,
+        },
+        orderBy: {
+          timestamp: "desc",
+        },
+        take: 6,
+      });
+
       return {
         netWorth: latestNetWorth,
         cashFlow: latestCashFlow,
         recentTransactions,
         netWorthTrend,
         cashFlowTrend,
+        cashFlowAvgLast6Months: cashFlowAvgLast6Months._avg,
       };
     });
   }),

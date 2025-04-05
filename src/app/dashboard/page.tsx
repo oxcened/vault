@@ -6,30 +6,21 @@ import { Separator } from "~/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
 } from "~/components/ui/breadcrumb";
 import { useSession } from "next-auth/react";
 import { RoundedCurrency } from "~/components/ui/number";
-import { ChartNoAxesCombined, PiggyBank } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
-import { DECIMAL_ZERO } from "~/utils/number";
 import { Skeleton } from "~/components/ui/skeleton";
-import { BreadcrumbSeparator } from "~/components/ui/breadcrumb";
+import FinancialRunway from "./FinancialRunway";
+import NetWorthForecast from "./NetWorthForecast";
 
 export default function OverviewPage() {
   const { data, isPending } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
-
-  const netWorthForecast = data?.netWorth?.netValue.plus(
-    (data.cashFlow?.netFlow ?? DECIMAL_ZERO).mul(12),
-  );
-  const financialRunwayMonths = data?.netWorth?.totalAssets
-    .div(data.cashFlow?.expenses ?? DECIMAL_ZERO)
-    .toFixed(0);
 
   return (
     <>
@@ -137,36 +128,8 @@ export default function OverviewPage() {
               <Separator />
 
               <div className="flex flex-col gap-10">
-                <div className="flex items-center gap-4">
-                  <div className="rounded-lg bg-muted p-2">
-                    <ChartNoAxesCombined />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Net worth forecast
-                    </p>
-                    <p>
-                      At your current cash flow trend, your net worth could{" "}
-                      {netWorthForecast?.gt(0) ? "grow" : "shrink"} to{" "}
-                      <RoundedCurrency value={netWorthForecast} /> in a year.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="rounded-lg bg-muted p-2">
-                    <PiggyBank />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Financial runway
-                    </p>
-                    <p>
-                      At your current spending rate, your assets could sustain
-                      you for {financialRunwayMonths} months.
-                    </p>
-                  </div>
-                </div>
+                <NetWorthForecast />
+                <FinancialRunway />
               </div>
 
               <Separator />
