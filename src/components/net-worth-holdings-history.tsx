@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { MonthPicker } from "~/components/ui/month-picker";
-import { Currency } from "~/components/ui/number";
+import { Currency, RoundedCurrency } from "~/components/ui/number";
 import {
   Popover,
   PopoverContent,
@@ -35,6 +35,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -71,6 +72,11 @@ export default function NetWorthHoldingsHistory({
   });
 
   const { sm } = useBreakpoint();
+
+  const total = data.reduce(
+    (prev, curr) => prev.plus(curr.value),
+    DECIMAL_ZERO,
+  );
 
   return (
     <>
@@ -163,12 +169,20 @@ export default function NetWorthHoldingsHistory({
                       </p>
                     </TableCell>
                     <TableCell className="text-end">
-                      <Currency value={row.value} />
+                      <RoundedCurrency value={row.value} />
                     </TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={2}>Total</TableCell>
+                <TableCell className="text-end">
+                  <RoundedCurrency value={total} />
+                </TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         )}
       </div>
