@@ -72,7 +72,7 @@ export function TransactionTable({
           {showSeeAllLink ? (
             <TableHead className="text-right">
               <Link
-                href="/dashboard/transactions"
+                href="/dashboard/cash-flow/transactions"
                 className={cn(
                   buttonVariants({
                     variant: "link",
