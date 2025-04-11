@@ -73,8 +73,8 @@ export async function getAssetValuesForUserMonth({
     assetId: string;
     assetName: string;
     stockTicker: string | null;
-    categoryId: string | null;
-    categoryName: string | null;
+    categoryId: string;
+    categoryName: string;
     assetArchivedAt: Date | null;
   }[]
 > {
@@ -101,8 +101,8 @@ export async function getDebtValuesForUserMonth({
     valueInTarget: Prisma.Decimal;
     debtId: string;
     debtName: string;
-    categoryId: string | null;
-    categoryName: string | null;
+    categoryId: string;
+    categoryName: string;
     debtArchivedAt: Date | null;
   }[]
 > {

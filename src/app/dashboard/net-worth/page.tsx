@@ -12,7 +12,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
-import { RoundedCurrency } from "~/components/ui/number";
+import { Currency, Percentage, RoundedCurrency } from "~/components/ui/number";
 import {
   ChartContainer,
   ChartTooltip,
@@ -33,6 +33,17 @@ import {
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { cn } from "~/lib/utils";
 
 const netWorthChartConfig = {
   netWorth: {
@@ -185,6 +196,40 @@ export default function NetWorthPage() {
                 />
               </ComposedChart>
             </ChartContainer>
+          </>
+        )}
+
+        {!isPending && !!data?.assetByCategory.length && (
+          <>
+            <div>
+              <p className="font-medium">Asset by category</p>
+              <p className="text-muted-foreground">Current month</p>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Allocation</TableHead>
+                  <TableHead className="w-32 text-right">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data?.assetByCategory.map((category) => (
+                  <TableRow key={category.category}>
+                    <TableCell>{category.category}</TableCell>
+                    <TableCell>
+                      <Percentage value={category.percentage} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Currency
+                        value={category.value}
+                        className={cn("text-right")}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </>
         )}
       </div>

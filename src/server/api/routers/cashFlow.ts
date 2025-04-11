@@ -80,9 +80,9 @@ async function getCashFlowByCategory({
     );
   }
 
-  return Object.values(cashFlowByCategory).toSorted((a, b) =>
-    b.netFlow.abs().minus(a.netFlow.abs()).toNumber(),
-  );
+  return Object.values(cashFlowByCategory).toSorted((a, b) => {
+    return b.netFlow.abs().minus(a.netFlow.abs()).toNumber();
+  });
 }
 
 export const cashFlowRouter = createTRPCRouter({
