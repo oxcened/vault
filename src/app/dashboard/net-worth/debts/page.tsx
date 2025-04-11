@@ -27,14 +27,14 @@ export default function AssetsPage() {
   const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
     onSuccess: () => {
       toast.success("Debt deleted.");
-      void refetch();
+      handleDebtSuccess();
     },
   });
 
   const { mutate: archiveDebt } = api.netWorthDebt.update.useMutation({
     onSuccess: () => {
       toast.success("Debt archived.");
-      void refetch();
+      handleDebtSuccess();
     },
   });
 
@@ -47,6 +47,7 @@ export default function AssetsPage() {
     void refetch();
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
+    void utils.netWorth.getAll.invalidate();
   }
 
   const mappedData: Holding[] = data.map((row) => ({
