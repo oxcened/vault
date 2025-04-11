@@ -21,6 +21,9 @@ import { formatDate } from "~/utils/date";
 import { APP_CURRENCY } from "~/constants";
 import { Currency } from "~/components/ui/number";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { useDebouncedCallback } from "use-debounce";
+import Decimal from "decimal.js";
+import { toast } from "sonner";
 
 export type DebtDetailDialogProps = {
   isOpen: boolean;
@@ -33,10 +36,36 @@ export function DebtDetailDialog({
   debtId,
   onOpenChange,
 }: DebtDetailDialogProps) {
-  const { data, isPending } = api.netWorthDebt.getDetailById.useQuery(
+  const { data, isPending, refetch } = api.netWorthDebt.getDetailById.useQuery(
     { id: debtId! },
     { enabled: !!debtId },
   );
+  const { mutate: updateQuantity, isPending: isUpdatingQuantity } =
+    api.netWorthDebt.updateQuantity.useMutation({
+      onSuccess: () => {
+        refetch();
+        void utils.netWorthOverview.get.invalidate();
+        void utils.dashboard.getSummary.invalidate();
+        void utils.netWorthDebt.getAll.invalidate();
+        void utils.netWorth.getAll.invalidate();
+      },
+    });
+  const utils = api.useUtils();
+
+  const handleQuantityChange = useDebouncedCallback((value: string) => {
+    try {
+      const decimalValue = new Decimal(value);
+      if (!debtId) throw new Error("Debt ID not found");
+      updateQuantity({
+        debtId,
+        quantity: decimalValue.toString(),
+      });
+    } catch (error) {
+      const msg = `Invalid decimal input: ${value}`;
+      console.error(msg);
+      toast.error(msg);
+    }
+  }, 1000);
 
   if (isPending) {
     return null;
@@ -77,6 +106,7 @@ export function DebtDetailDialog({
                   id="balance"
                   placeholder="Balance"
                   defaultValue={Number(data?.latestQuantity?.quantity ?? 0)}
+                  onChange={(e) => handleQuantityChange(e.currentTarget.value)}
                 />
               </div>
             </form>

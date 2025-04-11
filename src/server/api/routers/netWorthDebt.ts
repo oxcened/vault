@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthDebtHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
-import { type ExchangeRate } from "@prisma/client";
+import { Prisma, type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
@@ -181,5 +181,40 @@ export const netWorthDebtRouter = createTRPCRouter({
       });
 
       return updatedAsset;
+    }),
+  updateQuantity: protectedProcedure
+    .input(
+      yup.object({
+        debtId: yup.string().required().label("Debt ID"),
+        quantity: yup.string().label("Quantity"),
+        quantityFormula: yup.string().label("Quantity formula"),
+        timestamp: yup.date().label("Date"),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { debtId, ...data } = input;
+      const latestQuantity = await ctx.db.netWorthDebtQuantity.findFirst({
+        where: {
+          netWorthDebtId: input.debtId,
+          netWorthDebt: {
+            createdById: ctx.session.user.id,
+          },
+        },
+        orderBy: {
+          timestamp: "desc",
+        },
+      });
+
+      return ctx.db.netWorthDebtQuantity.update({
+        where: {
+          id: latestQuantity?.id,
+        },
+        data: {
+          ...data,
+          quantity: input.quantity
+            ? new Prisma.Decimal(input.quantity)
+            : undefined,
+        },
+      });
     }),
 });
