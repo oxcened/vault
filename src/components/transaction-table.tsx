@@ -106,7 +106,7 @@ export function TransactionTable({
                   {formatDate({ date: transaction.timestamp })}
                 </p>
               </TableCell>
-              <TableCell>
+              <TableCell className="hidden md:table-cell">
                 <p className="rounded-lg bg-muted px-1 py-0.5 text-center text-muted-foreground">
                   {transaction.category.name}
                 </p>
