@@ -43,7 +43,7 @@ export function DebtDetailDialog({
   const { mutate: updateQuantity } =
     api.netWorthDebt.updateQuantity.useMutation({
       onSuccess: () => {
-        refetch();
+        void refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
         void utils.netWorthDebt.getAll.invalidate();

@@ -48,7 +48,7 @@ export function AssetDetailDialog({
   const { mutate: updateQuantity } =
     api.netWorthAsset.updateQuantity.useMutation({
       onSuccess: () => {
-        refetch();
+        void refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
         void utils.netWorthAsset.getAll.invalidate();
