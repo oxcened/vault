@@ -45,13 +45,14 @@ export function AssetDetailDialog({
       enabled: !!assetId,
     },
   );
-  const { mutate: updateQuantity, isPending: isUpdatingQuantity } =
+  const { mutate: updateQuantity } =
     api.netWorthAsset.updateQuantity.useMutation({
       onSuccess: () => {
         refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
         void utils.netWorthAsset.getAll.invalidate();
+        void utils.netWorth.getAll.invalidate();
       },
     });
   const utils = api.useUtils();

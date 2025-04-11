@@ -40,7 +40,7 @@ export function DebtDetailDialog({
     { id: debtId! },
     { enabled: !!debtId },
   );
-  const { mutate: updateQuantity, isPending: isUpdatingQuantity } =
+  const { mutate: updateQuantity } =
     api.netWorthDebt.updateQuantity.useMutation({
       onSuccess: () => {
         refetch();
