@@ -22,6 +22,9 @@ import { APP_CURRENCY } from "~/constants";
 import { Currency } from "~/components/ui/number";
 import { Number } from "~/components/ui/number";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { useDebouncedCallback } from "use-debounce";
+import Decimal from "decimal.js";
+import { toast } from "sonner";
 
 export type AssetDetailDialogProps = {
   isOpen: boolean;
@@ -34,7 +37,7 @@ export function AssetDetailDialog({
   assetId,
   onOpenChange,
 }: AssetDetailDialogProps) {
-  const { data, isPending } = api.netWorthAsset.getDetailById.useQuery(
+  const { data, isPending, refetch } = api.netWorthAsset.getDetailById.useQuery(
     {
       id: assetId!,
     },
@@ -42,6 +45,31 @@ export function AssetDetailDialog({
       enabled: !!assetId,
     },
   );
+  const { mutate: updateQuantity, isPending: isUpdatingQuantity } =
+    api.netWorthAsset.updateQuantity.useMutation({
+      onSuccess: () => {
+        refetch();
+        void utils.netWorthOverview.get.invalidate();
+        void utils.dashboard.getSummary.invalidate();
+        void utils.netWorthAsset.getAll.invalidate();
+      },
+    });
+  const utils = api.useUtils();
+
+  const handleQuantityChange = useDebouncedCallback((value: string) => {
+    try {
+      const decimalValue = new Decimal(value);
+      if (!assetId) throw new Error("Asset ID not found");
+      updateQuantity({
+        assetId,
+        quantity: decimalValue.toString(),
+      });
+    } catch (error) {
+      const msg = `Invalid decimal input: ${value}`;
+      console.error(msg);
+      toast.error(msg);
+    }
+  }, 1000);
 
   if (isPending) {
     return null;
@@ -108,6 +136,7 @@ export function AssetDetailDialog({
                   id="quantity"
                   placeholder="Quantity/Value"
                   defaultValue={data?.latestQuantity?.quantity?.toNumber()}
+                  onChange={(e) => handleQuantityChange(e.currentTarget.value)}
                 />
               </div>
             </form>
