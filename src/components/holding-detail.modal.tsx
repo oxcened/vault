@@ -212,7 +212,7 @@ export const HoldingDetailValueTab = ({
                       <Input
                         value={inputValue}
                         autoFocus
-                        className="ml-auto w-fit border-none text-end"
+                        className="ml-auto w-fit border-none p-0 text-end text-sm shadow-none focus-visible:ring-0"
                         onChange={(e) => setInputValue(e.currentTarget.value)}
                         onBlur={() => {
                           setEditingQuantity(undefined);
