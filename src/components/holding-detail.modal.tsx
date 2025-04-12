@@ -25,7 +25,6 @@ import Decimal from "decimal.js";
 import { PropsWithChildren, useState } from "react";
 import { DateTime } from "luxon";
 import { DECIMAL_ZERO } from "~/utils/number";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Skeleton } from "./ui/skeleton";
 
 export type AssetDetailDialogProps = PropsWithChildren<{
@@ -217,7 +216,12 @@ export const HoldingDetailValueTab = ({
                         onChange={(e) => setInputValue(e.currentTarget.value)}
                         onBlur={() => {
                           setEditingQuantity(undefined);
-                          if (!holdingId || !row.timestamp) return;
+                          if (
+                            !holdingId ||
+                            !row.timestamp ||
+                            inputValue === row.quantity?.toString()
+                          )
+                            return;
                           onQuantityChange({
                             timestamp: row.timestamp,
                             quantity: inputValue,
