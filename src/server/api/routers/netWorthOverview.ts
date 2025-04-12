@@ -67,9 +67,11 @@ export const netWorthOverviewRouter = createTRPCRouter({
         ].value.div(latestNetWorth?.totalAssets ?? DECIMAL_ZERO);
       }
 
-      return Object.values(assetByCategory).toSorted((a, b) => {
-        return b.value.abs().minus(a.value.abs()).toNumber();
-      });
+      return Object.values(assetByCategory)
+        .filter((item) => !item.value.eq(0))
+        .toSorted((a, b) => {
+          return b.value.abs().minus(a.value.abs()).toNumber();
+        });
     })();
 
     return {
