@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthDebtHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
-import { Prisma, type ExchangeRate } from "@prisma/client";
+import { type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
@@ -182,46 +182,36 @@ export const netWorthDebtRouter = createTRPCRouter({
 
       return updatedAsset;
     }),
-  updateQuantity: protectedProcedure
+  upsertQuantity: protectedProcedure
     .input(
       yup.object({
         debtId: yup.string().required().label("Debt ID"),
-        quantity: yup.string().label("Quantity"),
+        timestamp: yup.date().label("Date").required(),
+        quantity: yup.string().label("Quantity").required(),
         quantityFormula: yup.string().label("Quantity formula"),
-        timestamp: yup.date().label("Date"),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { debtId, ...data } = input;
-      const latestQuantity = await ctx.db.netWorthDebtQuantity.findFirst({
+      const updateQuantity = await ctx.db.netWorthDebtQuantity.upsert({
         where: {
-          netWorthDebtId: input.debtId,
-          netWorthDebt: {
-            createdById: ctx.session.user.id,
+          netWorthDebtId_timestamp: {
+            netWorthDebtId: input.debtId,
+            timestamp: input.timestamp,
           },
         },
-        orderBy: {
-          timestamp: "desc",
-        },
-      });
-
-      const quantity = await ctx.db.netWorthDebtQuantity.update({
-        where: {
-          id: latestQuantity?.id,
-        },
-        data: {
+        create: {
           ...data,
-          quantity: input.quantity
-            ? new Prisma.Decimal(input.quantity)
-            : undefined,
+          netWorthDebt: { connect: { id: debtId } },
         },
+        update: data,
       });
 
       appEmitter.emit("netWorthDebtQuantity:updated", {
         userId: ctx.session.user.id,
-        timestamp: quantity.timestamp,
+        timestamp: input.timestamp,
       });
 
-      return quantity;
+      return updateQuantity;
     }),
 });

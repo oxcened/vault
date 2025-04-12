@@ -2,11 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getNetWorthAssetHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
-import {
-  Prisma,
-  type ExchangeRate,
-  type StockPriceHistory,
-} from "@prisma/client";
+import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { evaluate } from "mathjs";
@@ -225,46 +221,36 @@ export const netWorthAssetRouter = createTRPCRouter({
 
       return updatedAsset;
     }),
-  updateQuantity: protectedProcedure
+  upsertQuantity: protectedProcedure
     .input(
       yup.object({
         assetId: yup.string().required().label("Asset ID"),
-        quantity: yup.string().label("Quantity"),
+        timestamp: yup.date().label("Date").required(),
+        quantity: yup.string().label("Quantity").required(),
         quantityFormula: yup.string().label("Quantity formula"),
-        timestamp: yup.date().label("Date"),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { assetId, ...data } = input;
-      const latestQuantity = await ctx.db.netWorthAssetQuantity.findFirst({
+      const updateQuantity = await ctx.db.netWorthAssetQuantity.upsert({
         where: {
-          netWorthAssetId: input.assetId,
-          netWorthAsset: {
-            createdById: ctx.session.user.id,
+          netWorthAssetId_timestamp: {
+            netWorthAssetId: input.assetId,
+            timestamp: input.timestamp,
           },
         },
-        orderBy: {
-          timestamp: "desc",
-        },
-      });
-
-      const quantity = await ctx.db.netWorthAssetQuantity.update({
-        where: {
-          id: latestQuantity?.id,
-        },
-        data: {
+        create: {
           ...data,
-          quantity: input.quantity
-            ? new Prisma.Decimal(input.quantity)
-            : undefined,
+          netWorthAsset: { connect: { id: assetId } },
         },
+        update: data,
       });
 
       appEmitter.emit("netWorthAssetQuantity:updated", {
         userId: ctx.session.user.id,
-        timestamp: quantity.timestamp,
+        timestamp: input.timestamp,
       });
 
-      return quantity;
+      return updateQuantity;
     }),
 });
