@@ -212,7 +212,7 @@ export const HoldingDetailValueTab = ({
                       <Input
                         value={inputValue}
                         autoFocus
-                        className="ml-auto w-fit border-none p-0 text-end text-sm shadow-none focus-visible:ring-0"
+                        className="ml-auto h-auto w-fit rounded-none border-none p-0 text-end text-sm shadow-none focus-visible:ring-0"
                         onChange={(e) => setInputValue(e.currentTarget.value)}
                         onBlur={() => {
                           setEditingQuantity(undefined);
@@ -230,7 +230,7 @@ export const HoldingDetailValueTab = ({
                       />
                     ) : (
                       <div
-                        className="flex h-9 items-center justify-end"
+                        className="flex items-center justify-end"
                         onClick={() => {
                           if (!row.quantityId || !row.quantity) return;
                           setEditingQuantity(row.quantityId);
