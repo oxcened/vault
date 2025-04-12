@@ -205,7 +205,7 @@ export const netWorthDebtRouter = createTRPCRouter({
         },
       });
 
-      return ctx.db.netWorthDebtQuantity.update({
+      const quantity = await ctx.db.netWorthDebtQuantity.update({
         where: {
           id: latestQuantity?.id,
         },
@@ -216,5 +216,12 @@ export const netWorthDebtRouter = createTRPCRouter({
             : undefined,
         },
       });
+
+      appEmitter.emit("netWorthDebtQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: quantity.timestamp,
+      });
+
+      return quantity;
     }),
 });
