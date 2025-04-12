@@ -40,24 +40,29 @@ export function AssetDetailDialog({
 
   const utils = api.useUtils();
 
-  const handleQuantityChange = useDebouncedCallback(
-    ({ quantity, timestamp }: { quantity: string; timestamp: Date }) => {
-      try {
-        const decimalValue = new Decimal(quantity);
-        if (!assetId) throw new Error("Asset ID not found");
-        upsertQuantity({
-          assetId,
-          timestamp,
-          quantity: decimalValue.toString(),
-        });
-      } catch (error) {
-        const msg = `Invalid decimal input: ${quantity}`;
-        console.error(msg);
-        toast.error(msg);
-      }
-    },
-    1000,
-  );
+  function changeQuantity({
+    quantity,
+    timestamp,
+  }: {
+    quantity: string;
+    timestamp: Date;
+  }) {
+    try {
+      const decimalValue = new Decimal(quantity);
+      if (!assetId) throw new Error("Asset ID not found");
+      upsertQuantity({
+        assetId,
+        timestamp,
+        quantity: decimalValue.toString(),
+      });
+    } catch (error) {
+      const msg = `Invalid decimal input: ${quantity}`;
+      console.error(msg);
+      toast.error(msg);
+    }
+  }
+
+  const debouncedChangeQuantity = useDebouncedCallback(changeQuantity, 1000);
 
   return (
     <HoldingDetailDialog
@@ -79,13 +84,13 @@ export function AssetDetailDialog({
         tickerName={data?.ticker?.name}
         tickerExchange={data?.ticker?.exchange}
         holdingId={data?.id}
-        onQuantityChange={handleQuantityChange}
+        onQuantityChange={debouncedChangeQuantity}
       />
       <HoldingDetailValueTab
         isCategoryStock={data?.category?.isStock}
         valueHistory={data?.valueHistory}
         holdingId={data?.id}
-        onQuantityChange={handleQuantityChange}
+        onQuantityChange={changeQuantity}
       />
     </HoldingDetailDialog>
   );

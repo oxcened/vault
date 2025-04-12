@@ -33,26 +33,32 @@ export function DebtDetailDialog({
         void utils.netWorth.getAll.invalidate();
       },
     });
+
   const utils = api.useUtils();
 
-  const handleQuantityChange = useDebouncedCallback(
-    ({ quantity, timestamp }: { quantity: string; timestamp: Date }) => {
-      try {
-        const decimalValue = new Decimal(quantity);
-        if (!debtId) throw new Error("Debt ID not found");
-        upsertQuantity({
-          debtId,
-          timestamp,
-          quantity: decimalValue.toString(),
-        });
-      } catch (error) {
-        const msg = `Invalid decimal input: ${quantity}`;
-        console.error(msg);
-        toast.error(msg);
-      }
-    },
-    1000,
-  );
+  function changeQuantity({
+    quantity,
+    timestamp,
+  }: {
+    quantity: string;
+    timestamp: Date;
+  }) {
+    try {
+      const decimalValue = new Decimal(quantity);
+      if (!debtId) throw new Error("Debt ID not found");
+      upsertQuantity({
+        debtId,
+        timestamp,
+        quantity: decimalValue.toString(),
+      });
+    } catch (error) {
+      const msg = `Invalid decimal input: ${quantity}`;
+      console.error(msg);
+      toast.error(msg);
+    }
+  }
+
+  const debouncedChangeQuantity = useDebouncedCallback(changeQuantity, 1000);
 
   return (
     <HoldingDetailDialog
@@ -69,12 +75,12 @@ export function DebtDetailDialog({
         holdingCurrency={data?.currency}
         latestQuantity={data?.latestQuantity?.quantity}
         holdingId={data?.id}
-        onQuantityChange={handleQuantityChange}
+        onQuantityChange={debouncedChangeQuantity}
       />
       <HoldingDetailValueTab
         valueHistory={data?.valueHistory}
         holdingId={data?.id}
-        onQuantityChange={handleQuantityChange}
+        onQuantityChange={changeQuantity}
       />
     </HoldingDetailDialog>
   );
