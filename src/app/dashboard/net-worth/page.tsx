@@ -221,7 +221,7 @@ export default function NetWorthPage() {
                       <Percentage value={category.percentage} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Currency
+                      <RoundedCurrency
                         value={category.value}
                         className={cn("text-right")}
                       />
