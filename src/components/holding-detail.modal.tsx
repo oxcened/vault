@@ -233,19 +233,22 @@ export const HoldingDetailValueTab = ({
                         })
                       }
                     >
-                      <EditableValueInput className="ml-auto text-end" />
+                      <EditableValueInput className="ml-auto h-9 text-end" />
                       <EditableValueDisplay
-                        render={(value) => (
-                          <Currency value={new Decimal(value)} />
+                        className="flex h-9 flex-col justify-center"
+                        render={() => (
+                          <>
+                            <Currency value={row.computedValue} />
+
+                            {isCategoryStock && (
+                              <p className="text-xs text-muted-foreground">
+                                Qty <Number value={row.quantity} />
+                              </p>
+                            )}
+                          </>
                         )}
                       />
                     </EditableValue>
-
-                    {isCategoryStock && (
-                      <p className="text-xs text-muted-foreground">
-                        Qty <Number value={row.quantity} />
-                      </p>
-                    )}
                   </TableCell>
                 </TableRow>
               ))}
