@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { getNetWorthAssetHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
-import { getAssetValuesForUserMonth } from "~/server/utils/db";
+import {
+  getAssetValueHistory,
+  getAssetValuesForUserMonth,
+} from "~/server/utils/db";
 import * as yup from "yup";
 
 export const netWorthAssetRouter = createTRPCRouter({
@@ -183,9 +185,11 @@ export const netWorthAssetRouter = createTRPCRouter({
           ? nativeComputedValue?.times(exchangeRate.rate)
           : nativeComputedValue;
 
-        const valueHistory = await tx.$queryRawTyped(
-          getNetWorthAssetHistory(input.id, APP_CURRENCY, APP_CURRENCY),
-        );
+        const valueHistory = await getAssetValueHistory({
+          db: tx,
+          userId: ctx.session.user.id,
+          assetId: input.id,
+        });
 
         return {
           ...asset,

@@ -31,6 +31,7 @@ import {
   EditableValueDisplay,
   EditableValueInput,
 } from "./ui/editable-value";
+import { Badge } from "./ui/badge";
 
 export type AssetDetailDialogProps = PropsWithChildren<{
   isOpen: boolean;
@@ -174,18 +175,20 @@ export const HoldingDetailMainTab = ({
 
 export const HoldingDetailValueTab = ({
   holdingId,
-  onQuantityChange,
   isCategoryStock,
   valueHistory = [],
+  ticker,
+  onQuantityChange,
 }: {
   holdingId?: string;
   isCategoryStock?: boolean;
+  ticker?: string;
   valueHistory?: {
-    timestamp: Date | null;
-    quantityId: string | null;
-    stockPriceId?: string | null;
-    quantity: Decimal | null;
-    computedValue: Decimal | null;
+    timestamp: Date;
+    quantity: Decimal;
+    stockPrice?: Decimal | null;
+    fxRate: Decimal | null;
+    valueInTarget: Decimal;
   }[];
   onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
 }) => {
@@ -211,18 +214,33 @@ export const HoldingDetailValueTab = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead className="text-right">Value</TableHead>
+                {isCategoryStock && <TableHead>Stock</TableHead>}
+                <TableHead className="text-end">Value</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {valueHistory.map((row) => (
-                <TableRow key={[row.quantityId, row.stockPriceId].join()}>
+                <TableRow key={row.timestamp.getTime()}>
                   <TableCell>
                     {row.timestamp
                       ? formatDate({ date: row.timestamp })
                       : "n/a"}
                   </TableCell>
+                  {isCategoryStock && (
+                    <TableCell className="text-xs">
+                      <Badge variant="outline">
+                        {ticker}&nbsp;
+                        <Number
+                          value={row.stockPrice}
+                          options={{
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }}
+                        />
+                      </Badge>
+                    </TableCell>
+                  )}
                   <TableCell className="text-end">
                     <EditableValue
                       initialValue={(row.quantity ?? DECIMAL_ZERO).toString()}
@@ -238,7 +256,7 @@ export const HoldingDetailValueTab = ({
                         className="flex h-9 flex-col justify-center"
                         render={() => (
                           <>
-                            <Currency value={row.computedValue} />
+                            <Currency value={row.valueInTarget} />
 
                             {isCategoryStock && (
                               <p className="text-xs text-muted-foreground">

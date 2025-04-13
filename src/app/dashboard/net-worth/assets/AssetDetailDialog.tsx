@@ -87,8 +87,12 @@ export function AssetDetailDialog({
         onQuantityChange={debouncedChangeQuantity}
       />
       <HoldingDetailValueTab
+        ticker={data?.ticker?.ticker}
         isCategoryStock={data?.category?.isStock}
-        valueHistory={data?.valueHistory}
+        valueHistory={data?.valueHistory?.map((item) => ({
+          ...item,
+          timestamp: item.assetTimestamp,
+        }))}
         holdingId={data?.id}
         onQuantityChange={changeQuantity}
       />

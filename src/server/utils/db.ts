@@ -108,3 +108,42 @@ export async function getDebtValuesForUserMonth({
 > {
   return db.$queryRaw`SELECT * FROM get_debt_values_for_user_month(${userId}::TEXT, ${startDate}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;
 }
+
+export async function getAssetValueHistory({
+  db,
+  userId,
+  assetId,
+}: {
+  db: Pick<PrismaClient, "$queryRaw">;
+  userId: string;
+  assetId: string;
+}): Promise<
+  {
+    assetTimestamp: Date;
+    quantity: Prisma.Decimal;
+    stockPrice: Prisma.Decimal | null;
+    fxRate: Prisma.Decimal | null;
+    valueInTarget: Prisma.Decimal;
+  }[]
+> {
+  return db.$queryRaw`SELECT * FROM get_asset_value_history(${userId}::TEXT, ${assetId}::TEXT, ${APP_CURRENCY}::VARCHAR)`;
+}
+
+export async function getDebtValueHistory({
+  db,
+  userId,
+  debtId,
+}: {
+  db: Pick<PrismaClient, "$queryRaw">;
+  userId: string;
+  debtId: string;
+}): Promise<
+  {
+    debtTimestamp: Date;
+    quantity: Prisma.Decimal;
+    fxRate: Prisma.Decimal | null;
+    valueInTarget: Prisma.Decimal;
+  }[]
+> {
+  return db.$queryRaw`SELECT * FROM get_debt_value_history(${userId}::TEXT, ${debtId}::TEXT, ${APP_CURRENCY}::VARCHAR)`;
+}

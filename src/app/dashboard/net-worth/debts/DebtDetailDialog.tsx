@@ -78,7 +78,10 @@ export function DebtDetailDialog({
         onQuantityChange={debouncedChangeQuantity}
       />
       <HoldingDetailValueTab
-        valueHistory={data?.valueHistory}
+        valueHistory={data?.valueHistory?.map((item) => ({
+          ...item,
+          timestamp: item.debtTimestamp,
+        }))}
         holdingId={data?.id}
         onQuantityChange={changeQuantity}
       />

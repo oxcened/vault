@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { getNetWorthDebtHistory } from "@prisma/client/sql";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
 import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
-import { getDebtValuesForUserMonth } from "~/server/utils/db";
+import {
+  getDebtValueHistory,
+  getDebtValuesForUserMonth,
+} from "~/server/utils/db";
 
 export const netWorthDebtRouter = createTRPCRouter({
   create: protectedProcedure
@@ -147,9 +149,11 @@ export const netWorthDebtRouter = createTRPCRouter({
           ? nativeComputedValue?.times(exchangeRate.rate)
           : nativeComputedValue;
 
-        const valueHistory = await tx.$queryRawTyped(
-          getNetWorthDebtHistory(input.id, APP_CURRENCY, APP_CURRENCY),
-        );
+        const valueHistory = await getDebtValueHistory({
+          db: tx,
+          userId: ctx.session.user.id,
+          debtId: input.id,
+        });
 
         return {
           ...asset,
