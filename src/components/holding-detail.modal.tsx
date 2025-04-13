@@ -22,10 +22,15 @@ import { Currency } from "~/components/ui/number";
 import { Number } from "~/components/ui/number";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import Decimal from "decimal.js";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren } from "react";
 import { DateTime } from "luxon";
 import { DECIMAL_ZERO } from "~/utils/number";
 import { Skeleton } from "./ui/skeleton";
+import {
+  EditableValue,
+  EditableValueDisplay,
+  EditableValueInput,
+} from "./ui/editable-value";
 
 export type AssetDetailDialogProps = PropsWithChildren<{
   isOpen: boolean;
@@ -184,8 +189,19 @@ export const HoldingDetailValueTab = ({
   }[];
   onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
 }) => {
-  const [inputValue, setInputValue] = useState("");
-  const [editingQuantity, setEditingQuantity] = useState<string>();
+  const handleQuantityChange = ({
+    row,
+    quantity,
+  }: {
+    row: (typeof valueHistory)[number];
+    quantity: string;
+  }) => {
+    if (!holdingId || !row.timestamp) return;
+    onQuantityChange({
+      timestamp: row.timestamp,
+      quantity: quantity,
+    });
+  };
 
   return (
     <TabsContent value="value">
@@ -207,44 +223,24 @@ export const HoldingDetailValueTab = ({
                       ? formatDate({ date: row.timestamp })
                       : "n/a"}
                   </TableCell>
-                  <TableCell>
-                    {editingQuantity === row.quantityId ? (
-                      <Input
-                        value={inputValue}
-                        autoFocus
-                        className="ml-auto h-auto w-fit rounded-none border-none p-0 text-end text-sm shadow-none focus-visible:ring-0"
-                        onChange={(e) => setInputValue(e.currentTarget.value)}
-                        onBlur={() => {
-                          setEditingQuantity(undefined);
-                          if (
-                            !holdingId ||
-                            !row.timestamp ||
-                            inputValue === row.quantity?.toString()
-                          )
-                            return;
-                          onQuantityChange({
-                            timestamp: row.timestamp,
-                            quantity: inputValue,
-                          });
-                        }}
+                  <TableCell className="text-end">
+                    <EditableValue
+                      initialValue={(row.quantity ?? DECIMAL_ZERO).toString()}
+                      onCommit={(quantity) =>
+                        handleQuantityChange({
+                          quantity,
+                          row,
+                        })
+                      }
+                    >
+                      <EditableValueInput className="ml-auto text-end" />
+                      <EditableValueDisplay
+                        render={(value) => (
+                          <Currency value={new Decimal(value)} />
+                        )}
                       />
-                    ) : (
-                      <div
-                        className="flex items-center justify-end"
-                        onClick={() => {
-                          if (!row.quantityId || !row.quantity) return;
-                          setEditingQuantity(row.quantityId);
-                          setInputValue(row.quantity.toString());
-                        }}
-                      >
-                        <Currency
-                          value={row.computedValue}
-                          options={{
-                            maximumFractionDigits: 2,
-                          }}
-                        />
-                      </div>
-                    )}
+                    </EditableValue>
+
                     {isCategoryStock && (
                       <p className="text-xs text-muted-foreground">
                         Qty <Number value={row.quantity} />
