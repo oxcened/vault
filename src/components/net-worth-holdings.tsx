@@ -191,7 +191,7 @@ export default function NetWorthHoldings<T extends Holding>({
 
         {dataByCategory.map(({ category, results, total }) => (
           <Fragment key={category}>
-            <p className="mt-10 text-sm font-medium first:mt-0">{category}</p>
+            <p className="mt-10 font-medium first:mt-0">{category}</p>
 
             <Table className="mt-5">
               <TableHeader>
@@ -203,7 +203,7 @@ export default function NetWorthHoldings<T extends Holding>({
               </TableHeader>
               <TableBody>
                 {results.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} onClick={() => onEditHolding(row)}>
                     <TableCell>
                       <div>{row.name}</div>
                       {row.stockTicker && (

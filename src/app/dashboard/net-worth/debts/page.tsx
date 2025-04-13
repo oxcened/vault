@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import NewDebtDialog from "./NewDebtDialog";
-import { type NetWorthAsset } from "@prisma/client";
-import { DebtDetailDialog } from "./DebtDetailDialog";
 import { toast } from "sonner";
 import NetWorthHoldings, { Holding } from "~/components/net-worth-holdings";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
+import { useRouter } from "next/navigation";
 
 export default function AssetsPage() {
   const {
@@ -40,7 +39,6 @@ export default function AssetsPage() {
 
   const utils = api.useUtils();
 
-  const [detailsDialog, setDetailsDialog] = useState<NetWorthAsset["id"]>();
   const [newDialog, setNewDialog] = useState(false);
 
   function handleDebtSuccess() {
@@ -59,6 +57,7 @@ export default function AssetsPage() {
   }));
 
   const { confirm, modal } = useConfirmDelete();
+  const router = useRouter();
 
   return (
     <>
@@ -68,7 +67,9 @@ export default function AssetsPage() {
         holdingLabel="Debt"
         holdingLabelPlural="Debts"
         onNewHolding={() => setNewDialog(true)}
-        onEditHolding={(holding) => setDetailsDialog(holding.id)}
+        onEditHolding={(holding) =>
+          router.push(`/dashboard/net-worth/debts/${holding.id}`)
+        }
         onDeleteHolding={(holding) =>
           confirm({
             itemType: "debt",
@@ -86,12 +87,6 @@ export default function AssetsPage() {
         isOpen={newDialog}
         onOpenChange={setNewDialog}
         onSuccess={handleDebtSuccess}
-      />
-
-      <DebtDetailDialog
-        isOpen={!!detailsDialog}
-        debtId={detailsDialog}
-        onOpenChange={() => setDetailsDialog(undefined)}
       />
 
       {modal}
