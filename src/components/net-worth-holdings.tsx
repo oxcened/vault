@@ -47,7 +47,7 @@ export type Holding = {
   quantityId: string;
   createdById: string;
   timestamp: Date;
-  quantity: Prisma.Decimal;
+  quantity: Prisma.Decimal | null;
   fxRate: string | null;
   exchangeRateId: string | null;
   valueInTarget: Prisma.Decimal;
@@ -231,7 +231,7 @@ export default function NetWorthHoldings<T extends Holding>({
                             Details
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            disabled={!row.quantity.eq(0)}
+                            disabled={!row.quantity?.eq(0)}
                             onClick={() => onArchiveHolding(row)}
                           >
                             <ArchiveIcon />

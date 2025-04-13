@@ -31,6 +31,17 @@ export default function DebtDetailPage() {
       },
     });
 
+  const { mutate: deleteQuantity } =
+    api.netWorthDebt.deleteQuantityByTimestamp.useMutation({
+      onSuccess: () => {
+        void refetch();
+        void utils.netWorthOverview.get.invalidate();
+        void utils.dashboard.getSummary.invalidate();
+        void utils.netWorthDebt.getAll.invalidate();
+        void utils.netWorth.getAll.invalidate();
+      },
+    });
+
   const utils = api.useUtils();
 
   function changeQuantity({
@@ -71,6 +82,12 @@ export default function DebtDetailPage() {
       holdingName={data?.name}
       type="debt"
       onQuantityChange={debouncedChangeQuantity}
+      onQuantityDelete={({ timestamp }) =>
+        deleteQuantity({
+          timestamp,
+          debtId: parsedDebtId!,
+        })
+      }
     />
   );
 }

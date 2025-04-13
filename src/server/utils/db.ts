@@ -62,7 +62,7 @@ export async function getAssetValuesForUserMonth({
     quantityId: string;
     createdById: string;
     timestamp: Date;
-    quantity: Prisma.Decimal;
+    quantity: Prisma.Decimal | null;
     assetCurrency: string;
     tickerId: string | null;
     stockPrice: Prisma.Decimal | null;
@@ -94,7 +94,7 @@ export async function getDebtValuesForUserMonth({
     quantityId: string;
     createdById: string;
     timestamp: Date;
-    quantity: Prisma.Decimal;
+    quantity: Prisma.Decimal | null;
     debtCurrency: string;
     fxRate: string | null;
     exchangeRateId: string | null;

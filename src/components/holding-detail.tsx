@@ -27,6 +27,17 @@ import {
   EditableValueDisplay,
   EditableValueInput,
 } from "~/components/ui/editable-value";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Button } from "./ui/button";
+import { MoreHorizontal, PencilIcon, Trash2Icon } from "lucide-react";
+import { useConfirmDelete } from "./confirm-delete-modal";
 
 export function HoldingDetail({
   holdingId,
@@ -42,6 +53,7 @@ export function HoldingDetail({
   valueHistory,
   type,
   onQuantityChange,
+  onQuantityDelete,
 }: {
   holdingId?: string;
   holdingName?: string;
@@ -62,6 +74,7 @@ export function HoldingDetail({
   }[];
   type: "asset" | "debt";
   onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
+  onQuantityDelete: (args: { timestamp: Date }) => void;
 }) {
   return (
     <>
@@ -126,6 +139,7 @@ export function HoldingDetail({
                 }))}
                 holdingId={holdingId}
                 onQuantityChange={onQuantityChange}
+                onQuantiyDelete={onQuantityDelete}
               />
             </div>
           </div>
@@ -181,6 +195,7 @@ export function HistoryTable({
   valueHistory = [],
   ticker,
   onQuantityChange,
+  onQuantiyDelete,
 }: {
   holdingId?: string;
   isCategoryStock?: boolean;
@@ -193,6 +208,7 @@ export function HistoryTable({
     valueInTarget: Decimal;
   }[];
   onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
+  onQuantiyDelete: (args: { timestamp: Date }) => void;
 }) {
   const handleQuantityChange = ({
     row,
@@ -207,6 +223,8 @@ export function HistoryTable({
       quantity: quantity,
     });
   };
+
+  const { confirm, modal } = useConfirmDelete();
 
   return (
     <Table>
@@ -265,9 +283,42 @@ export function HistoryTable({
                 />
               </EditableValue>
             </TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem disabled>
+                    <PencilIcon />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      confirm({
+                        itemType: "value",
+                        itemName: formatDate({ date: row.timestamp }),
+                        onConfirm: () =>
+                          onQuantiyDelete({ timestamp: row.timestamp }),
+                      })
+                    }
+                  >
+                    <Trash2Icon />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
+
+      {modal}
     </Table>
   );
 }

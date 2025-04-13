@@ -257,4 +257,28 @@ export const netWorthAssetRouter = createTRPCRouter({
 
       return updateQuantity;
     }),
+  deleteQuantityByTimestamp: protectedProcedure
+    .input(
+      yup.object({
+        assetId: yup.string().required().label("Asset ID"),
+        timestamp: yup.date().label("Date").required(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const deletedQuantity = await ctx.db.netWorthAssetQuantity.delete({
+        where: {
+          netWorthAssetId_timestamp: {
+            netWorthAssetId: input.assetId,
+            timestamp: input.timestamp,
+          },
+        },
+      });
+
+      appEmitter.emit("netWorthAssetQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: input.timestamp,
+      });
+
+      return deletedQuantity;
+    }),
 });

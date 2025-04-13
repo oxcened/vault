@@ -218,4 +218,28 @@ export const netWorthDebtRouter = createTRPCRouter({
 
       return updateQuantity;
     }),
+  deleteQuantityByTimestamp: protectedProcedure
+    .input(
+      yup.object({
+        debtId: yup.string().required().label("Debt ID"),
+        timestamp: yup.date().label("Date").required(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const deletedQuantity = await ctx.db.netWorthDebtQuantity.delete({
+        where: {
+          netWorthDebtId_timestamp: {
+            netWorthDebtId: input.debtId,
+            timestamp: input.timestamp,
+          },
+        },
+      });
+
+      appEmitter.emit("netWorthDebtQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: input.timestamp,
+      });
+
+      return deletedQuantity;
+    }),
 });

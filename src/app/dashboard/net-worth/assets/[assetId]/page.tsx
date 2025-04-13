@@ -31,6 +31,17 @@ export default function AssetDetailPage() {
       },
     });
 
+  const { mutate: deleteQuantity } =
+    api.netWorthAsset.deleteQuantityByTimestamp.useMutation({
+      onSuccess: () => {
+        void refetch();
+        void utils.netWorthOverview.get.invalidate();
+        void utils.dashboard.getSummary.invalidate();
+        void utils.netWorthAsset.getAll.invalidate();
+        void utils.netWorth.getAll.invalidate();
+      },
+    });
+
   const utils = api.useUtils();
 
   function changeQuantity({
@@ -75,6 +86,12 @@ export default function AssetDetailPage() {
       holdingName={data?.name}
       type="asset"
       onQuantityChange={debouncedChangeQuantity}
+      onQuantityDelete={({ timestamp }) =>
+        deleteQuantity({
+          timestamp,
+          assetId: parsedAssetId!,
+        })
+      }
     />
   );
 }
