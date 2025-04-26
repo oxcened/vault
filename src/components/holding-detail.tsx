@@ -148,8 +148,6 @@ export function HoldingDetail({
               <p className="font-medium">Quantity history</p>
 
               <QuantityHistoryTable
-                ticker={ticker}
-                isCategoryStock={isCategoryStock}
                 valueHistory={quantityHistory}
                 holdingId={holdingId}
                 onQuantityChange={onQuantityChange}
