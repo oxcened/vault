@@ -281,4 +281,20 @@ export const netWorthAssetRouter = createTRPCRouter({
 
       return deletedQuantity;
     }),
+  getQuantitiesByAssetId: protectedProcedure
+    .input(
+      yup.object({
+        assetId: yup.string().required(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return ctx.db.netWorthAssetQuantity.findMany({
+        where: {
+          netWorthAssetId: input.assetId,
+        },
+        orderBy: {
+          timestamp: "desc",
+        },
+      });
+    }),
 });

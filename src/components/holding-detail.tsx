@@ -52,6 +52,7 @@ export function HoldingDetail({
   tickerName,
   valueHistory,
   type,
+  quantityHistory,
   onQuantityChange,
   onQuantityDelete,
 }: {
@@ -71,6 +72,11 @@ export function HoldingDetail({
     stockPrice?: Decimal | null;
     fxRate: Decimal | null;
     valueInTarget: Decimal;
+  }[];
+  quantityHistory?: {
+    quantity: Decimal;
+    id: string;
+    timestamp: Date;
   }[];
   type: "asset" | "debt";
   onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
@@ -130,13 +136,21 @@ export function HoldingDetail({
             <div className="flex flex-col gap-5">
               <p className="font-medium">Value history</p>
 
-              <HistoryTable
+              <ValueHistoryTable
                 ticker={ticker}
                 isCategoryStock={isCategoryStock}
-                valueHistory={valueHistory?.map((item) => ({
-                  ...item,
-                  timestamp: item.timestamp,
-                }))}
+                valueHistory={valueHistory}
+                holdingId={holdingId}
+              />
+            </div>
+
+            <div className="flex flex-col gap-5">
+              <p className="font-medium">Quantity history</p>
+
+              <QuantityHistoryTable
+                ticker={ticker}
+                isCategoryStock={isCategoryStock}
+                valueHistory={quantityHistory}
                 holdingId={holdingId}
                 onQuantityChange={onQuantityChange}
                 onQuantiyDelete={onQuantityDelete}
@@ -189,13 +203,11 @@ export function Overview({
   );
 }
 
-export function HistoryTable({
+export function ValueHistoryTable({
   holdingId,
   isCategoryStock,
   valueHistory = [],
   ticker,
-  onQuantityChange,
-  onQuantiyDelete,
 }: {
   holdingId?: string;
   isCategoryStock?: boolean;
@@ -207,24 +219,14 @@ export function HistoryTable({
     fxRate: Decimal | null;
     valueInTarget: Decimal;
   }[];
-  onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
-  onQuantiyDelete: (args: { timestamp: Date }) => void;
 }) {
-  const handleQuantityChange = ({
-    row,
-    quantity,
-  }: {
-    row: (typeof valueHistory)[number];
-    quantity: string;
-  }) => {
-    if (!holdingId || !row.timestamp) return;
-    onQuantityChange({
-      timestamp: row.timestamp,
-      quantity: quantity,
-    });
-  };
-
-  const { confirm, modal } = useConfirmDelete();
+  if (!valueHistory.length) {
+    return (
+      <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
+        You don&apos;t have a value history yet
+      </div>
+    );
+  }
 
   return (
     <Table>
@@ -257,6 +259,76 @@ export function HistoryTable({
               </TableCell>
             )}
             <TableCell className="text-end">
+              <Currency value={row.valueInTarget} />
+
+              {isCategoryStock && (
+                <p className="text-xs text-muted-foreground">
+                  Qty <Number value={row.quantity} />
+                </p>
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+export function QuantityHistoryTable({
+  holdingId,
+  valueHistory = [],
+  onQuantityChange,
+  onQuantiyDelete,
+}: {
+  holdingId?: string;
+  valueHistory?: {
+    quantity: Decimal;
+    id: string;
+    timestamp: Date;
+  }[];
+  onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
+  onQuantiyDelete: (args: { timestamp: Date }) => void;
+}) {
+  const handleQuantityChange = ({
+    row,
+    quantity,
+  }: {
+    row: (typeof valueHistory)[number];
+    quantity: string;
+  }) => {
+    if (!holdingId || !row.timestamp) return;
+    onQuantityChange({
+      timestamp: row.timestamp,
+      quantity: quantity,
+    });
+  };
+
+  const { confirm, modal } = useConfirmDelete();
+
+  if (!valueHistory.length) {
+    return (
+      <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
+        You don&apos;t have a quantity history yet
+      </div>
+    );
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Date</TableHead>
+          <TableHead className="text-end">Value</TableHead>
+        </TableRow>
+      </TableHeader>
+
+      <TableBody>
+        {valueHistory.map((row) => (
+          <TableRow key={row.timestamp.getTime()}>
+            <TableCell>
+              {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
+            </TableCell>
+            <TableCell className="text-end">
               <EditableValue
                 initialValue={(row.quantity ?? DECIMAL_ZERO).toString()}
                 onCommit={(quantity) =>
@@ -269,17 +341,7 @@ export function HistoryTable({
                 <EditableValueInput className="ml-auto h-9 text-end" />
                 <EditableValueDisplay
                   className="flex h-9 flex-col justify-center"
-                  render={() => (
-                    <>
-                      <Currency value={row.valueInTarget} />
-
-                      {isCategoryStock && (
-                        <p className="text-xs text-muted-foreground">
-                          Qty <Number value={row.quantity} />
-                        </p>
-                      )}
-                    </>
-                  )}
+                  render={() => <Number value={row.quantity} />}
                 />
               </EditableValue>
             </TableCell>

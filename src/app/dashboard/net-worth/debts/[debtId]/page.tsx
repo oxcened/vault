@@ -20,9 +20,23 @@ export default function DebtDetailPage() {
     },
   );
 
+  const {
+    data: quantitiesData,
+    isPending: isPendingQuantities,
+    refetch: refetchQuantities,
+  } = api.netWorthDebt.getQuantitiesByDebtId.useQuery(
+    {
+      debtId: parsedDebtId!,
+    },
+    {
+      enabled: !!parsedDebtId,
+    },
+  );
+
   const { mutate: upsertQuantity } =
     api.netWorthDebt.upsertQuantity.useMutation({
       onSuccess: () => {
+        void refetchQuantities();
         void refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
@@ -34,6 +48,7 @@ export default function DebtDetailPage() {
   const { mutate: deleteQuantity } =
     api.netWorthDebt.deleteQuantityByTimestamp.useMutation({
       onSuccess: () => {
+        void refetchQuantities();
         void refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
@@ -75,9 +90,10 @@ export default function DebtDetailPage() {
         ...item,
         timestamp: item.debtTimestamp,
       }))}
+      quantityHistory={quantitiesData}
       holdingId={data?.id}
       holdingCurrency={data?.currency}
-      isPending={isPending}
+      isPending={isPending || isPendingQuantities}
       holdingComputedValue={data?.computedValue}
       holdingName={data?.name}
       type="debt"

@@ -242,4 +242,20 @@ export const netWorthDebtRouter = createTRPCRouter({
 
       return deletedQuantity;
     }),
+  getQuantitiesByDebtId: protectedProcedure
+    .input(
+      yup.object({
+        debtId: yup.string().required(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return ctx.db.netWorthDebtQuantity.findMany({
+        where: {
+          netWorthDebtId: input.debtId,
+        },
+        orderBy: {
+          timestamp: "desc",
+        },
+      });
+    }),
 });

@@ -20,9 +20,23 @@ export default function AssetDetailPage() {
     },
   );
 
+  const {
+    data: quantitiesData,
+    isPending: isPendingQuantities,
+    refetch: refetchQuantities,
+  } = api.netWorthAsset.getQuantitiesByAssetId.useQuery(
+    {
+      assetId: parsedAssetId!,
+    },
+    {
+      enabled: !!parsedAssetId,
+    },
+  );
+
   const { mutate: upsertQuantity } =
     api.netWorthAsset.upsertQuantity.useMutation({
       onSuccess: () => {
+        void refetchQuantities();
         void refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
@@ -34,6 +48,7 @@ export default function AssetDetailPage() {
   const { mutate: deleteQuantity } =
     api.netWorthAsset.deleteQuantityByTimestamp.useMutation({
       onSuccess: () => {
+        void refetchQuantities();
         void refetch();
         void utils.netWorthOverview.get.invalidate();
         void utils.dashboard.getSummary.invalidate();
@@ -76,12 +91,13 @@ export default function AssetDetailPage() {
         ...item,
         timestamp: item.assetTimestamp,
       }))}
+      quantityHistory={quantitiesData}
       holdingId={data?.id}
       holdingCurrency={data?.currency}
       latestStockPrice={data?.latestStockPrice?.price}
       tickerName={data?.ticker?.name}
       tickerExchange={data?.ticker?.exchange}
-      isPending={isPending}
+      isPending={isPending || isPendingQuantities}
       holdingComputedValue={data?.computedValue}
       holdingName={data?.name}
       type="asset"
