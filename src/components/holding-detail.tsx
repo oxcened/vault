@@ -319,6 +319,7 @@ export function QuantityHistoryTable({
         <TableRow>
           <TableHead>Date</TableHead>
           <TableHead className="text-end">Value</TableHead>
+          <TableHead className="w-0"></TableHead>
         </TableRow>
       </TableHeader>
 
@@ -345,7 +346,7 @@ export function QuantityHistoryTable({
                 />
               </EditableValue>
             </TableCell>
-            <TableCell>
+            <TableCell className="w-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
