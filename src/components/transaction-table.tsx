@@ -67,7 +67,7 @@ export function TransactionTable({
       <TableHeader>
         <TableRow>
           <TableHead>Recent transactions</TableHead>
-          <TableHead></TableHead>
+          <TableHead className="hidden md:table-cell"></TableHead>
 
           {showSeeAllLink ? (
             <TableHead className="text-right">
