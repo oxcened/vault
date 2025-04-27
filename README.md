@@ -107,13 +107,7 @@ Here’s what you need to do to get started quickly:
    npm run db:generate
    ```
 
-8. **Generate TypedSQL queries**:
-
-   ```sh
-   npm run db:sql
-   ```
-
-9. **Run the app**:
+8. **Run the app**:
    ```sh
    npm run dev
    ```
