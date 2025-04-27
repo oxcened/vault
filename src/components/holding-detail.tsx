@@ -18,15 +18,9 @@ import {
 } from "~/components/ui/table";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { Currency, Number, RoundedCurrency } from "~/components/ui/number";
-import { DECIMAL_ZERO } from "~/utils/number";
 import { formatDate } from "~/utils/date";
 import Decimal from "decimal.js";
 import { Badge } from "~/components/ui/badge";
-import {
-  EditableValue,
-  EditableValueDisplay,
-  EditableValueInput,
-} from "~/components/ui/editable-value";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { MoreHorizontal, PencilIcon, Trash2Icon } from "lucide-react";
+import { MoreHorizontal, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useConfirmDelete } from "./confirm-delete-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
@@ -53,8 +47,9 @@ export function HoldingDetail({
   valueHistory,
   type,
   quantityHistory,
-  onQuantityChange,
+  onQuantityEdit,
   onQuantityDelete,
+  onNewHolding,
 }: {
   holdingName?: string;
   isPending: boolean;
@@ -78,8 +73,9 @@ export function HoldingDetail({
     timestamp: Date;
   }[];
   type: "asset" | "debt";
-  onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
+  onQuantityEdit: (args: { id: string }) => void;
   onQuantityDelete: (args: { timestamp: Date }) => void;
+  onNewHolding: () => void;
 }) {
   return (
     <>
@@ -107,6 +103,15 @@ export function HoldingDetail({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+
+        <Button
+          variant="outline"
+          className="ml-auto"
+          size="icon"
+          onClick={onNewHolding}
+        >
+          <PlusIcon />
+        </Button>
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
@@ -147,7 +152,7 @@ export function HoldingDetail({
               <TabsContent value="quantity">
                 <QuantityHistoryTable
                   valueHistory={quantityHistory}
-                  onQuantityChange={onQuantityChange}
+                  onQuantityEdit={onQuantityEdit}
                   onQuantiyDelete={onQuantityDelete}
                 />
               </TabsContent>
@@ -270,31 +275,17 @@ export function ValueHistoryTable({
 
 export function QuantityHistoryTable({
   valueHistory = [],
-  onQuantityChange,
   onQuantiyDelete,
+  onQuantityEdit,
 }: {
   valueHistory?: {
     quantity: Decimal;
     id: string;
     timestamp: Date;
   }[];
-  onQuantityChange: (args: { quantity: string; timestamp: Date }) => void;
   onQuantiyDelete: (args: { timestamp: Date }) => void;
+  onQuantityEdit: (args: { id: string }) => void;
 }) {
-  const handleQuantityChange = ({
-    row,
-    quantity,
-  }: {
-    row: (typeof valueHistory)[number];
-    quantity: string;
-  }) => {
-    if (!row.timestamp) return;
-    onQuantityChange({
-      timestamp: row.timestamp,
-      quantity: quantity,
-    });
-  };
-
   const { confirm, modal } = useConfirmDelete();
 
   if (!valueHistory.length) {
@@ -322,21 +313,7 @@ export function QuantityHistoryTable({
               {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
             </TableCell>
             <TableCell className="text-end">
-              <EditableValue
-                initialValue={(row.quantity ?? DECIMAL_ZERO).toString()}
-                onCommit={(quantity) =>
-                  handleQuantityChange({
-                    quantity,
-                    row,
-                  })
-                }
-              >
-                <EditableValueInput className="ml-auto h-9 text-end" />
-                <EditableValueDisplay
-                  className="flex h-9 flex-col justify-center"
-                  render={() => <Number value={row.quantity} />}
-                />
-              </EditableValue>
+              <Number value={row.quantity} />
             </TableCell>
             <TableCell className="w-0">
               <DropdownMenu>
@@ -349,7 +326,13 @@ export function QuantityHistoryTable({
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem disabled>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      onQuantityEdit({
+                        id: row.id,
+                      })
+                    }
+                  >
                     <PencilIcon />
                     Edit
                   </DropdownMenuItem>

@@ -2,7 +2,11 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
-import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
+import {
+  createNetWorthAssetSchema,
+  createQuantitySchema,
+  updateQuantitySchema,
+} from "~/trpc/schemas/netWorthAsset";
 import { sanitizeOptionalString } from "~/server/utils/sanitize";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
@@ -225,38 +229,6 @@ export const netWorthAssetRouter = createTRPCRouter({
 
       return updatedAsset;
     }),
-  upsertQuantity: protectedProcedure
-    .input(
-      yup.object({
-        assetId: yup.string().required().label("Asset ID"),
-        timestamp: yup.date().label("Date").required(),
-        quantity: yup.string().label("Quantity").required(),
-        quantityFormula: yup.string().label("Quantity formula"),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { assetId, ...data } = input;
-      const updateQuantity = await ctx.db.netWorthAssetQuantity.upsert({
-        where: {
-          netWorthAssetId_timestamp: {
-            netWorthAssetId: input.assetId,
-            timestamp: input.timestamp,
-          },
-        },
-        create: {
-          ...data,
-          netWorthAsset: { connect: { id: assetId } },
-        },
-        update: data,
-      });
-
-      appEmitter.emit("netWorthAssetQuantity:updated", {
-        userId: ctx.session.user.id,
-        timestamp: input.timestamp,
-      });
-
-      return updateQuantity;
-    }),
   deleteQuantityByTimestamp: protectedProcedure
     .input(
       yup.object({
@@ -296,5 +268,52 @@ export const netWorthAssetRouter = createTRPCRouter({
           timestamp: "desc",
         },
       });
+    }),
+  createQuantity: protectedProcedure
+    .input(createQuantitySchema)
+    .mutation(async ({ input, ctx }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const parsedQuantity: number = evaluate(input.quantity);
+
+      const createdQuantity = await ctx.db.netWorthAssetQuantity.create({
+        data: {
+          quantity: parsedQuantity,
+          quantityFormula: input.quantity,
+          timestamp: input.timestamp,
+          netWorthAsset: { connect: { id: input.assetId } },
+        },
+      });
+
+      appEmitter.emit("netWorthAssetQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: input.timestamp,
+      });
+
+      return createdQuantity;
+    }),
+  updateQuantity: protectedProcedure
+    .input(updateQuantitySchema)
+    .mutation(async ({ input, ctx }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const parsedQuantity: number = evaluate(input.quantity);
+
+      const updatedQuantity = await ctx.db.netWorthAssetQuantity.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          quantity: parsedQuantity,
+          quantityFormula: input.quantity,
+          timestamp: input.timestamp,
+          netWorthAsset: { connect: { id: input.assetId } },
+        },
+      });
+
+      appEmitter.emit("netWorthAssetQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: input.timestamp,
+      });
+
+      return updatedQuantity;
     }),
 });

@@ -2,7 +2,11 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
-import { createNetWorthDebtSchema } from "~/trpc/schemas/netWorthDebt";
+import {
+  createNetWorthDebtSchema,
+  createQuantitySchema,
+  updateQuantitySchema,
+} from "~/trpc/schemas/netWorthDebt";
 import { evaluate } from "mathjs";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
@@ -186,38 +190,6 @@ export const netWorthDebtRouter = createTRPCRouter({
 
       return updatedAsset;
     }),
-  upsertQuantity: protectedProcedure
-    .input(
-      yup.object({
-        debtId: yup.string().required().label("Debt ID"),
-        timestamp: yup.date().label("Date").required(),
-        quantity: yup.string().label("Quantity").required(),
-        quantityFormula: yup.string().label("Quantity formula"),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { debtId, ...data } = input;
-      const updateQuantity = await ctx.db.netWorthDebtQuantity.upsert({
-        where: {
-          netWorthDebtId_timestamp: {
-            netWorthDebtId: input.debtId,
-            timestamp: input.timestamp,
-          },
-        },
-        create: {
-          ...data,
-          netWorthDebt: { connect: { id: debtId } },
-        },
-        update: data,
-      });
-
-      appEmitter.emit("netWorthDebtQuantity:updated", {
-        userId: ctx.session.user.id,
-        timestamp: input.timestamp,
-      });
-
-      return updateQuantity;
-    }),
   deleteQuantityByTimestamp: protectedProcedure
     .input(
       yup.object({
@@ -257,5 +229,52 @@ export const netWorthDebtRouter = createTRPCRouter({
           timestamp: "desc",
         },
       });
+    }),
+  createQuantity: protectedProcedure
+    .input(createQuantitySchema)
+    .mutation(async ({ input, ctx }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const parsedQuantity: number = evaluate(input.quantity);
+
+      const createdQuantity = await ctx.db.netWorthDebtQuantity.create({
+        data: {
+          quantity: parsedQuantity,
+          quantityFormula: input.quantity,
+          timestamp: input.timestamp,
+          netWorthDebt: { connect: { id: input.debtId } },
+        },
+      });
+
+      appEmitter.emit("netWorthDebtQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: input.timestamp,
+      });
+
+      return createdQuantity;
+    }),
+  updateQuantity: protectedProcedure
+    .input(updateQuantitySchema)
+    .mutation(async ({ input, ctx }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const parsedQuantity: number = evaluate(input.quantity);
+
+      const updatedQuantity = await ctx.db.netWorthDebtQuantity.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          quantity: parsedQuantity,
+          quantityFormula: input.quantity,
+          timestamp: input.timestamp,
+          netWorthDebt: { connect: { id: input.debtId } },
+        },
+      });
+
+      appEmitter.emit("netWorthDebtQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp: input.timestamp,
+      });
+
+      return updatedQuantity;
     }),
 });

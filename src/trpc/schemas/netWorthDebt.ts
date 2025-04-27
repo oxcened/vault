@@ -11,3 +11,28 @@ export const createNetWorthDebtSchema = yup.object({
     .required()
     .test((value) => safeEvaluate(value) != null),
 });
+
+export const createQuantitySchema = yup.object({
+  debtId: yup.string().required().label("Debt ID"),
+  timestamp: yup.date().label("Date").required(),
+  quantity: yup
+    .string()
+    .label("Initial quantity/value")
+    .required()
+    .test((value) => safeEvaluate(value) != null),
+});
+
+export type CreateQuantity = yup.InferType<typeof createQuantitySchema>;
+
+export const updateQuantitySchema = yup.object({
+  debtId: yup.string().required().label("Debt ID"),
+  timestamp: yup.date().label("Date").required(),
+  quantity: yup
+    .string()
+    .label("Initial quantity/value")
+    .required()
+    .test((value) => safeEvaluate(value) != null),
+  id: yup.string().required().label("ID"),
+});
+
+export type UpdateQuantity = yup.InferType<typeof updateQuantitySchema>;

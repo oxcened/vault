@@ -2,12 +2,13 @@
 
 import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
-import Decimal from "decimal.js";
 import { toast } from "sonner";
-import { useDebouncedCallback } from "use-debounce";
 import { HoldingDetail } from "~/components/holding-detail";
+import NewQuantityDialog from "./NewQuantityDialog";
+import { useState } from "react";
+import EditQuantityDialog from "./EditQuantityDialog";
 
-export default function DebtDetailPage() {
+export default function AssetDetailPage() {
   const { debtId } = useParams();
   const parsedDebtId = Array.isArray(debtId) ? debtId[0] : debtId;
 
@@ -21,7 +22,7 @@ export default function DebtDetailPage() {
   );
 
   const {
-    data: quantitiesData,
+    data: quantitiesData = [],
     isPending: isPendingQuantities,
     refetch: refetchQuantities,
   } = api.netWorthDebt.getQuantitiesByDebtId.useQuery(
@@ -33,76 +34,75 @@ export default function DebtDetailPage() {
     },
   );
 
-  const { mutate: upsertQuantity } =
-    api.netWorthDebt.upsertQuantity.useMutation({
-      onSuccess: () => {
-        void refetchQuantities();
-        void refetch();
-        void utils.netWorthOverview.get.invalidate();
-        void utils.dashboard.getSummary.invalidate();
-        void utils.netWorthDebt.getAll.invalidate();
-        void utils.netWorth.getAll.invalidate();
-      },
-    });
-
   const { mutate: deleteQuantity } =
     api.netWorthDebt.deleteQuantityByTimestamp.useMutation({
-      onSuccess: () => {
-        void refetchQuantities();
-        void refetch();
-        void utils.netWorthOverview.get.invalidate();
-        void utils.dashboard.getSummary.invalidate();
-        void utils.netWorthDebt.getAll.invalidate();
-        void utils.netWorth.getAll.invalidate();
-      },
+      onSuccess: handleQuantitySuccess,
     });
 
   const utils = api.useUtils();
 
-  function changeQuantity({
-    quantity,
-    timestamp,
-  }: {
-    quantity: string;
-    timestamp: Date;
-  }) {
-    try {
-      const decimalValue = new Decimal(quantity);
-      if (!parsedDebtId) throw new Error("Debt ID not found");
-      upsertQuantity({
-        debtId: parsedDebtId,
-        timestamp,
-        quantity: decimalValue.toString(),
-      });
-    } catch (error) {
-      const msg = `Invalid decimal input: ${quantity}`;
-      console.error(msg);
-      toast.error(msg);
+  const [isNewDialogOpen, setNewDialogOpen] = useState(false);
+  const [editingQuantity, setEditingQuantity] =
+    useState<(typeof quantitiesData)[number]>();
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+
+  function handleQuantityEdit({ id }: { id: string }) {
+    const quantity = quantitiesData.find((quantity) => quantity.id === id);
+    if (!quantity) {
+      toast.error("Failed to find quantity.");
+      return;
     }
+    setEditingQuantity(quantity);
+    setEditDialogOpen(true);
   }
 
-  const debouncedChangeQuantity = useDebouncedCallback(changeQuantity, 1000);
+  function handleQuantitySuccess() {
+    void refetchQuantities();
+    void refetch();
+    void utils.netWorthOverview.get.invalidate();
+    void utils.dashboard.getSummary.invalidate();
+    void utils.netWorthAsset.getAll.invalidate();
+    void utils.netWorth.getAll.invalidate();
+  }
 
   return (
-    <HoldingDetail
-      isCategoryStock={data?.category?.isStock}
-      valueHistory={data?.valueHistory?.map((item) => ({
-        ...item,
-        timestamp: item.debtTimestamp,
-      }))}
-      quantityHistory={quantitiesData}
-      holdingCurrency={data?.currency}
-      isPending={isPending || isPendingQuantities}
-      holdingComputedValue={data?.computedValue}
-      holdingName={data?.name}
-      type="debt"
-      onQuantityChange={debouncedChangeQuantity}
-      onQuantityDelete={({ timestamp }) =>
-        deleteQuantity({
-          timestamp,
-          debtId: parsedDebtId!,
-        })
-      }
-    />
+    <>
+      <HoldingDetail
+        isCategoryStock={data?.category?.isStock}
+        valueHistory={data?.valueHistory?.map((item) => ({
+          ...item,
+          timestamp: item.debtTimestamp,
+        }))}
+        quantityHistory={quantitiesData}
+        holdingCurrency={data?.currency}
+        isPending={isPending || isPendingQuantities}
+        holdingComputedValue={data?.computedValue}
+        holdingName={data?.name}
+        type="asset"
+        onQuantityEdit={handleQuantityEdit}
+        onQuantityDelete={({ timestamp }) =>
+          deleteQuantity({
+            timestamp,
+            debtId: parsedDebtId!,
+          })
+        }
+        onNewHolding={() => setNewDialogOpen(true)}
+      />
+
+      <NewQuantityDialog
+        key={`new-quantity-dialog-${isNewDialogOpen}`}
+        isOpen={isNewDialogOpen}
+        onOpenChange={setNewDialogOpen}
+        onSuccess={handleQuantitySuccess}
+      />
+
+      <EditQuantityDialog
+        key={`edit-quantity-dialog-${isNewDialogOpen}`}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        quantity={editingQuantity}
+        onSuccess={handleQuantitySuccess}
+      />
+    </>
   );
 }
