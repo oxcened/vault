@@ -8,7 +8,7 @@ import NewQuantityDialog from "./NewQuantityDialog";
 import { useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
 
-export default function AssetDetailPage() {
+export default function DebtDetailPage() {
   const { debtId } = useParams();
   const parsedDebtId = Array.isArray(debtId) ? debtId[0] : debtId;
 
@@ -61,7 +61,7 @@ export default function AssetDetailPage() {
     void refetch();
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
-    void utils.netWorthAsset.getAll.invalidate();
+    void utils.netWorthDebt.getAll.invalidate();
     void utils.netWorth.getAll.invalidate();
   }
 
@@ -78,7 +78,7 @@ export default function AssetDetailPage() {
         isPending={isPending || isPendingQuantities}
         holdingComputedValue={data?.computedValue}
         holdingName={data?.name}
-        type="asset"
+        type="debt"
         onQuantityEdit={handleQuantityEdit}
         onQuantityDelete={({ timestamp }) =>
           deleteQuantity({
