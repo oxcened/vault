@@ -38,6 +38,7 @@ import {
 import { Button } from "./ui/button";
 import { MoreHorizontal, PencilIcon, Trash2Icon } from "lucide-react";
 import { useConfirmDelete } from "./confirm-delete-modal";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export function HoldingDetail({
   holdingCurrency,
@@ -131,25 +132,26 @@ export function HoldingDetail({
               tickerExchange={tickerExchange}
             />
 
-            <div className="flex flex-col gap-5">
-              <p className="font-medium">Value history</p>
-
-              <ValueHistoryTable
-                ticker={ticker}
-                isCategoryStock={isCategoryStock}
-                valueHistory={valueHistory}
-              />
-            </div>
-
-            <div className="flex flex-col gap-5">
-              <p className="font-medium">Quantity history</p>
-
-              <QuantityHistoryTable
-                valueHistory={quantityHistory}
-                onQuantityChange={onQuantityChange}
-                onQuantiyDelete={onQuantityDelete}
-              />
-            </div>
+            <Tabs defaultValue="value">
+              <TabsList>
+                <TabsTrigger value="value">Value history</TabsTrigger>
+                <TabsTrigger value="quantity">Quantity history</TabsTrigger>
+              </TabsList>
+              <TabsContent value="value">
+                <ValueHistoryTable
+                  ticker={ticker}
+                  isCategoryStock={isCategoryStock}
+                  valueHistory={valueHistory}
+                />
+              </TabsContent>
+              <TabsContent value="quantity">
+                <QuantityHistoryTable
+                  valueHistory={quantityHistory}
+                  onQuantityChange={onQuantityChange}
+                  onQuantiyDelete={onQuantityDelete}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </div>
