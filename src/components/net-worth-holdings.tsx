@@ -216,35 +216,39 @@ export default function NetWorthHoldings<T extends Holding>({
                       <RoundedCurrency value={row.valueInTarget} />
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => onEditHolding(row)}>
-                            <EyeIcon />
-                            Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            disabled={!row.quantity?.eq(0)}
-                            onClick={() => onArchiveHolding(row)}
-                          >
-                            <ArchiveIcon />
-                            Archive
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onDeleteHolding(row)}
-                          >
-                            <Trash2Icon />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => onEditHolding(row)}
+                            >
+                              <EyeIcon />
+                              Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={!row.quantity?.eq(0)}
+                              onClick={() => onArchiveHolding(row)}
+                            >
+                              <ArchiveIcon />
+                              Archive
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => onDeleteHolding(row)}
+                            >
+                              <Trash2Icon />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
