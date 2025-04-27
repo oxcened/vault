@@ -91,7 +91,6 @@ export default function DebtDetailPage() {
         timestamp: item.debtTimestamp,
       }))}
       quantityHistory={quantitiesData}
-      holdingId={data?.id}
       holdingCurrency={data?.currency}
       isPending={isPending || isPendingQuantities}
       holdingComputedValue={data?.computedValue}

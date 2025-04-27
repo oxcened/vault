@@ -92,7 +92,6 @@ export default function AssetDetailPage() {
         timestamp: item.assetTimestamp,
       }))}
       quantityHistory={quantitiesData}
-      holdingId={data?.id}
       holdingCurrency={data?.currency}
       latestStockPrice={data?.latestStockPrice?.price}
       tickerName={data?.ticker?.name}

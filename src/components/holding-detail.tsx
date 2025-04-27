@@ -40,7 +40,6 @@ import { MoreHorizontal, PencilIcon, Trash2Icon } from "lucide-react";
 import { useConfirmDelete } from "./confirm-delete-modal";
 
 export function HoldingDetail({
-  holdingId,
   holdingCurrency,
   holdingComputedValue,
   holdingName,
@@ -56,7 +55,6 @@ export function HoldingDetail({
   onQuantityChange,
   onQuantityDelete,
 }: {
-  holdingId?: string;
   holdingName?: string;
   isPending: boolean;
   holdingComputedValue?: Decimal;
@@ -140,7 +138,6 @@ export function HoldingDetail({
                 ticker={ticker}
                 isCategoryStock={isCategoryStock}
                 valueHistory={valueHistory}
-                holdingId={holdingId}
               />
             </div>
 
@@ -149,7 +146,6 @@ export function HoldingDetail({
 
               <QuantityHistoryTable
                 valueHistory={quantityHistory}
-                holdingId={holdingId}
                 onQuantityChange={onQuantityChange}
                 onQuantiyDelete={onQuantityDelete}
               />
@@ -202,12 +198,10 @@ export function Overview({
 }
 
 export function ValueHistoryTable({
-  holdingId,
   isCategoryStock,
   valueHistory = [],
   ticker,
 }: {
-  holdingId?: string;
   isCategoryStock?: boolean;
   ticker?: string;
   valueHistory?: {
@@ -273,12 +267,10 @@ export function ValueHistoryTable({
 }
 
 export function QuantityHistoryTable({
-  holdingId,
   valueHistory = [],
   onQuantityChange,
   onQuantiyDelete,
 }: {
-  holdingId?: string;
   valueHistory?: {
     quantity: Decimal;
     id: string;
@@ -294,7 +286,7 @@ export function QuantityHistoryTable({
     row: (typeof valueHistory)[number];
     quantity: string;
   }) => {
-    if (!holdingId || !row.timestamp) return;
+    if (!row.timestamp) return;
     onQuantityChange({
       timestamp: row.timestamp,
       quantity: quantity,
