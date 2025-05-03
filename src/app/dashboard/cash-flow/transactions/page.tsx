@@ -11,18 +11,47 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
 import { TransactionTable } from "~/components/transaction-table";
 import EditTransactionDialog from "./EditTransactionDialog";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
+import Decimal from "decimal.js";
+import { TransactionType } from "@prisma/client";
+
+type Transaction = {
+  id: string;
+  amount: Decimal;
+  currency: string;
+  timestamp: Date;
+  description: string;
+  type: TransactionType;
+  categoryId: string;
+  category: {
+    name: string;
+  };
+};
 
 export default function TransactionsPage() {
-  const { data = [], refetch, isPending } = api.transaction.getAll.useQuery();
+  const {
+    data,
+    refetch,
+    isPending,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = api.transaction.getAll.useInfiniteQuery(
+    {
+      limit: 20,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
   const utils = api.useUtils();
 
   const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
@@ -33,12 +62,13 @@ export default function TransactionsPage() {
   });
 
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] =
-    useState<RouterOutputs["transaction"]["getAll"][number]>();
+  const [editingTransaction, setEditingTransaction] = useState<Transaction>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 
+  const transactions = data?.pages.flatMap((page) => page.items) ?? [];
+
   function handleEditTransaction(id: string) {
-    const transaction = data.find((t) => t.id === id);
+    const transaction = transactions.find((t) => t.id === id);
     if (!transaction) {
       toast.error("Failed to find the transaction.");
       return;
@@ -84,21 +114,35 @@ export default function TransactionsPage() {
         </Button>
       </header>
 
-      <div className="mx-auto w-screen max-w-screen-md p-5">
+      <div className="mx-auto flex w-screen max-w-screen-md flex-col gap-2 p-5">
         {isPending && <TableSkeleton />}
         {!isPending && (
-          <TransactionTable
-            showActions
-            data={data}
-            onDeleteTransaction={(transaction) =>
-              confirm({
-                itemType: "transaction",
-                itemName: transaction.description,
-                onConfirm: () => deleteTransaction({ id: transaction.id }),
-              })
-            }
-            onEditTransaction={handleEditTransaction}
-          />
+          <>
+            <TransactionTable
+              showActions
+              data={transactions}
+              onDeleteTransaction={(transaction) =>
+                confirm({
+                  itemType: "transaction",
+                  itemName: transaction.description,
+                  onConfirm: () => deleteTransaction({ id: transaction.id }),
+                })
+              }
+              onEditTransaction={handleEditTransaction}
+            />
+            {hasNextPage && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isFetchingNextPage}
+                className="self-center"
+                onClick={() => fetchNextPage()}
+              >
+                {isFetchingNextPage && <Loader2 className="animate-spin" />}
+                Load more
+              </Button>
+            )}
+          </>
         )}
       </div>
 

@@ -6,32 +6,51 @@ import {
 } from "~/trpc/schemas/transaction";
 import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
+import * as yup from "yup";
 
 export const transactionRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.transaction.findMany({
-      where: {
-        createdById: ctx.session.user.id,
-      },
-      orderBy: { timestamp: "desc" },
-      // TODO introduce pagination
-      take: 100,
-      select: {
-        id: true,
-        amount: true,
-        currency: true,
-        timestamp: true,
-        description: true,
-        type: true,
-        categoryId: true,
-        category: {
-          select: {
-            name: true,
+  getAll: protectedProcedure
+    .input(
+      yup.object({
+        limit: yup.number().min(1).max(100).default(20),
+        cursor: yup.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const items = await ctx.db.transaction.findMany({
+        where: {
+          createdById: ctx.session.user.id,
+        },
+        orderBy: { timestamp: "desc" },
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+        select: {
+          id: true,
+          amount: true,
+          currency: true,
+          timestamp: true,
+          description: true,
+          type: true,
+          categoryId: true,
+          category: {
+            select: {
+              name: true,
+            },
           },
         },
-      },
-    });
-  }),
+      });
+
+      let nextCursor: string | null = null;
+      if (items.length > input.limit) {
+        const nextItem = items.pop();
+        nextCursor = nextItem?.id ?? null;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
 
   create: protectedProcedure
     .input(createTransactionSchema)
