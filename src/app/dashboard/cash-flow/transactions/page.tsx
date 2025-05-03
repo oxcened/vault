@@ -17,10 +17,7 @@ import { LayersIcon, Loader2, Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
-import {
-  TransactionRow,
-  TransactionTable,
-} from "~/components/transaction-table";
+import { TransactionTable } from "~/components/transaction-table";
 import EditTransactionDialog from "./EditTransactionDialog";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import Decimal from "decimal.js";
