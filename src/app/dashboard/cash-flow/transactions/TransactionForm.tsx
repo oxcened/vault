@@ -221,12 +221,13 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                       <Calendar
                         mode="single"
                         selected={field.value}
+                        disabled={(date) => date > new Date()}
+                        initialFocus
+                        defaultMonth={field.value}
                         onSelect={(date) =>
                           date &&
                           field.onChange(mergeDateAndTime(date, field.value))
                         }
-                        disabled={(date) => date > new Date()}
-                        initialFocus
                       />
                       <div className="border-t border-border p-3">
                         <TimePicker

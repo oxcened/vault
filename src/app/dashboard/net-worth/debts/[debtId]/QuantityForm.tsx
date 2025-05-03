@@ -118,9 +118,10 @@ const QuantityForm = forwardRef<QuantityFormRef, QuantityFormProps>(function (
                       mode="single"
                       timeZone="UTC"
                       selected={field.value}
-                      onSelect={field.onChange}
                       disabled={(date) => date > new Date()}
                       initialFocus
+                      defaultMonth={field.value}
+                      onSelect={field.onChange}
                     />
                   </PopoverContent>
                 </Popover>
