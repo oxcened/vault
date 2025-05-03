@@ -45,18 +45,19 @@ model Session {
 }
 
 model User {
-    id            String          @id @default(cuid())
-    name          String?
-    email         String?         @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    netWorths     NetWorth[]
-    assets        NetWorthAsset[]
-    debts         NetWorthDebt[]
-    transactions  Transaction[]
-    cashFlows     CashFlow[]
+    id                  String                @id @default(cuid())
+    name                String?
+    email               String?               @unique
+    emailVerified       DateTime?
+    image               String?
+    accounts            Account[]
+    sessions            Session[]
+    netWorths           NetWorth[]
+    assets              NetWorthAsset[]
+    debts               NetWorthDebt[]
+    transactions        Transaction[]
+    cashFlows           CashFlow[]
+    TransactionTemplate TransactionTemplate[]
 }
 
 model VerificationToken {
@@ -206,12 +207,13 @@ enum TransactionCategoryType {
 }
 
 model TransactionCategory {
-    id           String                  @id @default(cuid())
-    name         String                  @unique
-    type         TransactionCategoryType
-    transactions Transaction[]
-    createdAt    DateTime                @default(now())
-    updatedAt    DateTime                @updatedAt
+    id                  String                  @id @default(cuid())
+    name                String                  @unique
+    type                TransactionCategoryType
+    transactions        Transaction[]
+    createdAt           DateTime                @default(now())
+    updatedAt           DateTime                @updatedAt
+    TransactionTemplate TransactionTemplate[]
 }
 
 enum TransactionType {
@@ -249,4 +251,18 @@ model DerivedDataDependency {
 
     @@index([targetType, targetKey])
     @@index([dependencyType, dependencyKey])
+}
+
+model TransactionTemplate {
+    id          String              @id @default(cuid())
+    description String
+    amount      Decimal             @db.Decimal(38, 18)
+    currency    String
+    type        TransactionType
+    categoryId  String
+    createdAt   DateTime            @default(now())
+    updatedAt   DateTime            @updatedAt
+    createdById String
+    createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    category    TransactionCategory @relation(fields: [categoryId], references: [id])
 }

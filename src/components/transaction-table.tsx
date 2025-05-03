@@ -19,6 +19,7 @@ import { formatDate } from "~/utils/date";
 import { Currency } from "./ui/number";
 import {
   ArrowRight,
+  FilePlusIcon,
   MoreHorizontal,
   PencilIcon,
   Trash2Icon,
@@ -46,6 +47,7 @@ export type TransactionTableProps = {
   showActions?: boolean;
   onEditTransaction?: (id: string) => void;
   onDeleteTransaction?: (transaction: TransactionRow) => void;
+  onSaveTemplate?: (transaction: TransactionRow) => void;
 };
 
 export function TransactionTable({
@@ -54,6 +56,7 @@ export function TransactionTable({
   showActions,
   onDeleteTransaction,
   onEditTransaction,
+  onSaveTemplate,
 }: TransactionTableProps) {
   if (!data.length) {
     return (
@@ -136,6 +139,12 @@ export function TransactionTable({
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => onSaveTemplate?.(transaction)}
+                      >
+                        <FilePlusIcon />
+                        Save as template
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onEditTransaction?.(transaction.id)}
                       >

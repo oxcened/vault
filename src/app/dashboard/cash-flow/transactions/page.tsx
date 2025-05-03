@@ -13,15 +13,19 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
-import { Loader2, Plus } from "lucide-react";
+import { LayersIcon, Loader2, Plus } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
-import { TransactionTable } from "~/components/transaction-table";
+import {
+  TransactionRow,
+  TransactionTable,
+} from "~/components/transaction-table";
 import EditTransactionDialog from "./EditTransactionDialog";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import Decimal from "decimal.js";
 import { TransactionType } from "@prisma/client";
+import TransactionTemplateDialog from "./TransactionTemplateDialog";
 
 type Transaction = {
   id: string;
@@ -64,6 +68,7 @@ export default function TransactionsPage() {
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   const transactions = data?.pages.flatMap((page) => page.items) ?? [];
 
@@ -76,6 +81,13 @@ export default function TransactionsPage() {
     setEditingTransaction(transaction);
     setEditDialogOpen(true);
   }
+
+  const { mutate: saveTemplate } = api.transactionTemplate.create.useMutation({
+    onSuccess: () => {
+      toast.success("Transaction template created.");
+      void utils.transactionTemplate.getAll.invalidate();
+    },
+  });
 
   function handleTransactionSuccess() {
     void refetch();
@@ -108,6 +120,14 @@ export default function TransactionsPage() {
           variant="outline"
           className="ml-auto"
           size="icon"
+          onClick={() => setTemplateDialogOpen(true)}
+        >
+          <LayersIcon />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setNewDialogOpen(true)}
         >
           <Plus />
@@ -129,6 +149,11 @@ export default function TransactionsPage() {
                 })
               }
               onEditTransaction={handleEditTransaction}
+              onSaveTemplate={(transaction) =>
+                saveTemplate({
+                  transactionId: transaction.id,
+                })
+              }
             />
             {hasNextPage && (
               <Button
@@ -158,6 +183,13 @@ export default function TransactionsPage() {
         isOpen={isEditDialogOpen}
         transaction={editingTransaction}
         onOpenChange={setEditDialogOpen}
+        onSuccess={handleTransactionSuccess}
+      />
+
+      <TransactionTemplateDialog
+        key={`transaction-template-dialog-${isTemplateDialogOpen}`}
+        isOpen={isTemplateDialogOpen}
+        onOpenChange={setTemplateDialogOpen}
         onSuccess={handleTransactionSuccess}
       />
 

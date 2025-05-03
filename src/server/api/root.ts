@@ -11,6 +11,7 @@ import { cashFlowRouter } from "./routers/cashFlow";
 import { dashboardRouter } from "./routers/dashboard";
 import { stockTickerRouter } from "./routers/stockTicker";
 import { netWorthCategoryRouter } from "./routers/netWorthCategory";
+import { transactionTemplateRouter } from "./routers/transactionTemplate";
 
 /**
  * This is the primary router for your server.
@@ -30,6 +31,7 @@ export const appRouter = createTRPCRouter({
   dashboard: dashboardRouter,
   stockTicker: stockTickerRouter,
   netWorthCategory: netWorthCategoryRouter,
+  transactionTemplate: transactionTemplateRouter,
 });
 
 // export type definition of API
