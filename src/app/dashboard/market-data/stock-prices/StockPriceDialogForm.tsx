@@ -1,5 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CalendarIcon } from "lucide-react";
+import { DateTime } from "luxon";
 import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { TimePicker } from "~/components/ui/time-picker";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import {
@@ -45,17 +47,7 @@ export function StockPriceDialogForm({
   const form = useForm({
     defaultValues: initialData ?? {
       tickerId: "",
-      timestamp: new Date(
-        Date.UTC(
-          new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          0,
-          0,
-          0,
-          0,
-        ),
-      ),
+      timestamp: DateTime.now().toUTC().startOf("day").toJSDate(),
     },
     resolver: yupResolver(createStockPriceSchema),
   });

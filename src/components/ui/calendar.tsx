@@ -9,6 +9,7 @@ import {
   DayPicker,
   labelNext,
   labelPrevious,
+  TZDate,
   useDayPicker,
   type DayPickerProps,
 } from "react-day-picker";
@@ -72,7 +73,7 @@ function Calendar({
     to: number;
   }>(
     React.useMemo(() => {
-      const currentYear = new Date().getFullYear();
+      const currentYear = new TZDate(new Date(), props.timeZone).getFullYear();
       return {
         from: currentYear - Math.floor(yearRange / 2 - 1),
         to: currentYear + Math.ceil(yearRange / 2),
@@ -266,19 +267,20 @@ function Nav({
   onPrevClick?: (date: Date) => void;
   onNextClick?: (date: Date) => void;
 }) {
-  const { nextMonth, previousMonth, goToMonth } = useDayPicker();
+  const { nextMonth, previousMonth, goToMonth, dayPickerProps } =
+    useDayPicker();
 
   const isPreviousDisabled = (() => {
     if (navView === "years") {
       return (
         (startMonth &&
           differenceInCalendarDays(
-            new Date(displayYears.from - 1, 0, 1),
+            new TZDate(displayYears.from - 1, 0, 1, dayPickerProps.timeZone),
             startMonth,
           ) < 0) ??
         (endMonth &&
           differenceInCalendarDays(
-            new Date(displayYears.from - 1, 0, 1),
+            new TZDate(displayYears.from - 1, 0, 1, dayPickerProps.timeZone),
             endMonth,
           ) > 0)
       );
@@ -291,12 +293,12 @@ function Nav({
       return (
         (startMonth &&
           differenceInCalendarDays(
-            new Date(displayYears.to + 1, 0, 1),
+            new TZDate(displayYears.to + 1, 0, 1, dayPickerProps.timeZone),
             startMonth,
           ) < 0) ??
         (endMonth &&
           differenceInCalendarDays(
-            new Date(displayYears.to + 1, 0, 1),
+            new TZDate(displayYears.to + 1, 0, 1, dayPickerProps.timeZone),
             endMonth,
           ) > 0)
       );
@@ -312,10 +314,11 @@ function Nav({
         to: prev.to - (prev.to - prev.from + 1),
       }));
       onPrevClick?.(
-        new Date(
+        new TZDate(
           displayYears.from - (displayYears.to - displayYears.from),
           0,
           1,
+          dayPickerProps.timeZone,
         ),
       );
       return;
@@ -332,10 +335,11 @@ function Nav({
         to: prev.to + (prev.to - prev.from + 1),
       }));
       onNextClick?.(
-        new Date(
+        new TZDate(
           displayYears.from + (displayYears.to - displayYears.from),
           0,
           1,
+          dayPickerProps.timeZone,
         ),
       );
       return;
@@ -464,7 +468,7 @@ function YearGrid({
   setNavView: React.Dispatch<React.SetStateAction<NavView>>;
   navView: NavView;
 } & React.HTMLAttributes<HTMLDivElement>) {
-  const { goToMonth, selected } = useDayPicker();
+  const { goToMonth, selected, dayPickerProps } = useDayPicker();
 
   return (
     <div className={cn("grid grid-cols-4 gap-y-2", className)} {...props}>
@@ -473,13 +477,18 @@ function YearGrid({
         (_, i) => {
           const isBefore =
             differenceInCalendarDays(
-              new Date(displayYears.from + i, 11, 31),
+              new TZDate(
+                displayYears.from + i,
+                11,
+                31,
+                dayPickerProps.timeZone,
+              ),
               startMonth!,
             ) < 0;
 
           const isAfter =
             differenceInCalendarDays(
-              new Date(displayYears.from + i, 0, 0),
+              new TZDate(displayYears.from + i, 0, 0, dayPickerProps.timeZone),
               endMonth!,
             ) > 0;
 
@@ -489,16 +498,21 @@ function YearGrid({
               key={i}
               className={cn(
                 "h-7 w-full text-sm font-normal text-foreground",
-                displayYears.from + i === new Date().getFullYear() &&
+                displayYears.from + i ===
+                  new TZDate(
+                    new Date(),
+                    dayPickerProps.timeZone,
+                  ).getFullYear() &&
                   "bg-accent font-medium text-accent-foreground",
               )}
               variant="ghost"
               onClick={() => {
                 setNavView("days");
                 goToMonth(
-                  new Date(
+                  new TZDate(
                     displayYears.from + i,
                     (selected as Date | undefined)?.getMonth() ?? 0,
+                    dayPickerProps.timeZone,
                   ),
                 );
               }}
