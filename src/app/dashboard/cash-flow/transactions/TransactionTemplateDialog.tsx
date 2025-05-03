@@ -15,6 +15,7 @@ import { useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Currency } from "~/components/ui/number";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export type TransactionTemplateDialogProps = {
   isOpen: boolean;
@@ -61,34 +62,46 @@ export default function TransactionTemplateDialog({
           </DialogTitle>
         </DialogHeader>
 
-        {!initialData ? (
-          <ScrollArea defaultValue="comfortable" className="h-[300px]">
-            <ul className="flex flex-col gap-2">
-              {data.map((template) => (
-                <Button
-                  key={template.id}
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setTemplate(template)}
-                >
-                  <span>{template.description}</span>
+        {!!data.length &&
+          (!initialData ? (
+            <ScrollArea defaultValue="comfortable" className="h-[300px]">
+              <ul className="flex flex-col gap-2">
+                {data.map((template) => (
+                  <Button
+                    key={template.id}
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setTemplate(template)}
+                  >
+                    <span>{template.description}</span>
 
-                  <Currency
-                    value={template.amount}
-                    options={{ currency: template.currency }}
-                    className="ml-auto text-muted-foreground"
-                  />
-                </Button>
-              ))}
-            </ul>
-          </ScrollArea>
-        ) : (
-          <TransactionForm
-            ref={formRef}
-            formId="transaction-template-dialog-form"
-            initialData={initialData}
-            onSubmit={create}
-          />
+                    <Currency
+                      value={template.amount}
+                      options={{ currency: template.currency }}
+                      className="ml-auto text-muted-foreground"
+                    />
+                  </Button>
+                ))}
+              </ul>
+            </ScrollArea>
+          ) : (
+            <TransactionForm
+              ref={formRef}
+              formId="transaction-template-dialog-form"
+              initialData={initialData}
+              onSubmit={create}
+            />
+          ))}
+
+        {isPending && (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
+          </div>
         )}
 
         {!data.length && !isPending && (
