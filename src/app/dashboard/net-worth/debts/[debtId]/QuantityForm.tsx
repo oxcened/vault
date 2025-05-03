@@ -116,17 +116,12 @@ const QuantityForm = forwardRef<QuantityFormRef, QuantityFormProps>(function (
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
+                      timeZone="UTC"
                       selected={field.value}
-                      onSelect={(date) =>
-                        date &&
-                        field.onChange(mergeDateAndTime(date, field.value))
-                      }
+                      onSelect={field.onChange}
                       disabled={(date) => date > new Date()}
                       initialFocus
                     />
-                    <div className="border-t border-border p-3">
-                      <TimePicker date={field.value} setDate={field.onChange} />
-                    </div>
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
