@@ -244,8 +244,8 @@ export function ValueHistoryTable({
               {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
             </TableCell>
             {isCategoryStock && (
-              <TableCell className="text-xs">
-                <Badge variant="outline">
+              <TableCell>
+                <Badge variant="secondary">
                   {ticker}&nbsp;
                   <Number
                     value={row.stockPrice}

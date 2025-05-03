@@ -26,6 +26,7 @@ import {
 import { Button, buttonVariants } from "./ui/button";
 import Link from "next/link";
 import { type Prisma, type TransactionType } from "@prisma/client";
+import { Badge } from "./ui/badge";
 
 export type TransactionRow = {
   id: string;
@@ -107,9 +108,7 @@ export function TransactionTable({
                 </p>
               </TableCell>
               <TableCell className="hidden md:table-cell">
-                <p className="rounded-lg bg-muted px-1 py-0.5 text-center text-muted-foreground">
-                  {transaction.category.name}
-                </p>
+                <Badge variant="secondary">{transaction.category.name}</Badge>
               </TableCell>
               <TableCell
                 className={cn(
