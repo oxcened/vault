@@ -119,7 +119,10 @@ function Calendar({
     props.buttonPreviousClassName,
   );
   const _navClassName = cn("flex items-start", props.navClassName);
-  const _monthGridClassName = cn("mx-auto mt-4", props.monthGridClassName);
+  const _monthGridClassName = cn(
+    "mx-auto mt-4 min-h-[262px]",
+    props.monthGridClassName,
+  );
   const _weekClassName = cn("mt-2 flex w-max items-start", props.weekClassName);
   const _dayClassName = cn(
     "flex size-8 flex-1 items-center justify-center p-0 text-sm",
