@@ -1,8 +1,8 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
-
 import { db } from "~/server/db";
+import { env } from "~/env";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -52,5 +52,15 @@ export const authConfig = {
         id: user.id,
       },
     }),
+    signIn: async ({ profile }) => {
+      if (!env.ENABLE_USER_WHITELIST) return true;
+      if (!profile?.email) return false;
+
+      await db.userWhitelist.findUniqueOrThrow({
+        where: { email: profile.email },
+      });
+
+      return true;
+    },
   },
 } satisfies NextAuthConfig;

@@ -18,6 +18,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    ENABLE_USER_WHITELIST: z.coerce.boolean().default(false),
   },
 
   /**
@@ -40,6 +41,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     DATABASE_DIRECT_URL: process.env.DATABASE_DIRECT_URL,
     NODE_ENV: process.env.NODE_ENV,
+    ENABLE_USER_WHITELIST: process.env.ENABLE_USER_WHITELIST,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
