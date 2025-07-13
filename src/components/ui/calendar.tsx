@@ -65,6 +65,7 @@ function Calendar({
   showYearSwitcher = true,
   yearRange = 12,
   numberOfMonths,
+  timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
   ...props
 }: CalendarProps) {
   const [navView, setNavView] = React.useState<NavView>("days");
@@ -73,7 +74,7 @@ function Calendar({
     to: number;
   }>(
     React.useMemo(() => {
-      const currentYear = new TZDate(new Date(), props.timeZone).getFullYear();
+      const currentYear = new TZDate(new Date(), timeZone).getFullYear();
       return {
         from: currentYear - Math.floor(yearRange / 2 - 1),
         to: currentYear + Math.ceil(yearRange / 2),
@@ -240,6 +241,7 @@ function Calendar({
         ),
       }}
       numberOfMonths={columnsDisplayed}
+      timeZone={timeZone}
       {...props}
     />
   );
