@@ -160,7 +160,7 @@ export default function CashFlowPage() {
                   axisLine={false}
                   tickMargin={8}
                   domain={calculateZeroInclusiveYAxisDomain}
-                  tickFormatter={(value) =>
+                  tickFormatter={(value: number) =>
                     formatNumber({
                       value,
                       options: {
