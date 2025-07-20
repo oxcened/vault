@@ -12,7 +12,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
-import { Currency, Percentage, RoundedCurrency } from "~/components/ui/number";
+import { Percentage, RoundedCurrency } from "~/components/ui/number";
 import {
   ChartContainer,
   ChartTooltip,
@@ -38,12 +38,13 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
+import { formatNumber } from "~/utils/number";
+import { APP_CURRENCY } from "~/constants";
 
 const netWorthChartConfig = {
   netWorth: {
@@ -166,6 +167,16 @@ export default function NetWorthPage() {
                   axisLine={false}
                   tickMargin={8}
                   domain={calculateZeroInclusiveYAxisDomain}
+                  tickFormatter={(value) =>
+                    formatNumber({
+                      value,
+                      options: {
+                        style: "currency",
+                        currency: APP_CURRENCY,
+                        maximumFractionDigits: 0,
+                      },
+                    })
+                  }
                 />
 
                 <ChartTooltip

@@ -33,6 +33,8 @@ import { Bar, CartesianGrid, ComposedChart, XAxis, YAxis } from "recharts";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
+import { APP_CURRENCY } from "~/constants";
+import { formatNumber } from "~/utils/number";
 
 const cashFlowByMonthConfig = {
   cashFlow: {
@@ -158,6 +160,16 @@ export default function CashFlowPage() {
                   axisLine={false}
                   tickMargin={8}
                   domain={calculateZeroInclusiveYAxisDomain}
+                  tickFormatter={(value) =>
+                    formatNumber({
+                      value,
+                      options: {
+                        style: "currency",
+                        currency: APP_CURRENCY,
+                        maximumFractionDigits: 0,
+                      },
+                    })
+                  }
                 />
 
                 <ChartTooltip
