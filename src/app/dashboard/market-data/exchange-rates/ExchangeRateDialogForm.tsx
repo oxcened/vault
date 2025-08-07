@@ -1,5 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CalendarIcon } from "lucide-react";
+import { DateTime } from "luxon";
 import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -38,17 +39,7 @@ export function ExchangeRateDialogForm({
     defaultValues: initialData ?? {
       baseCurrency: "",
       quoteCurrency: "",
-      timestamp: new Date(
-        Date.UTC(
-          new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          0,
-          0,
-          0,
-          0,
-        ),
-      ),
+      timestamp: DateTime.now().toUTC().startOf("day").toJSDate(),
     },
     resolver: yupResolver(createExchangeRateSchema),
   });
