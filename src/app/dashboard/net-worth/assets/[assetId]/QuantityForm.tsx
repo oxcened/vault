@@ -28,6 +28,7 @@ import {
   createQuantitySchema,
 } from "~/trpc/schemas/netWorthAsset";
 import { useParams } from "next/navigation";
+import { DateTime } from "luxon";
 
 export type QuantityFormRef = { reset: () => void };
 
@@ -46,7 +47,7 @@ const QuantityForm = forwardRef<QuantityFormRef, QuantityFormProps>(function (
   const form = useForm({
     defaultValues: initialData ?? {
       quantity: "",
-      timestamp: new Date(),
+      timestamp: DateTime.now().toUTC().startOf("day").toJSDate(),
       assetId: (Array.isArray(assetId) ? assetId[0] : assetId) ?? "",
     },
     resolver: yupResolver(createQuantitySchema),
