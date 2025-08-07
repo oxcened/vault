@@ -43,6 +43,7 @@ import {
 import { useBreakpoint } from "~/hooks/useBreakpoint";
 import { cn } from "~/lib/utils";
 import { DECIMAL_ZERO } from "~/utils/number";
+import { Badge } from "./ui/badge";
 
 export type NetWorthHoldingsHistoryProps = {
   data: {
@@ -164,9 +165,7 @@ export default function NetWorthHoldingsHistory({
                   <TableRow key={row.id}>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>
-                      <p className="rounded-lg bg-muted px-1 py-0.5 text-center text-muted-foreground">
-                        {row.categoryName}
-                      </p>
+                      <Badge variant="secondary">{row.categoryName}</Badge>
                     </TableCell>
                     <TableCell className="text-end">
                       <RoundedCurrency value={row.value} />
