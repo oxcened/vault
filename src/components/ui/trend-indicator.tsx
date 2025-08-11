@@ -2,6 +2,7 @@ import { type Prisma } from "@prisma/client";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Percentage } from "./number";
+import { Badge } from "./badge";
 
 export type TrendIndicatorProps = {
   value?: Prisma.Decimal;
@@ -13,9 +14,10 @@ export function TrendIndicator({ value }: TrendIndicatorProps) {
   }
 
   return (
-    <div
+    <Badge
+      variant="outline"
       className={cn(
-        "flex items-center gap-1 self-center rounded-lg text-sm",
+        "gap-1 self-center",
         value.gt(0) ? "text-financial-positive" : "text-financial-negative",
       )}
     >
@@ -27,6 +29,6 @@ export function TrendIndicator({ value }: TrendIndicatorProps) {
       <p>
         <Percentage value={value} /> this month
       </p>
-    </div>
+    </Badge>
   );
 }

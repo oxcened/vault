@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { HelpCircleIcon, PiggyBank } from "lucide-react";
+import { HelpCircleIcon } from "lucide-react";
 import { Duration } from "luxon";
 import { DECIMAL_ZERO } from "~/utils/number";
 import {
@@ -10,6 +10,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 
 export default function FinancialRunway() {
   const { data } = api.dashboard.getSummary.useQuery();
@@ -44,31 +51,25 @@ export default function FinancialRunway() {
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="rounded-lg bg-muted p-2">
-        <PiggyBank />
-      </div>
-      <div>
-        <div className="flex items-center gap-1">
-          <p className="text-sm text-muted-foreground">Financial runway</p>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <HelpCircleIcon className="size-4 opacity-50" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  Based on your average monthly expenses over the last 6 months.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        <p>
-          At your current spending rate, your assets could sustain you for{" "}
-          {formattedRunwayDuration}.
-        </p>
-      </div>
-    </div>
+    <Card className="flex-1">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardDescription>Financial runway</CardDescription>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <HelpCircleIcon className="size-4 opacity-50" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                Based on your average monthly expenses over the last 6 months.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </CardHeader>
+      <CardContent>
+        <CardTitle className="text-3xl">{formattedRunwayDuration}</CardTitle>
+      </CardContent>
+    </Card>
   );
 }

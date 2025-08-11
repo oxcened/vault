@@ -10,13 +10,13 @@ import {
   BreadcrumbPage,
 } from "~/components/ui/breadcrumb";
 import { useSession } from "next-auth/react";
-import { RoundedCurrency } from "~/components/ui/number";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { TransactionTable } from "~/components/transaction-table";
-import { TrendIndicator } from "~/components/ui/trend-indicator";
 import { Skeleton } from "~/components/ui/skeleton";
 import FinancialRunway from "./FinancialRunway";
 import NetWorthForecast from "./NetWorthForecast";
+import { NetWorthCard } from "./NetWorthCard";
+import { CashFlowCard } from "./CashFlowCard";
 
 export default function OverviewPage() {
   const { data, isPending } = api.dashboard.getSummary.useQuery();
@@ -54,87 +54,28 @@ export default function OverviewPage() {
             {status === "loading" ? (
               <Skeleton className="h-9" />
             ) : (
-              <p className="text-3xl">Hey, {session!.user.name}</p>
+              <>
+                <p className="text-2xl font-semibold">
+                  Hey, {session!.user.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Your money at a glance
+                </p>
+              </>
             )}
 
-            <div className="mt-10 flex flex-col gap-16">
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-muted-foreground">Net worth</p>
-                  </div>
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+              <NetWorthCard />
+              <CashFlowCard />
+              <NetWorthForecast />
+              <FinancialRunway />
 
-                  <div className="flex items-end gap-3">
-                    <p className="text-3xl">
-                      <RoundedCurrency value={data.netWorth?.netValue} />
-                    </p>
-                    <TrendIndicator value={data.netWorthTrend} />
-                  </div>
-
-                  <div className="mt-5 flex gap-5">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Assets</p>
-                      <div className="flex items-end gap-3">
-                        <p className="text-xl">
-                          <RoundedCurrency value={data.netWorth?.totalAssets} />
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground">Debts</p>
-                      <div className="flex items-end gap-3">
-                        <p className="text-xl">
-                          <RoundedCurrency value={data.netWorth?.totalDebts} />
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-muted-foreground">Cash flow</p>
-                  </div>
-                  <div className="flex items-end gap-3">
-                    <p className="text-3xl">
-                      <RoundedCurrency value={data.cashFlow?.netFlow} />
-                    </p>
-                    <TrendIndicator value={data.cashFlowTrend} />
-                  </div>
-
-                  <div className="mt-5 flex gap-5">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Income</p>
-                      <div className="flex items-end gap-3">
-                        <p className="text-xl">
-                          <RoundedCurrency value={data.cashFlow?.income} />
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground">Expenses</p>
-                      <div className="flex items-end gap-3">
-                        <p className="text-xl">
-                          <RoundedCurrency value={data.cashFlow?.expenses} />
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="col-span-full rounded-xl border [&_td]:px-6 [&_td]:py-3 [&_th]:px-6 [&_th]:py-3">
+                <TransactionTable
+                  showSeeAllLink
+                  data={data.recentTransactions}
+                />
               </div>
-
-              <Separator />
-
-              <div className="flex flex-col gap-10">
-                <NetWorthForecast />
-                <FinancialRunway />
-              </div>
-
-              <Separator />
-
-              <TransactionTable showSeeAllLink data={data.recentTransactions} />
             </div>
           </div>
         </>
