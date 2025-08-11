@@ -52,17 +52,16 @@ export default function OverviewPage() {
         <>
           <div className="mx-auto w-full max-w-screen-md p-5">
             {status === "loading" ? (
-              <Skeleton className="h-9" />
+              <Skeleton className="h-8" />
             ) : (
-              <>
-                <p className="text-2xl font-semibold">
-                  Hey, {session!.user.name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Your money at a glance
-                </p>
-              </>
+              <p className="text-2xl font-semibold">
+                Hey, {session!.user.name}
+              </p>
             )}
+
+            <p className="text-sm text-muted-foreground">
+              Your money at a glance
+            </p>
 
             <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
               <NetWorthCard />
