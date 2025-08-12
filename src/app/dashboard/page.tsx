@@ -17,10 +17,18 @@ import FinancialRunway from "./FinancialRunway";
 import NetWorthForecast from "./NetWorthForecast";
 import { NetWorthCard } from "./NetWorthCard";
 import { CashFlowCard } from "./CashFlowCard";
+import { AddTransactionDropdown } from "~/components/add-transaction-dropdown";
 
 export default function OverviewPage() {
-  const { data, isPending } = api.dashboard.getSummary.useQuery();
+  const { data, isPending, refetch } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
+  const utils = api.useUtils();
+
+  const handleTransactionCreated = () => {
+    void refetch();
+    void utils.transaction.getAll.invalidate();
+    void utils.cashFlow.getMonthlyCashFlow.invalidate();
+  };
 
   return (
     <>
@@ -51,17 +59,23 @@ export default function OverviewPage() {
       {!isPending && data && (
         <>
           <div className="mx-auto w-full max-w-screen-md p-5">
-            {status === "loading" ? (
-              <Skeleton className="h-8" />
-            ) : (
-              <p className="text-2xl font-semibold">
-                Hey, {session!.user.name}
-              </p>
-            )}
+            <div className="flex flex-col justify-between gap-2 md:flex-row">
+              <div>
+                {status === "loading" ? (
+                  <Skeleton className="h-8" />
+                ) : (
+                  <p className="text-2xl font-semibold">
+                    Hey, {session!.user.name}
+                  </p>
+                )}
 
-            <p className="text-sm text-muted-foreground">
-              Your money at a glance
-            </p>
+                <p className="text-sm text-muted-foreground">
+                  Your money at a glance
+                </p>
+              </div>
+
+              <AddTransactionDropdown onSuccess={handleTransactionCreated} />
+            </div>
 
             <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
               <NetWorthCard />

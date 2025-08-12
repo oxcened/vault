@@ -13,22 +13,15 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
-import { ChevronDown, Loader2, PlusIcon, ZapIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
-import NewTransactionDialog from "./NewTransactionDialog";
 import { TransactionTable } from "~/components/transaction-table";
 import EditTransactionDialog from "./EditTransactionDialog";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import Decimal from "decimal.js";
 import { TransactionType } from "@prisma/client";
-import TransactionTemplateDialog from "./TransactionTemplateDialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+import { AddTransactionDropdown } from "~/components/add-transaction-dropdown";
 
 type Transaction = {
   id: string;
@@ -68,10 +61,8 @@ export default function TransactionsPage() {
     },
   });
 
-  const [isNewDialogOpen, setNewDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-  const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
 
   const transactions = data?.pages.flatMap((page) => page.items) ?? [];
 
@@ -122,26 +113,7 @@ export default function TransactionsPage() {
 
       <div className="mx-auto flex w-screen max-w-screen-md flex-col gap-2 p-5">
         <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="default">
-                <span className="sr-only">Open menu</span>
-                <PlusIcon />
-                Add
-                <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setNewDialogOpen(true)}>
-                Add transaction...
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => setTemplateDialogOpen(true)}>
-                <ZapIcon />
-                Quick add...
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AddTransactionDropdown onSuccess={handleTransactionSuccess} />
         </div>
 
         {isPending && <TableSkeleton />}
@@ -180,25 +152,11 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      <NewTransactionDialog
-        key={`new-transaction-dialog-${isNewDialogOpen}`}
-        isOpen={isNewDialogOpen}
-        onOpenChange={setNewDialogOpen}
-        onSuccess={handleTransactionSuccess}
-      />
-
       <EditTransactionDialog
         key={`edit-transaction-dialog-${isEditDialogOpen}`}
         isOpen={isEditDialogOpen}
         transaction={editingTransaction}
         onOpenChange={setEditDialogOpen}
-        onSuccess={handleTransactionSuccess}
-      />
-
-      <TransactionTemplateDialog
-        key={`transaction-template-dialog-${isTemplateDialogOpen}`}
-        isOpen={isTemplateDialogOpen}
-        onOpenChange={setTemplateDialogOpen}
         onSuccess={handleTransactionSuccess}
       />
 
