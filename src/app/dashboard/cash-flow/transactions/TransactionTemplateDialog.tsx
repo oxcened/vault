@@ -16,6 +16,15 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Currency } from "~/components/ui/number";
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
+import { cn } from "~/lib/utils";
 
 export type TransactionTemplateDialogProps = {
   isOpen: boolean;
@@ -53,6 +62,50 @@ export default function TransactionTemplateDialog({
       },
     });
 
+  if (!initialData) {
+    return (
+      <CommandDialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogTitle className="sr-only">Transaction quick add</DialogTitle>
+        <CommandInput placeholder="Quick add: type to search templates…" />
+        <CommandList>
+          <CommandEmpty>No templates found.</CommandEmpty>
+          <CommandGroup heading="Templates">
+            {data.map((template) => {
+              const isExpense = template.type === "EXPENSE";
+              const amount = template.amount.mul(isExpense ? -1 : 1);
+              return (
+                <CommandItem
+                  key={template.id}
+                  value={`${template.description} ${template.category.name}`}
+                  onSelect={() => setTemplate(template)}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <div>
+                      <div className="font-medium">{template.description}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {template.category.name}
+                      </div>
+                    </div>
+
+                    <Currency
+                      value={amount}
+                      options={{ currency: template.currency }}
+                      className={cn(
+                        "text-sm font-medium",
+                        amount.isPos() && "text-financial-positive",
+                        amount.isNeg() && "text-financial-negative",
+                      )}
+                    />
+                  </div>
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -62,36 +115,14 @@ export default function TransactionTemplateDialog({
           </DialogTitle>
         </DialogHeader>
 
-        {!!data.length &&
-          (!initialData ? (
-            <ScrollArea defaultValue="comfortable" className="h-[300px]">
-              <ul className="flex flex-col gap-2">
-                {data.map((template) => (
-                  <Button
-                    key={template.id}
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setTemplate(template)}
-                  >
-                    <span>{template.description}</span>
-
-                    <Currency
-                      value={template.amount}
-                      options={{ currency: template.currency }}
-                      className="ml-auto text-muted-foreground"
-                    />
-                  </Button>
-                ))}
-              </ul>
-            </ScrollArea>
-          ) : (
-            <TransactionForm
-              ref={formRef}
-              formId="transaction-template-dialog-form"
-              initialData={initialData}
-              onSubmit={create}
-            />
-          ))}
+        {!!data.length && (
+          <TransactionForm
+            ref={formRef}
+            formId="transaction-template-dialog-form"
+            initialData={initialData}
+            onSubmit={create}
+          />
+        )}
 
         {isPending && (
           <div className="flex flex-col gap-2">
