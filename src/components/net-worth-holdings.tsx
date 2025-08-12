@@ -42,6 +42,7 @@ import { type Prisma } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
+import { Card } from "./ui/card";
 
 export type Holding = {
   quantityId: string;
@@ -152,10 +153,10 @@ export default function NetWorthHoldings<T extends Holding>({
         {!isFetching && (
           <div className="flex gap-2">
             <div className="mr-auto">
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Total {holdingLabelPlural.toLocaleLowerCase()}
               </p>
-              <p className="text-3xl">
+              <p className="text-3xl font-semibold">
                 <RoundedCurrency value={total} />
               </p>
             </div>
@@ -193,76 +194,79 @@ export default function NetWorthHoldings<T extends Holding>({
           <Fragment key={category}>
             <p className="mt-10 font-medium first:mt-0">{category}</p>
 
-            <Table className="mt-5">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{holdingLabel}</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                  <TableHead className="w-0"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {results.map((row) => (
-                  <TableRow key={row.id} onClick={() => onEditHolding(row)}>
-                    <TableCell>
-                      <div>{row.name}</div>
-                      {row.stockTicker && (
-                        <div className="text-xs text-neutral-500">
-                          {row.stockTicker} &middot; Qty {Number(row.quantity)}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <RoundedCurrency value={row.valueInTarget} />
-                    </TableCell>
-                    <TableCell>
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => onEditHolding(row)}
-                            >
-                              <EyeIcon />
-                              Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              disabled={!row.quantity?.eq(0)}
-                              onClick={() => onArchiveHolding(row)}
-                            >
-                              <ArchiveIcon />
-                              Archive
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => onDeleteHolding(row)}
-                            >
-                              <Trash2Icon />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
+            <Card className="mt-5">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{holdingLabel}</TableHead>
+                    <TableHead className="text-right">Value</TableHead>
+                    <TableHead className="w-0"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell>Total</TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={total} />
-                  </TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableFooter>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {results.map((row) => (
+                    <TableRow key={row.id} onClick={() => onEditHolding(row)}>
+                      <TableCell>
+                        <div>{row.name}</div>
+                        {row.stockTicker && (
+                          <div className="text-xs text-neutral-500">
+                            {row.stockTicker} &middot; Qty{" "}
+                            {Number(row.quantity)}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <RoundedCurrency value={row.valueInTarget} />
+                      </TableCell>
+                      <TableCell>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => onEditHolding(row)}
+                              >
+                                <EyeIcon />
+                                Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                disabled={!row.quantity?.eq(0)}
+                                onClick={() => onArchiveHolding(row)}
+                              >
+                                <ArchiveIcon />
+                                Archive
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => onDeleteHolding(row)}
+                              >
+                                <Trash2Icon />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell>Total</TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={total} />
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </Card>
           </Fragment>
         ))}
       </div>

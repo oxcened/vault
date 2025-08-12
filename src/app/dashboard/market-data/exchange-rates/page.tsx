@@ -37,6 +37,7 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
+import { Card } from "~/components/ui/card";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
@@ -107,60 +108,66 @@ export default function ExchangeRatesPage() {
           </div>
         )}
         {!isPending && !!data.length && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Base Currency</TableHead>
-                <TableHead>Quote Currency</TableHead>
-                <TableHead className="text-right">Rate</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead className="w-0"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((rate) => (
-                <TableRow key={rate.id}>
-                  <TableCell>{rate.baseCurrency}</TableCell>
-                  <TableCell>{rate.quoteCurrency}</TableCell>
-                  <TableCell className="text-right">
-                    <Number value={rate.rate} />
-                  </TableCell>
-                  <TableCell>{formatDate({ date: rate.timestamp })}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleEditClick(rate)}>
-                          <PencilIcon />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            confirm({
-                              itemType: "exchange rate",
-                              itemName: `${rate.baseCurrency} / ${rate.quoteCurrency}`,
-                              onConfirm: () =>
-                                deleteExchangeRate({ id: rate.id }),
-                            })
-                          }
-                        >
-                          <Trash2Icon />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Base Currency</TableHead>
+                  <TableHead>Quote Currency</TableHead>
+                  <TableHead className="text-right">Rate</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead className="w-0"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((rate) => (
+                  <TableRow key={rate.id}>
+                    <TableCell>{rate.baseCurrency}</TableCell>
+                    <TableCell>{rate.quoteCurrency}</TableCell>
+                    <TableCell className="text-right">
+                      <Number value={rate.rate} />
+                    </TableCell>
+                    <TableCell>
+                      {formatDate({ date: rate.timestamp })}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleEditClick(rate)}
+                          >
+                            <PencilIcon />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              confirm({
+                                itemType: "exchange rate",
+                                itemName: `${rate.baseCurrency} / ${rate.quoteCurrency}`,
+                                onConfirm: () =>
+                                  deleteExchangeRate({ id: rate.id }),
+                              })
+                            }
+                          >
+                            <Trash2Icon />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </div>
 

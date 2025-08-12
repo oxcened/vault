@@ -121,8 +121,8 @@ export function HoldingDetail({
           <div className="flex flex-col gap-10">
             <div className="flex gap-2">
               <div className="mr-auto">
-                <p className="text-muted-foreground">{holdingName}</p>
-                <p className="text-3xl">
+                <p className="text-sm text-muted-foreground">{holdingName}</p>
+                <p className="text-3xl font-semibold">
                   <RoundedCurrency value={holdingComputedValue} />
                 </p>
               </div>

@@ -5,6 +5,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import { Card } from "~/components/ui/card";
 import { RoundedCurrency } from "~/components/ui/number";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
@@ -46,32 +47,34 @@ export default async function CashFlowHistoryPage() {
           </div>
         )}
         {!!data.length && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead className="w-32 text-right">Income</TableHead>
-                <TableHead className="w-32 text-right">Expenses</TableHead>
-                <TableHead className="w-32 text-right">Cash flow</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={row.income} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={row.expenses} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RoundedCurrency value={row.netFlow} />
-                  </TableCell>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="w-32 text-right">Income</TableHead>
+                  <TableHead className="w-32 text-right">Expenses</TableHead>
+                  <TableHead className="w-32 text-right">Cash flow</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.income} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.expenses} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.netFlow} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </div>
     </>

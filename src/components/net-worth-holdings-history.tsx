@@ -44,6 +44,7 @@ import { useBreakpoint } from "~/hooks/useBreakpoint";
 import { cn } from "~/lib/utils";
 import { DECIMAL_ZERO } from "~/utils/number";
 import { Badge } from "./ui/badge";
+import { Card } from "./ui/card";
 
 export type NetWorthHoldingsHistoryProps = {
   data: {
@@ -151,38 +152,40 @@ export default function NetWorthHoldingsHistory({
         {isFetching ? (
           <TableSkeleton />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{type === "asset" ? "Asset" : "Debt"}</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="w-0 text-end">Value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData.map((row) => {
-                return (
-                  <TableRow key={row.id}>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{row.categoryName}</Badge>
-                    </TableCell>
-                    <TableCell className="text-end">
-                      <RoundedCurrency value={row.value} />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={2}>Total</TableCell>
-                <TableCell className="text-end">
-                  <RoundedCurrency value={total} />
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{type === "asset" ? "Asset" : "Debt"}</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="w-0 text-end">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredData.map((row) => {
+                  return (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{row.categoryName}</Badge>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        <RoundedCurrency value={row.value} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={2}>Total</TableCell>
+                  <TableCell className="text-end">
+                    <RoundedCurrency value={total} />
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </Card>
         )}
       </div>
     </>

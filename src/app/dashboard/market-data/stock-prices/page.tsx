@@ -37,6 +37,7 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { Number } from "~/components/ui/number";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
+import { Card } from "~/components/ui/card";
 
 export default function StockPricesPage() {
   const { data = [], refetch, isPending } = api.stockPrice.getAll.useQuery();
@@ -104,62 +105,66 @@ export default function StockPricesPage() {
           </div>
         )}
         {!isPending && !!data.length && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Ticker</TableHead>
-                <TableHead>Exchange</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead className="w-0"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((price) => (
-                <TableRow key={price.id}>
-                  <TableCell>{price.ticker.ticker}</TableCell>
-                  <TableCell>{price.ticker.exchange}</TableCell>
-                  <TableCell className="text-right">
-                    <Number value={price.price} />
-                  </TableCell>
-                  <TableCell>{formatDate({ date: price.timestamp })}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleEditClick(price)}
-                        >
-                          <PencilIcon />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            confirm({
-                              itemType: "stock price",
-                              itemName: price.ticker.ticker,
-                              onConfirm: () =>
-                                deleteStockPrice({ id: price.id }),
-                            })
-                          }
-                        >
-                          <Trash2Icon />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ticker</TableHead>
+                  <TableHead>Exchange</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead className="w-0"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((price) => (
+                  <TableRow key={price.id}>
+                    <TableCell>{price.ticker.ticker}</TableCell>
+                    <TableCell>{price.ticker.exchange}</TableCell>
+                    <TableCell className="text-right">
+                      <Number value={price.price} />
+                    </TableCell>
+                    <TableCell>
+                      {formatDate({ date: price.timestamp })}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleEditClick(price)}
+                          >
+                            <PencilIcon />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              confirm({
+                                itemType: "stock price",
+                                itemName: price.ticker.ticker,
+                                onConfirm: () =>
+                                  deleteStockPrice({ id: price.id }),
+                              })
+                            }
+                          >
+                            <Trash2Icon />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </div>
 

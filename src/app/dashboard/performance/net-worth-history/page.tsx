@@ -5,6 +5,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import { Card } from "~/components/ui/card";
 import { RoundedCurrency } from "~/components/ui/number";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
@@ -50,46 +51,48 @@ export default async function NwHistoryPage() {
           </div>
         )}
         {!!data.length && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead className="w-32 text-right">Assets</TableHead>
-                <TableHead className="w-32 text-right">Debts</TableHead>
-                <TableHead className="w-32 text-right">Net value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="w-32 text-right">Assets</TableHead>
+                  <TableHead className="w-32 text-right">Debts</TableHead>
+                  <TableHead className="w-32 text-right">Net value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.totalAssets} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.totalDebts} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <RoundedCurrency value={row.netValue} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell>All time high</TableCell>
                   <TableCell className="text-right">
-                    <RoundedCurrency value={row.totalAssets} />
+                    <RoundedCurrency value={athAssets} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <RoundedCurrency value={row.totalDebts} />
+                    <RoundedCurrency value={athDebts} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <RoundedCurrency value={row.netValue} />
+                    <RoundedCurrency value={athNetValue} />
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell>All time high</TableCell>
-                <TableCell className="text-right">
-                  <RoundedCurrency value={athAssets} />
-                </TableCell>
-                <TableCell className="text-right">
-                  <RoundedCurrency value={athDebts} />
-                </TableCell>
-                <TableCell className="text-right">
-                  <RoundedCurrency value={athNetValue} />
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+              </TableFooter>
+            </Table>
+          </Card>
         )}
       </div>
     </>
