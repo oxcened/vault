@@ -13,7 +13,7 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
-import { LayersIcon, Loader2, Plus } from "lucide-react";
+import { ChevronDown, Loader2, PlusIcon, ZapIcon } from "lucide-react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import NewTransactionDialog from "./NewTransactionDialog";
@@ -23,6 +23,12 @@ import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import Decimal from "decimal.js";
 import { TransactionType } from "@prisma/client";
 import TransactionTemplateDialog from "./TransactionTemplateDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 type Transaction = {
   id: string;
@@ -112,26 +118,32 @@ export default function TransactionsPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <Button
-          variant="outline"
-          className="ml-auto"
-          size="icon"
-          onClick={() => setTemplateDialogOpen(true)}
-        >
-          <LayersIcon />
-        </Button>
-
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setNewDialogOpen(true)}
-        >
-          <Plus />
-        </Button>
       </header>
 
       <div className="mx-auto flex w-screen max-w-screen-md flex-col gap-2 p-5">
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default">
+                <span className="sr-only">Open menu</span>
+                <PlusIcon />
+                Add
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setNewDialogOpen(true)}>
+                Add transaction...
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => setTemplateDialogOpen(true)}>
+                <ZapIcon />
+                Quick add...
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {isPending && <TableSkeleton />}
         {!isPending && (
           <>
