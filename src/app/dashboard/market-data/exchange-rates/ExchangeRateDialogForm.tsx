@@ -49,7 +49,7 @@ export function ExchangeRateDialogForm({
       <form
         id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5"
+        className="grid grid-cols-1 gap-2 md:grid-cols-2"
       >
         <FormField
           control={form.control}
@@ -103,13 +103,13 @@ export function ExchangeRateDialogForm({
           control={form.control}
           name="timestamp"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel>Date</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <FormControl>
+                  <FormControl className="w-full">
                     <Button
-                      variant={"outline"}
+                      variant="outline"
                       className={cn(
                         "pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground",
