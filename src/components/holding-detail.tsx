@@ -33,6 +33,7 @@ import { Button } from "./ui/button";
 import { MoreHorizontal, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useConfirmDelete } from "./confirm-delete-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Card } from "./ui/card";
 
 export function HoldingDetail({
   holdingCurrency,
@@ -228,48 +229,50 @@ export function ValueHistoryTable({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Date</TableHead>
-          {isCategoryStock && <TableHead>Stock</TableHead>}
-          <TableHead className="text-end">Value</TableHead>
-        </TableRow>
-      </TableHeader>
-
-      <TableBody>
-        {valueHistory.map((row) => (
-          <TableRow key={row.timestamp.getTime()}>
-            <TableCell>
-              {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
-            </TableCell>
-            {isCategoryStock && (
-              <TableCell>
-                <Badge variant="secondary">
-                  {ticker}&nbsp;
-                  <Number
-                    value={row.stockPrice}
-                    options={{
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }}
-                  />
-                </Badge>
-              </TableCell>
-            )}
-            <TableCell className="text-end">
-              <Currency value={row.valueInTarget} />
-
-              {isCategoryStock && (
-                <p className="text-xs text-muted-foreground">
-                  Qty <Number value={row.quantity} />
-                </p>
-              )}
-            </TableCell>
+    <Card>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date</TableHead>
+            {isCategoryStock && <TableHead>Stock</TableHead>}
+            <TableHead className="text-end">Value</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+
+        <TableBody>
+          {valueHistory.map((row) => (
+            <TableRow key={row.timestamp.getTime()} className="h-[49px]">
+              <TableCell>
+                {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
+              </TableCell>
+              {isCategoryStock && (
+                <TableCell>
+                  <Badge variant="secondary">
+                    {ticker}&nbsp;
+                    <Number
+                      value={row.stockPrice}
+                      options={{
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }}
+                    />
+                  </Badge>
+                </TableCell>
+              )}
+              <TableCell className="text-end">
+                <Currency value={row.valueInTarget} />
+
+                {isCategoryStock && (
+                  <p className="text-xs text-muted-foreground">
+                    Qty <Number value={row.quantity} />
+                  </p>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
   );
 }
 
@@ -297,66 +300,68 @@ export function QuantityHistoryTable({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-end">Value</TableHead>
-          <TableHead className="w-0"></TableHead>
-        </TableRow>
-      </TableHeader>
-
-      <TableBody>
-        {valueHistory.map((row) => (
-          <TableRow key={row.timestamp.getTime()}>
-            <TableCell>
-              {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
-            </TableCell>
-            <TableCell className="text-end">
-              <Number value={row.quantity} />
-            </TableCell>
-            <TableCell className="w-0">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() =>
-                      onQuantityEdit({
-                        id: row.id,
-                      })
-                    }
-                  >
-                    <PencilIcon />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      confirm({
-                        itemType: "value",
-                        itemName: formatDate({ date: row.timestamp }),
-                        onConfirm: () =>
-                          onQuantiyDelete({ timestamp: row.timestamp }),
-                      })
-                    }
-                  >
-                    <Trash2Icon />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
+    <Card>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Date</TableHead>
+            <TableHead className="text-end">Value</TableHead>
+            <TableHead className="w-0"></TableHead>
           </TableRow>
-        ))}
-      </TableBody>
+        </TableHeader>
 
-      {modal}
-    </Table>
+        <TableBody>
+          {valueHistory.map((row) => (
+            <TableRow key={row.timestamp.getTime()}>
+              <TableCell>
+                {row.timestamp ? formatDate({ date: row.timestamp }) : "n/a"}
+              </TableCell>
+              <TableCell className="text-end">
+                <Number value={row.quantity} />
+              </TableCell>
+              <TableCell className="w-0">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() =>
+                        onQuantityEdit({
+                          id: row.id,
+                        })
+                      }
+                    >
+                      <PencilIcon />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        confirm({
+                          itemType: "value",
+                          itemName: formatDate({ date: row.timestamp }),
+                          onConfirm: () =>
+                            onQuantiyDelete({ timestamp: row.timestamp }),
+                        })
+                      }
+                    >
+                      <Trash2Icon />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+
+        {modal}
+      </Table>
+    </Card>
   );
 }

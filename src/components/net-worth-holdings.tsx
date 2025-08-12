@@ -33,7 +33,6 @@ import {
   ArchiveIcon,
   EyeIcon,
   FilterIcon,
-  ListFilterIcon,
   MoreHorizontal,
   Plus,
   Trash2Icon,
