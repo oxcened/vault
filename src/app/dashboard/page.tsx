@@ -69,7 +69,7 @@ export default function OverviewPage() {
               <NetWorthForecast />
               <FinancialRunway />
 
-              <div className="col-span-full rounded-xl border [&_td]:px-6 [&_td]:py-3 [&_th]:px-6 [&_th]:py-3">
+              <div className="col-span-full [&_td]:px-6 [&_td]:py-3 [&_th]:px-6 [&_th]:py-3">
                 <TransactionTable
                   showSeeAllLink
                   data={data.recentTransactions}
