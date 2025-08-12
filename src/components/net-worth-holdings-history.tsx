@@ -2,7 +2,7 @@
 
 import { Prisma } from "@prisma/client";
 import { format, lastDayOfMonth } from "date-fns";
-import { CalendarIcon, ListFilterIcon } from "lucide-react";
+import { CalendarIcon, FilterIcon } from "lucide-react";
 import { useState } from "react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import {
@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { MonthPicker } from "~/components/ui/month-picker";
-import { Currency, RoundedCurrency } from "~/components/ui/number";
+import { RoundedCurrency } from "~/components/ui/number";
 import {
   Popover,
   PopoverContent,
@@ -100,55 +100,54 @@ export default function NetWorthHoldingsHistory({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size={sm ? "default" : "icon"}
-              className={cn(
-                "ml-auto font-normal",
-                !date && "text-muted-foreground",
-              )}
-            >
-              <span className="hidden sm:inline">
-                {date ? format(date, "MMMM yyyy") : <span>Pick a date</span>}
-              </span>
-              <CalendarIcon className="sm:opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <MonthPicker
-              value={date}
-              disabled={(date) => date > new Date()}
-              onChange={(date) => onDateChange(lastDayOfMonth(date))}
-            />
-          </PopoverContent>
-        </Popover>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <span className="sr-only">Open menu</span>
-              <ListFilterIcon />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              Filter {type === "asset" ? "assets" : "debts"}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={hideZeroItems}
-              onCheckedChange={setHideZeroItems}
-            >
-              Hide zero {type === "asset" ? "assets" : "debts"}
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </header>
 
-      <div className="mx-auto w-full max-w-screen-md p-5">
+      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+        <div className="flex flex-row justify-end gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <FilterIcon />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>
+                Filter {type === "asset" ? "assets" : "debts"}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={hideZeroItems}
+                onCheckedChange={setHideZeroItems}
+              >
+                Hide zero {type === "asset" ? "assets" : "debts"}
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size={sm ? "default" : "icon"}
+                className={cn("font-normal", !date && "text-muted-foreground")}
+              >
+                <span className="hidden sm:inline">
+                  {date ? format(date, "MMMM yyyy") : <span>Pick a date</span>}
+                </span>
+                <CalendarIcon className="sm:opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <MonthPicker
+                value={date}
+                disabled={(date) => date > new Date()}
+                onChange={(date) => onDateChange(lastDayOfMonth(date))}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
         {isFetching ? (
           <TableSkeleton />
         ) : (
