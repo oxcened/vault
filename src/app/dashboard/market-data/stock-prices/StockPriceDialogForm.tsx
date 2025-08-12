@@ -59,13 +59,13 @@ export function StockPriceDialogForm({
       <form
         id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5"
+        className="grid grid-cols-1 gap-2 md:grid-cols-2"
       >
         <FormField
           control={form.control}
           name="tickerId"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-full">
               <FormLabel>Stock ticker</FormLabel>
 
               <Select
@@ -116,11 +116,11 @@ export function StockPriceDialogForm({
           control={form.control}
           name="timestamp"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel>Date</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <FormControl>
+                  <FormControl className="w-full">
                     <Button
                       variant={"outline"}
                       className={cn(
