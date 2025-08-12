@@ -32,6 +32,7 @@ import {
 import {
   ArchiveIcon,
   EyeIcon,
+  FilterIcon,
   ListFilterIcon,
   MoreHorizontal,
   Plus,
@@ -136,22 +137,13 @@ export default function NetWorthHoldings<T extends Holding>({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <Button
-          variant="outline"
-          className="ml-auto"
-          size="icon"
-          onClick={() => onNewHolding()}
-        >
-          <Plus />
-        </Button>
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
         {isFetching && <TableSkeleton />}
 
         {!isFetching && (
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 md:flex-row">
             <div className="mr-auto">
               <p className="text-sm text-muted-foreground">
                 Total {holdingLabelPlural.toLocaleLowerCase()}
@@ -163,9 +155,9 @@ export default function NetWorthHoldings<T extends Holding>({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <span className="sr-only">Open menu</span>
-                  <ListFilterIcon />
+                <Button variant="outline">
+                  <FilterIcon />
+                  Filter
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -181,6 +173,11 @@ export default function NetWorthHoldings<T extends Holding>({
                 </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <Button variant="default" onClick={() => onNewHolding()}>
+              <Plus />
+              Add {holdingLabel}
+            </Button>
           </div>
         )}
 
