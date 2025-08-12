@@ -104,15 +104,6 @@ export function HoldingDetail({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <Button
-          variant="outline"
-          className="ml-auto"
-          size="icon"
-          onClick={onNewHolding}
-        >
-          <PlusIcon />
-        </Button>
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
@@ -120,13 +111,18 @@ export function HoldingDetail({
 
         {!isPending && (
           <div className="flex flex-col gap-10">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 md:flex-row">
               <div className="mr-auto">
                 <p className="text-sm text-muted-foreground">{holdingName}</p>
                 <p className="text-3xl font-semibold">
                   <RoundedCurrency value={holdingComputedValue} />
                 </p>
               </div>
+
+              <Button variant="default" onClick={onNewHolding}>
+                <PlusIcon />
+                Add
+              </Button>
             </div>
 
             <Overview
