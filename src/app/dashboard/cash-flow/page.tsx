@@ -35,6 +35,13 @@ import { formatDate } from "~/utils/date";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
 import { APP_CURRENCY } from "~/constants";
 import { formatNumber } from "~/utils/number";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 
 const cashFlowByMonthConfig = {
   cashFlow: {
@@ -92,16 +99,15 @@ export default function CashFlowPage() {
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-10 p-5">
+      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-5 p-5">
         {isPending && <TableSkeleton />}
 
         {!isPending && (
           <div>
-            <div className="flex items-center gap-2">
-              <p className="text-muted-foreground">Cash flow</p>
-            </div>
+            <p className="text-sm text-muted-foreground">Cash flow</p>
+
             <div className="flex items-end gap-3">
-              <p className="text-3xl">
+              <p className="text-3xl font-semibold">
                 <RoundedCurrency value={data?.latestCashFlow?.netFlow} />
               </p>
               <TrendIndicator value={data?.cashFlowTrend} />
@@ -110,20 +116,16 @@ export default function CashFlowPage() {
             <div className="mt-5 flex gap-5">
               <div>
                 <p className="text-sm text-muted-foreground">Income</p>
-                <div className="flex items-end gap-3">
-                  <p className="text-xl">
-                    <RoundedCurrency value={data?.latestCashFlow?.income} />
-                  </p>
-                </div>
+                <p className="text-sm font-medium">
+                  <RoundedCurrency value={data?.latestCashFlow?.income} />
+                </p>
               </div>
 
               <div>
                 <p className="text-sm text-muted-foreground">Expenses</p>
-                <div className="flex items-end gap-3">
-                  <p className="text-xl">
-                    <RoundedCurrency value={data?.latestCashFlow?.expenses} />
-                  </p>
-                </div>
+                <p className="text-sm font-medium">
+                  <RoundedCurrency value={data?.latestCashFlow?.expenses} />
+                </p>
               </div>
             </div>
           </div>
@@ -136,51 +138,54 @@ export default function CashFlowPage() {
         )}
 
         {!isPending && !!cashFlowByMonthData?.length && (
-          <>
-            <div>
-              <p className="font-medium">Cash flow history</p>
-              <p className="text-muted-foreground">Last 12 months</p>
-            </div>
-            <ChartContainer
-              config={cashFlowByMonthConfig}
-              className="h-[15rem] w-full"
-            >
-              <ComposedChart accessibilityLayer data={cashFlowByMonthData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                />
+          <Card>
+            <CardHeader>
+              <CardTitle>Cash flow history</CardTitle>
+              <CardDescription>Last 12 months</CardDescription>
+            </CardHeader>
 
-                <YAxis
-                  dataKey="cashFlow"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  domain={calculateZeroInclusiveYAxisDomain}
-                  tickFormatter={(value: number) =>
-                    formatNumber({
-                      value,
-                      options: {
-                        style: "currency",
-                        currency: APP_CURRENCY,
-                        maximumFractionDigits: 0,
-                      },
-                    })
-                  }
-                />
+            <CardContent>
+              <ChartContainer
+                config={cashFlowByMonthConfig}
+                className="h-[15rem] w-full"
+              >
+                <ComposedChart accessibilityLayer data={cashFlowByMonthData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
 
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent />}
-                />
+                  <YAxis
+                    dataKey="cashFlow"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    domain={calculateZeroInclusiveYAxisDomain}
+                    tickFormatter={(value: number) =>
+                      formatNumber({
+                        value,
+                        options: {
+                          style: "currency",
+                          currency: APP_CURRENCY,
+                          maximumFractionDigits: 0,
+                        },
+                      })
+                    }
+                  />
 
-                <Bar dataKey="cashFlow" barSize={30} radius={4} />
-              </ComposedChart>
-            </ChartContainer>
-          </>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
+
+                  <Bar dataKey="cashFlow" barSize={30} radius={4} />
+                </ComposedChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         )}
 
         {!isPending && !cashFlowByCategoryData?.length && (
@@ -190,57 +195,62 @@ export default function CashFlowPage() {
         )}
 
         {!isPending && !!cashFlowByCategoryData?.length && (
-          <>
-            <div>
-              <p className="font-medium">Cash flow by category</p>
-              <p className="text-muted-foreground">Current month</p>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="w-32 text-right">Cash flow</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data?.cashFlowByCategory.map((category) => (
-                  <TableRow key={category.category}>
-                    <TableCell>{category.category}</TableCell>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cash flow by category</CardTitle>
+              <CardDescription>Current month</CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Category</TableHead>
+                    <TableHead className="w-32 text-right">Cash flow</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data?.cashFlowByCategory.map((category) => (
+                    <TableRow key={category.category}>
+                      <TableCell>{category.category}</TableCell>
+                      <TableCell className="text-right">
+                        <Currency
+                          value={category.netFlow}
+                          className={cn(
+                            "text-right",
+                            category.netFlow.isPos() &&
+                              "text-financial-positive",
+                            category.netFlow.isNeg() &&
+                              "text-financial-negative",
+                          )}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell>Total income</TableCell>
                     <TableCell className="text-right">
-                      <Currency
-                        value={category.netFlow}
-                        className={cn(
-                          "text-right",
-                          category.netFlow.isPos() && "text-financial-positive",
-                          category.netFlow.isNeg() && "text-financial-negative",
-                        )}
-                      />
+                      <Currency value={data?.latestCashFlow?.income} />
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell>Total income</TableCell>
-                  <TableCell className="text-right">
-                    <Currency value={data?.latestCashFlow?.income} />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Total expenses</TableCell>
-                  <TableCell className="text-right">
-                    <Currency value={data?.latestCashFlow?.expenses} />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Cash flow</TableCell>
-                  <TableCell className="text-right">
-                    <Currency value={data?.latestCashFlow?.netFlow} />
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </>
+                  <TableRow>
+                    <TableCell>Total expenses</TableCell>
+                    <TableCell className="text-right">
+                      <Currency value={data?.latestCashFlow?.expenses} />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Cash flow</TableCell>
+                    <TableCell className="text-right">
+                      <Currency value={data?.latestCashFlow?.netFlow} />
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </CardContent>
+          </Card>
         )}
       </div>
     </>
