@@ -176,7 +176,7 @@ export default function NetWorthHoldings<T extends Holding>({
 
             <Button variant="default" onClick={() => onNewHolding()}>
               <Plus />
-              Add {holdingLabel}
+              Add
             </Button>
           </div>
         )}
