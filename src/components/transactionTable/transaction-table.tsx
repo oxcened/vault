@@ -14,7 +14,7 @@ import { useDebouncedCallback } from "use-debounce";
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
   const [query, setQuery] = useState("");
-  const handleSearch = useDebouncedCallback((value) => {
+  const handleSearch = useDebouncedCallback((value: string) => {
     setQuery(value);
     setPagination((state) => ({ ...state, pageIndex: 0 }));
   }, 1000);
