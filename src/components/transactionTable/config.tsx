@@ -20,6 +20,12 @@ import { toast } from "sonner";
 import { useConfirmDelete } from "../confirm-delete-modal";
 import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
 import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 export type TransactionRow = {
   id: string;
@@ -39,6 +45,18 @@ const columnHelper = createColumnHelper<TransactionRow>();
 export const baseTransactionColumns = [
   columnHelper.accessor("description", {
     header: "Description",
+    cell: ({ getValue }) => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="max-w-40 truncate">{getValue()}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{getValue()}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
   }),
   columnHelper.accessor("timestamp", {
     header: "Date",
