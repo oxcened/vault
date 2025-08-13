@@ -8,16 +8,31 @@ import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
 
+const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
+type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
+const ALLOWED_SORT_ORDERS = ["asc", "desc"] as const;
+type SortOrder = (typeof ALLOWED_SORT_ORDERS)[number];
+
 export const transactionRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(
       yup.object({
-        limit: yup.number().min(1).max(100).default(20),
-        cursor: yup.string().optional(),
+        page: yup.number().integer().min(1).default(1),
+        pageSize: yup.number().integer().min(1).max(100).default(20),
+        query: yup.string().trim(),
+        sortField: yup
+          .string<SortField>()
+          .oneOf(ALLOWED_SORT_FIELDS)
+          .default("timestamp"),
+        sortOrder: yup
+          .string<SortOrder>()
+          .oneOf(ALLOWED_SORT_ORDERS)
+          .default("desc"),
+        includeTotal: yup.boolean().default(true),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const items = await ctx.db.transaction.findMany({
+      /*const items = await ctx.db.transaction.findMany({
         where: {
           createdById: ctx.session.user.id,
         },
@@ -38,17 +53,58 @@ export const transactionRouter = createTRPCRouter({
             },
           },
         },
-      });
+      });*/
 
-      let nextCursor: string | null = null;
-      if (items.length > input.limit) {
-        const nextItem = items.pop();
-        nextCursor = nextItem?.id ?? null;
-      }
+      const { page, pageSize, query, sortField, sortOrder, includeTotal } =
+        input;
+
+      const where = query
+        ? ({ description: { contains: query, mode: "insensitive" } } as const)
+        : undefined;
+
+      const [items, total] = await Promise.all([
+        ctx.db.transaction.findMany({
+          where,
+          orderBy: [
+            {
+              [sortField]: sortOrder,
+            },
+          ],
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          select: {
+            id: true,
+            amount: true,
+            currency: true,
+            timestamp: true,
+            description: true,
+            type: true,
+            categoryId: true,
+            category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        }),
+        includeTotal
+          ? ctx.db.transaction.count({ where })
+          : Promise.resolve(undefined),
+      ]);
+
+      const totalPages =
+        includeTotal && typeof total === "number"
+          ? Math.max(1, Math.ceil(total / pageSize))
+          : undefined;
 
       return {
         items,
-        nextCursor,
+        page,
+        pageSize,
+        total,
+        totalPages,
+        sortField,
+        sortOrder,
       };
     }),
 

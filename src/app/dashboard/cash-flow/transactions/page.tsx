@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,19 +10,11 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { api } from "~/trpc/react";
-import { Button } from "~/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { TableSkeleton } from "~/components/table-skeleton";
-import { toast } from "sonner";
-import { TransactionTable } from "~/components/transaction-table";
-import EditTransactionDialog from "./EditTransactionDialog";
-import { useConfirmDelete } from "~/components/confirm-delete-modal";
+import { TransactionTable } from "~/components/transactionTable/transaction-table";
 import Decimal from "decimal.js";
 import { TransactionType } from "@prisma/client";
-import { AddTransactionDropdown } from "~/components/add-transaction-dropdown";
 
-type Transaction = {
+export type Transaction = {
   id: string;
   amount: Decimal;
   currency: string;
@@ -37,60 +28,6 @@ type Transaction = {
 };
 
 export default function TransactionsPage() {
-  const {
-    data,
-    refetch,
-    isPending,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = api.transaction.getAll.useInfiniteQuery(
-    {
-      limit: 20,
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  );
-  const utils = api.useUtils();
-
-  const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Transaction deleted.");
-      void refetch();
-    },
-  });
-
-  const [editingTransaction, setEditingTransaction] = useState<Transaction>();
-  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-
-  const transactions = data?.pages.flatMap((page) => page.items) ?? [];
-
-  function handleEditTransaction(id: string) {
-    const transaction = transactions.find((t) => t.id === id);
-    if (!transaction) {
-      toast.error("Failed to find the transaction.");
-      return;
-    }
-    setEditingTransaction(transaction);
-    setEditDialogOpen(true);
-  }
-
-  const { mutate: saveTemplate } = api.transactionTemplate.create.useMutation({
-    onSuccess: () => {
-      toast.success("Transaction template created.");
-      void utils.transactionTemplate.getAll.invalidate();
-    },
-  });
-
-  function handleTransactionSuccess() {
-    void refetch();
-    void utils.cashFlow.getMonthlyCashFlow.invalidate();
-    void utils.dashboard.getSummary.invalidate();
-  }
-
-  const { confirm, modal } = useConfirmDelete();
-
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -112,55 +49,8 @@ export default function TransactionsPage() {
       </header>
 
       <div className="mx-auto flex w-screen max-w-screen-md flex-col gap-2 p-5">
-        <div className="flex justify-end">
-          <AddTransactionDropdown onSuccess={handleTransactionSuccess} />
-        </div>
-
-        {isPending && <TableSkeleton />}
-        {!isPending && (
-          <>
-            <TransactionTable
-              showActions
-              data={transactions}
-              onDeleteTransaction={(transaction) =>
-                confirm({
-                  itemType: "transaction",
-                  itemName: transaction.description,
-                  onConfirm: () => deleteTransaction({ id: transaction.id }),
-                })
-              }
-              onEditTransaction={handleEditTransaction}
-              onSaveTemplate={(transaction) =>
-                saveTemplate({
-                  transactionId: transaction.id,
-                })
-              }
-            />
-            {hasNextPage && (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isFetchingNextPage}
-                className="self-center"
-                onClick={() => fetchNextPage()}
-              >
-                {isFetchingNextPage && <Loader2 className="animate-spin" />}
-                Load more
-              </Button>
-            )}
-          </>
-        )}
+        <TransactionTable />
       </div>
-
-      <EditTransactionDialog
-        key={`edit-transaction-dialog-${isEditDialogOpen}`}
-        isOpen={isEditDialogOpen}
-        transaction={editingTransaction}
-        onOpenChange={setEditDialogOpen}
-        onSuccess={handleTransactionSuccess}
-      />
-
-      {modal}
     </>
   );
 }

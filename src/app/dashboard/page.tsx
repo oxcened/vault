@@ -11,23 +11,38 @@ import {
 } from "~/components/ui/breadcrumb";
 import { useSession } from "next-auth/react";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { TransactionTable } from "~/components/transaction-table";
 import { Skeleton } from "~/components/ui/skeleton";
 import FinancialRunway from "./FinancialRunway";
 import NetWorthForecast from "./NetWorthForecast";
 import { NetWorthCard } from "./NetWorthCard";
 import { CashFlowCard } from "./CashFlowCard";
 import { AddTransactionDropdown } from "~/components/add-transaction-dropdown";
+import { RecentTransactionTable } from "~/components/transactionTable/recent-transaction-table";
+import { keepPreviousData } from "@tanstack/react-query";
 
 export default function OverviewPage() {
   const { data, isPending, refetch } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
   const utils = api.useUtils();
+  const { data: transactions, isPending: transactionsPending } =
+    api.transaction.getAll.useQuery(
+      {
+        page: 1,
+        pageSize: 5,
+        sortOrder: "desc",
+        sortField: "timestamp",
+        includeTotal: true,
+      },
+      {
+        placeholderData: keepPreviousData,
+      },
+    );
 
   const handleTransactionCreated = () => {
     void refetch();
     void utils.transaction.getAll.invalidate();
     void utils.cashFlow.getMonthlyCashFlow.invalidate();
+    void utils.cashFlow.getAll.invalidate();
   };
 
   return (
@@ -82,13 +97,11 @@ export default function OverviewPage() {
               <CashFlowCard />
               <NetWorthForecast />
               <FinancialRunway />
-
-              <div className="col-span-full [&_td]:px-6 [&_td]:py-3 [&_th]:px-6 [&_th]:py-3">
-                <TransactionTable
-                  showSeeAllLink
-                  data={data.recentTransactions}
-                />
-              </div>
+              <RecentTransactionTable
+                className="col-span-full"
+                transactions={transactions?.items}
+                isPending={transactionsPending}
+              />
             </div>
           </div>
         </>
