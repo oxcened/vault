@@ -74,7 +74,7 @@ export default function OverviewPage() {
       {!isPending && data && (
         <>
           <div className="mx-auto w-full max-w-screen-md p-5">
-            <div className="flex flex-col justify-between gap-2 md:flex-row">
+            <div className="flex justify-between gap-2">
               <div>
                 {status === "loading" ? (
                   <Skeleton className="h-8" />
