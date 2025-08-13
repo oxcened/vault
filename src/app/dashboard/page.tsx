@@ -31,7 +31,7 @@ export default function OverviewPage() {
         pageSize: 5,
         sortOrder: "desc",
         sortField: "timestamp",
-        includeTotal: true,
+        includeTotal: false,
       },
       {
         placeholderData: keepPreviousData,
