@@ -8,9 +8,16 @@ import { api } from "~/trpc/react";
 import { useState } from "react";
 import { TableSkeleton } from "../table-skeleton";
 import { keepPreviousData } from "@tanstack/react-query";
+import { Input } from "../ui/input";
+import { useDebouncedCallback } from "use-debounce";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
+  const [query, setQuery] = useState("");
+  const handleSearch = useDebouncedCallback((value) => {
+    setQuery(value);
+    setPagination((state) => ({ ...state, pageIndex: 0 }));
+  }, 1000);
 
   const { data, isPending } = api.transaction.getAll.useQuery(
     {
@@ -19,6 +26,7 @@ export function TransactionTable() {
       sortOrder: "desc",
       sortField: "timestamp",
       includeTotal: true,
+      query,
     },
     {
       placeholderData: keepPreviousData,
@@ -36,6 +44,7 @@ export function TransactionTable() {
   });
 
   const utils = api.useUtils();
+
   const handleCreated = () => {
     void utils.transaction.getAll.invalidate();
     void utils.cashFlow.getMonthlyCashFlow.invalidate();
@@ -45,7 +54,12 @@ export function TransactionTable() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-col gap-2 md:flex-row">
+        <Input
+          placeholder="Search transactions..."
+          className="flex-1"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <DataTableColumns table={table} />
         <AddTransactionDropdown onSuccess={handleCreated} />
       </div>
