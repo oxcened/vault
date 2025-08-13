@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+
 import type { Prisma, TransactionType } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Currency } from "../ui/number";
 import { cn } from "~/lib/utils";
@@ -61,7 +62,7 @@ export const baseTransactionColumns = [
   columnHelper.accessor("timestamp", {
     header: "Date",
     cell: ({ getValue }) => {
-      return formatDate({ date: getValue() as Date });
+      return formatDate({ date: getValue() });
     },
   }),
   columnHelper.accessor("category.name", {
@@ -78,7 +79,7 @@ export const baseTransactionColumns = [
 
       return (
         <Currency
-          value={getValue() as Decimal}
+          value={getValue()}
           options={{
             currency: row.original.currency,
           }}
