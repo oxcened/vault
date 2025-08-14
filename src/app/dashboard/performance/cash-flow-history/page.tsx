@@ -1,3 +1,7 @@
+"use client";
+
+import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { TableSkeleton } from "~/components/table-skeleton";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -5,23 +9,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
-import { Card } from "~/components/ui/card";
-import { RoundedCurrency } from "~/components/ui/number";
+import { DataTable } from "~/components/ui/data-table";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-import { api } from "~/trpc/server";
-import { formatDate } from "~/utils/date";
+import { api } from "~/trpc/react";
+import { cashFlowColumns } from "./config";
 
-export default async function CashFlowHistoryPage() {
-  const data = await api.cashFlow.getAll();
+export default function CashFlowHistoryPage() {
+  const { data, isPending } = api.cashFlow.getAll.useQuery();
+
+  const table = useReactTable({
+    data: data ?? [],
+    columns: cashFlowColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <>
@@ -41,41 +42,7 @@ export default async function CashFlowHistoryPage() {
         </Breadcrumb>
       </header>
       <div className="mx-auto w-full max-w-screen-md p-5">
-        {!data.length && (
-          <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don&apos;t have a cash flow history yet
-          </div>
-        )}
-        {!!data.length && (
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="w-32 text-right">Income</TableHead>
-                  <TableHead className="w-32 text-right">Expenses</TableHead>
-                  <TableHead className="w-32 text-right">Cash flow</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>{formatDate({ date: row.timestamp })}</TableCell>
-                    <TableCell className="text-right">
-                      <RoundedCurrency value={row.income} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <RoundedCurrency value={row.expenses} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <RoundedCurrency value={row.netFlow} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        )}
+        {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
     </>
   );
