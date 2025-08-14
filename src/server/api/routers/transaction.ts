@@ -32,35 +32,15 @@ export const transactionRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      /*const items = await ctx.db.transaction.findMany({
-        where: {
-          createdById: ctx.session.user.id,
-        },
-        orderBy: { timestamp: "desc" },
-        take: input.limit + 1,
-        cursor: input.cursor ? { id: input.cursor } : undefined,
-        select: {
-          id: true,
-          amount: true,
-          currency: true,
-          timestamp: true,
-          description: true,
-          type: true,
-          categoryId: true,
-          category: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      });*/
-
       const { page, pageSize, query, sortField, sortOrder, includeTotal } =
         input;
 
-      const where = query
-        ? ({ description: { contains: query, mode: "insensitive" } } as const)
-        : undefined;
+      const where = {
+        createdById: ctx.session.user.id,
+        ...(query
+          ? ({ description: { contains: query, mode: "insensitive" } } as const)
+          : {}),
+      };
 
       const [items, total] = await Promise.all([
         ctx.db.transaction.findMany({
