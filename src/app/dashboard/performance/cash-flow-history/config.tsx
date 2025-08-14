@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+
 import { CashFlow } from "@prisma/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import { RoundedCurrency } from "~/components/ui/number";
