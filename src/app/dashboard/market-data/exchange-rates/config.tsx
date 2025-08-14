@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
 import { createColumnHelper } from "@tanstack/react-table";
+import { Number } from "~/components/ui/number";
 import { api, RouterOutputs } from "~/trpc/react";
 import { formatDate } from "~/utils/date";
 import {
@@ -36,6 +37,9 @@ export const exchangeRatesColumns = [
   }),
   columnHelper.accessor("rate", {
     header: "Rate",
+    cell: ({ getValue }) => {
+      return <Number value={getValue()} />;
+    },
     meta: {
       cellClassName: "text-right",
       headerClassName: "text-right",
