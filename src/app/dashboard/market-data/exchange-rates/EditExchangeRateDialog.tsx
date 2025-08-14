@@ -47,7 +47,7 @@ export default function EditExchangeRateDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Exchange Rate</DialogTitle>
+          <DialogTitle>Edit exchange rate</DialogTitle>
         </DialogHeader>
         <ExchangeRateDialogForm
           formId="edit-exchange-rate-dialog-form"

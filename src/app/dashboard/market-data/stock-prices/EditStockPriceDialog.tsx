@@ -47,7 +47,7 @@ export default function EditStockPriceDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Exchange Rate</DialogTitle>
+          <DialogTitle>Edit stock price</DialogTitle>
         </DialogHeader>
         <StockPriceDialogForm
           formId="edit-exchange-rate-dialog-form"
