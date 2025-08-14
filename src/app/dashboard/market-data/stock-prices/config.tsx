@@ -16,8 +16,8 @@ import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { toast } from "sonner";
 import { useState } from "react";
 import { StockPriceHistory } from "@prisma/client";
-
 import EditStockPriceDialog from "./EditStockPriceDialog";
+import { Number } from "~/components/ui/number";
 
 const columnHelper =
   createColumnHelper<RouterOutputs["stockPrice"]["getAll"][number]>();
@@ -37,6 +37,9 @@ export const stockPricesColumns = [
   }),
   columnHelper.accessor("price", {
     header: "Price",
+    cell: ({ getValue }) => {
+      return <Number value={getValue()} />;
+    },
     meta: {
       cellClassName: "text-right",
       headerClassName: "text-right",
