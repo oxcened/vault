@@ -16,10 +16,10 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { DataTable } from "~/components/ui/data-table";
 
 export default function NwHistoryPage() {
-  const { data, isPending } = api.netWorth.getAll.useQuery();
+  const { data = [], isPending } = api.netWorth.getAll.useQuery();
 
   const table = useReactTable({
-    data: data ?? [],
+    data,
     columns: netWorthColumns,
     getCoreRowModel: getCoreRowModel(),
   });

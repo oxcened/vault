@@ -23,7 +23,7 @@ export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
 
   const table = useReactTable({
-    data: data,
+    data,
     columns: exchangeRatesColumns,
     getCoreRowModel: getCoreRowModel(),
   });

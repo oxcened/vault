@@ -23,7 +23,7 @@ export default function StockPricesPage() {
   const { data = [], refetch, isPending } = api.stockPrice.getAll.useQuery();
 
   const table = useReactTable({
-    data: data,
+    data,
     columns: stockPricesColumns,
     getCoreRowModel: getCoreRowModel(),
   });

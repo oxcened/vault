@@ -16,10 +16,10 @@ import { api } from "~/trpc/react";
 import { cashFlowColumns } from "./config";
 
 export default function CashFlowHistoryPage() {
-  const { data, isPending } = api.cashFlow.getAll.useQuery();
+  const { data = [], isPending } = api.cashFlow.getAll.useQuery();
 
   const table = useReactTable({
-    data: data ?? [],
+    data,
     columns: cashFlowColumns,
     getCoreRowModel: getCoreRowModel(),
   });
