@@ -10,52 +10,23 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHead,
-  TableRow,
-} from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
-import { formatDate } from "~/utils/date";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { MoreHorizontal, PencilIcon, Plus, Trash2Icon } from "lucide-react";
-import EditExchangeRateDialog from "./EditExchangeRateDialog";
-import { type ExchangeRate } from "@prisma/client";
+import { Plus } from "lucide-react";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { toast } from "sonner";
-import { Number } from "~/components/ui/number";
-import { useConfirmDelete } from "~/components/confirm-delete-modal";
-import { Card } from "~/components/ui/card";
+import { DataTable } from "~/components/ui/data-table";
+import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { exchangeRatesColumns } from "./config";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
 
-  const { mutate: deleteExchangeRate } = api.exchangeRate.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Exchange rate deleted.");
-      void refetch();
-    },
+  const table = useReactTable({
+    data: data,
+    columns: exchangeRatesColumns,
+    getCoreRowModel: getCoreRowModel(),
   });
-
-  const [editingRate, setEditingRate] = useState<ExchangeRate>();
-  const [isEditDialog, setEditDialog] = useState(false);
-
-  function handleEditClick(rate: ExchangeRate) {
-    setEditingRate(rate);
-    setEditDialog(true);
-  }
 
   const [isNewDialog, setNewDialog] = useState(false);
 
@@ -70,8 +41,6 @@ export default function ExchangeRatesPage() {
     void utils.netWorthDebt.getDetailById.invalidate();
     void utils.dashboard.getSummary.invalidate();
   }
-
-  const { confirm, modal } = useConfirmDelete();
 
   return (
     <>
@@ -101,83 +70,8 @@ export default function ExchangeRatesPage() {
       </header>
 
       <div className="mx-auto w-full max-w-screen-md p-5">
-        {isPending && <TableSkeleton />}
-        {!isPending && !data.length && (
-          <div className="rounded-xl bg-muted p-10 text-center text-muted-foreground">
-            You don&apos;t have any exchange rates yet
-          </div>
-        )}
-        {!isPending && !!data.length && (
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Base Currency</TableHead>
-                  <TableHead>Quote Currency</TableHead>
-                  <TableHead className="text-right">Rate</TableHead>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead className="w-0"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((rate) => (
-                  <TableRow key={rate.id}>
-                    <TableCell>{rate.baseCurrency}</TableCell>
-                    <TableCell>{rate.quoteCurrency}</TableCell>
-                    <TableCell className="text-right">
-                      <Number value={rate.rate} />
-                    </TableCell>
-                    <TableCell>
-                      {formatDate({ date: rate.timestamp })}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleEditClick(rate)}
-                          >
-                            <PencilIcon />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              confirm({
-                                itemType: "exchange rate",
-                                itemName: `${rate.baseCurrency} / ${rate.quoteCurrency}`,
-                                onConfirm: () =>
-                                  deleteExchangeRate({ id: rate.id }),
-                              })
-                            }
-                          >
-                            <Trash2Icon />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        )}
+        {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
-
-      <EditExchangeRateDialog
-        key={`edit-exchange-rate-dialog-${isEditDialog}`}
-        isOpen={isEditDialog}
-        exchangeRate={editingRate}
-        onOpenChange={setEditDialog}
-        onSuccess={handleRateCreatedOrEdited}
-      />
 
       <NewExchangeRateDialog
         key={`new-exchange-rate-dialog-${isNewDialog}`}
@@ -185,8 +79,6 @@ export default function ExchangeRatesPage() {
         onOpenChange={setNewDialog}
         onSuccess={handleRateCreatedOrEdited}
       />
-
-      {modal}
     </>
   );
 }
