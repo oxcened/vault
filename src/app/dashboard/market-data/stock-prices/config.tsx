@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
 import { createColumnHelper } from "@tanstack/react-table";
-import { RoundedCurrency } from "~/components/ui/number";
 import { api, RouterOutputs } from "~/trpc/react";
 import { formatDate } from "~/utils/date";
 import {
@@ -38,9 +37,6 @@ export const stockPricesColumns = [
   }),
   columnHelper.accessor("price", {
     header: "Price",
-    cell: ({ getValue }) => {
-      return <RoundedCurrency value={getValue()} />;
-    },
     meta: {
       cellClassName: "text-right",
       headerClassName: "text-right",
