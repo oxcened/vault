@@ -28,10 +28,10 @@ export const exchangeRatesColumns = [
     },
   }),
   columnHelper.accessor("baseCurrency", {
-    header: "Ticker",
+    header: "Base",
   }),
   columnHelper.accessor("quoteCurrency", {
-    header: "Exchange",
+    header: "Quote",
   }),
   columnHelper.accessor("rate", {
     header: "Rate",
