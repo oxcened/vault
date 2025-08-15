@@ -14,6 +14,7 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { cashFlowColumns } from "./config";
+import { DataTableColumns } from "~/components/ui/data-table-columns";
 
 export default function CashFlowHistoryPage() {
   const { data = [], isPending } = api.cashFlow.getAll.useQuery();
@@ -41,7 +42,9 @@ export default function CashFlowHistoryPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-      <div className="mx-auto w-full max-w-screen-md p-5">
+      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+        <DataTableColumns table={table} className="self-end" />
+
         {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
     </>
