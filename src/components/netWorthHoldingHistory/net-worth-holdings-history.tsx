@@ -107,7 +107,7 @@ export default function NetWorthHoldingsHistory({
           <TableSkeleton />
         ) : (
           <>
-            <div className="flex flex-col gap-2 md:flex-row md:items-center">
+            <div className="flex flex-col gap-2 md:flex-row">
               <div className="mr-auto">
                 <p className="text-sm text-muted-foreground">
                   {type === "asset" ? "Assets" : "Debts"}
