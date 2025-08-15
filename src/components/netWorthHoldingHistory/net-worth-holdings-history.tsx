@@ -68,8 +68,6 @@ export default function NetWorthHoldingsHistory({
     return !row.value.eq(DECIMAL_ZERO);
   });
 
-  const { sm } = useBreakpoint();
-
   const total = data.reduce(
     (prev, curr) => prev.plus(curr.value),
     DECIMAL_ZERO,
@@ -108,7 +106,7 @@ export default function NetWorthHoldingsHistory({
           <TableSkeleton />
         ) : (
           <>
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center">
               <div className="mr-auto">
                 <p className="text-sm text-muted-foreground">
                   {type === "asset" ? "Assets" : "Debts"}
@@ -146,19 +144,17 @@ export default function NetWorthHoldingsHistory({
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    size={sm ? "default" : "icon"}
                     className={cn(
                       "font-normal",
                       !date && "text-muted-foreground",
                     )}
                   >
-                    <span className="hidden sm:inline">
-                      {date ? (
-                        format(date, "MMMM yyyy")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </span>
+                    {date ? (
+                      format(date, "MMMM yyyy")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+
                     <CalendarIcon className="sm:opacity-50" />
                   </Button>
                 </PopoverTrigger>
