@@ -74,7 +74,7 @@ export default function NetWorthHoldingsHistory({
   );
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns: holdingHistoryColumns,
     getCoreRowModel: getCoreRowModel(),
   });
