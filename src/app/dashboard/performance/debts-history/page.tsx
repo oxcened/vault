@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import NetWorthHoldingsHistory from "~/components/net-worth-holdings-history";
+import NetWorthHoldingsHistory from "~/components/netWorthHoldingHistory/net-worth-holdings-history";
 import { api } from "~/trpc/react";
 
 export default function AssetsHistoryPage() {
