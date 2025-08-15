@@ -18,6 +18,7 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { DataTable } from "~/components/ui/data-table";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import { exchangeRatesColumns } from "./config";
+import { DataTableColumns } from "~/components/ui/data-table-columns";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
@@ -58,18 +59,17 @@ export default function ExchangeRatesPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
-        <Button
-          variant="outline"
-          className="ml-auto"
-          size="icon"
-          onClick={() => setNewDialog(true)}
-        >
-          <Plus />
-        </Button>
       </header>
 
-      <div className="mx-auto w-full max-w-screen-md p-5">
+      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+        <div className="flex justify-end gap-2">
+          <DataTableColumns table={table} />
+          <Button variant="default" onClick={() => setNewDialog(true)}>
+            <Plus />
+            Add
+          </Button>
+        </div>
+
         {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
 
