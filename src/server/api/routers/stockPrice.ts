@@ -5,16 +5,26 @@ import {
   updateStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
 import { appEmitter } from "~/server/eventBus";
+import * as yup from "yup";
 
 export const stockPriceRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.stockPriceHistory.findMany({
-      orderBy: { timestamp: "desc" },
-      include: {
-        ticker: true,
-      },
-    });
-  }),
+  getAll: protectedProcedure
+    .input(
+      yup.object({
+        tickerId: yup.string().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return ctx.db.stockPriceHistory.findMany({
+        where: {
+          tickerId: input.tickerId,
+        },
+        orderBy: { timestamp: "desc" },
+        include: {
+          ticker: true,
+        },
+      });
+    }),
 
   create: protectedProcedure
     .input(createStockPriceSchema)
