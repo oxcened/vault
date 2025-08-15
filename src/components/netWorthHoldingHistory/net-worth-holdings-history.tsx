@@ -69,7 +69,7 @@ export default function NetWorthHoldingsHistory({
     });
   }, [data]);
 
-  const total = data.reduce(
+  const total = filteredData.reduce(
     (prev, curr) => prev.plus(curr.value),
     DECIMAL_ZERO,
   );
