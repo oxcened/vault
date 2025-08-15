@@ -13,11 +13,17 @@ import {
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
 
-export function DataTableColumns<TData>({ table }: { table: Table<TData> }) {
+export function DataTableColumns<TData>({
+  table,
+  className,
+}: {
+  table: Table<TData>;
+  className?: string;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className={className}>
           <Settings2 />
           Columns
         </Button>

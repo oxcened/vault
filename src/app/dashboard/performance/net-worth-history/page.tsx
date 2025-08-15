@@ -14,6 +14,7 @@ import { api } from "~/trpc/react";
 import { netWorthColumns } from "./config";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { DataTable } from "~/components/ui/data-table";
+import { DataTableColumns } from "~/components/ui/data-table-columns";
 
 export default function NwHistoryPage() {
   const { data = [], isPending } = api.netWorth.getAll.useQuery();
@@ -41,7 +42,10 @@ export default function NwHistoryPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-      <div className="mx-auto w-full max-w-screen-md p-5">
+
+      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+        <DataTableColumns table={table} className="self-end" />
+
         {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
     </>
