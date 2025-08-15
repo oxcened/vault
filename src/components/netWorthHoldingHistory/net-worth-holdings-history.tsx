@@ -3,7 +3,7 @@
 import { Prisma } from "@prisma/client";
 import { format, lastDayOfMonth } from "date-fns";
 import { CalendarIcon, FilterIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import {
   Breadcrumb,
@@ -62,10 +62,12 @@ export default function NetWorthHoldingsHistory({
 }: NetWorthHoldingsHistoryProps) {
   const [hideZeroItems, setHideZeroItems] = useState(true);
 
-  const filteredData = data.filter((row) => {
-    if (!hideZeroItems) return true;
-    return !row.value.eq(DECIMAL_ZERO);
-  });
+  const filteredData = useMemo(() => {
+    return data.filter((row) => {
+      if (!hideZeroItems) return true;
+      return !row.value.eq(DECIMAL_ZERO);
+    });
+  }, [data]);
 
   const total = data.reduce(
     (prev, curr) => prev.plus(curr.value),
@@ -142,7 +144,6 @@ export default function NetWorthHoldingsHistory({
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant="outline"
                     className={cn(
                       "font-normal",
                       !date && "text-muted-foreground",
@@ -154,7 +155,7 @@ export default function NetWorthHoldingsHistory({
                       <span>Pick a date</span>
                     )}
 
-                    <CalendarIcon className="sm:opacity-50" />
+                    <CalendarIcon />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
