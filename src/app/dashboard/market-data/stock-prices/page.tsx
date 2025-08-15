@@ -18,6 +18,7 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import { stockPricesColumns } from "./config";
 import { DataTable } from "~/components/ui/data-table";
+import { DataTableColumns } from "~/components/ui/data-table-columns";
 
 export default function StockPricesPage() {
   const { data = [], refetch, isPending } = api.stockPrice.getAll.useQuery();
@@ -56,18 +57,17 @@ export default function StockPricesPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setNewDialogOpen(true)}
-          >
-            <Plus />
-          </Button>
-        </div>
       </header>
 
-      <div className="mx-auto w-full max-w-screen-md p-5">
+      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+        <div className="flex justify-end gap-2">
+          <DataTableColumns table={table} />
+          <Button variant="default" onClick={() => setNewDialogOpen(true)}>
+            <Plus />
+            Add
+          </Button>
+        </div>
+
         {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
 
