@@ -148,7 +148,7 @@ export const transactionColumns = [
             <DropdownMenuItem
               onClick={() => saveTemplate({ transactionId: row.original.id })}
             >
-              Save as template
+              Save to quick add
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
