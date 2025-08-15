@@ -110,9 +110,7 @@ export default function TransactionTemplateDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {initialData ? "New transaction" : "Create from a template"}
-          </DialogTitle>
+          <DialogTitle>Add transaction</DialogTitle>
         </DialogHeader>
 
         {!!data.length && (

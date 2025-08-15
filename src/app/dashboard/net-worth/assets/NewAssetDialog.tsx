@@ -105,7 +105,7 @@ export default function NewAssetDialog({
             className="flex flex-col gap-5"
           >
             <DialogHeader>
-              <DialogTitle>New asset</DialogTitle>
+              <DialogTitle>Add asset</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               <FormField

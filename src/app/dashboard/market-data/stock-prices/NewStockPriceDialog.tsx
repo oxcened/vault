@@ -34,7 +34,7 @@ export default function NewStockPriceDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New stock price</DialogTitle>
+          <DialogTitle>Add stock price</DialogTitle>
         </DialogHeader>
         <StockPriceDialogForm
           formId="new-stock-price-dialog-form"

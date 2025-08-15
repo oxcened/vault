@@ -89,7 +89,7 @@ export default function NewDebtDialog({
             className="flex flex-col gap-5"
           >
             <DialogHeader>
-              <DialogTitle>New debt</DialogTitle>
+              <DialogTitle>Add debt</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               <FormField

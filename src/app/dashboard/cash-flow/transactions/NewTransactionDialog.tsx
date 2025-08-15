@@ -45,7 +45,7 @@ export default function NewTransactionDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New transaction</DialogTitle>
+          <DialogTitle>Add transaction</DialogTitle>
         </DialogHeader>
         <TransactionForm
           ref={formRef}

@@ -34,7 +34,7 @@ export default function NewExchangeRateDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New exchange rate</DialogTitle>
+          <DialogTitle>Add exchange rate</DialogTitle>
         </DialogHeader>
         <ExchangeRateDialogForm
           formId="new-exchange-rate-dialog-form"

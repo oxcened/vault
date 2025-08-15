@@ -45,7 +45,7 @@ export default function NewQuantityDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New quantity</DialogTitle>
+          <DialogTitle>Add quantity</DialogTitle>
         </DialogHeader>
         <QuantityForm
           ref={formRef}
