@@ -37,6 +37,7 @@ import { DECIMAL_ZERO } from "~/utils/number";
 import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
 import { holdingHistoryColumns } from "./config";
 import { DataTable } from "../ui/data-table";
+import { DataTableColumns } from "../ui/data-table-columns";
 
 export type NetWorthHoldingsHistoryRow = {
   id: string;
@@ -117,6 +118,8 @@ export default function NetWorthHoldingsHistory({
                   className="text-3xl font-semibold"
                 />
               </div>
+
+              <DataTableColumns table={table} />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
