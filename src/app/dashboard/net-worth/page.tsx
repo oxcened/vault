@@ -29,6 +29,7 @@ import {
   Bar,
   ComposedChart,
   YAxis,
+  Legend,
 } from "recharts";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { TableSkeleton } from "~/components/table-skeleton";
@@ -191,6 +192,7 @@ export default function NetWorthPage() {
                     fill="var(--color-totalAssets)"
                     barSize={30}
                     radius={4}
+                    name="Assets"
                   />
 
                   <Bar
@@ -198,6 +200,7 @@ export default function NetWorthPage() {
                     fill="var(--color-totalDebts)"
                     barSize={30}
                     radius={4}
+                    name="Debts"
                   />
 
                   <Line
@@ -206,7 +209,10 @@ export default function NetWorthPage() {
                     stroke="var(--color-netWorth)"
                     strokeWidth={3}
                     dot={false}
+                    name="Net worth"
                   />
+
+                  <Legend />
                 </ComposedChart>
               </ChartContainer>
             </CardContent>

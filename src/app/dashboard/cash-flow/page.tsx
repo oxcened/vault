@@ -33,6 +33,7 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
+  Legend,
   Line,
   XAxis,
   YAxis,
@@ -199,6 +200,7 @@ export default function CashFlowPage() {
                     fill="var(--color-income)"
                     barSize={30}
                     radius={4}
+                    name="Income"
                   />
 
                   <Bar
@@ -206,6 +208,7 @@ export default function CashFlowPage() {
                     fill="var(--color-expenses)"
                     barSize={30}
                     radius={4}
+                    name="Expenses"
                   />
 
                   <Line
@@ -214,7 +217,10 @@ export default function CashFlowPage() {
                     stroke="var(--color-cashFlow)"
                     strokeWidth={3}
                     dot={false}
+                    name="Cash flow"
                   />
+
+                  <Legend />
                 </ComposedChart>
               </ChartContainer>
             </CardContent>
