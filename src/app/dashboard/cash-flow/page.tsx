@@ -20,7 +20,7 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { Currency, RoundedCurrency } from "~/components/ui/number";
+import { Currency, Percentage, RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import {
   type ChartConfig,
@@ -41,7 +41,7 @@ import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
 import { APP_CURRENCY } from "~/constants";
-import { formatNumber } from "~/utils/number";
+import { DECIMAL_ZERO, formatNumber } from "~/utils/number";
 import {
   Card,
   CardContent,
@@ -93,6 +93,8 @@ export default function CashFlowPage() {
     };
   });
 
+  const latestIncome = data?.latestCashFlow?.income;
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -131,7 +133,7 @@ export default function CashFlowPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Income</p>
                 <p className="text-sm font-medium">
-                  <RoundedCurrency value={data?.latestCashFlow?.income} />
+                  <RoundedCurrency value={latestIncome} />
                 </p>
               </div>
 
@@ -141,6 +143,17 @@ export default function CashFlowPage() {
                   <RoundedCurrency value={data?.latestCashFlow?.expenses} />
                 </p>
               </div>
+
+              {latestIncome && !latestIncome.eq(DECIMAL_ZERO) && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Saving rate</p>
+                  <p className="text-sm font-medium">
+                    <Percentage
+                      value={data?.latestCashFlow?.netFlow.div(latestIncome)}
+                    />
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
