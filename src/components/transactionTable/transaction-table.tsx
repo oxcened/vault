@@ -41,6 +41,9 @@ export function TransactionTable() {
     onPaginationChange: setPagination,
     manualPagination: true,
     pageCount: data?.totalPages ?? 1,
+    meta: {
+      id: "transactions",
+    },
   });
 
   const utils = api.useUtils();

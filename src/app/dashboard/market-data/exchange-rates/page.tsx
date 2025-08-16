@@ -27,6 +27,9 @@ export default function ExchangeRatesPage() {
     data,
     columns: exchangeRatesColumns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      id: "exchangeRates",
+    },
   });
 
   const [isNewDialog, setNewDialog] = useState(false);

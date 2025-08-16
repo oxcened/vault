@@ -1,8 +1,9 @@
 "use client";
 
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { Table } from "@tanstack/react-table";
+import { Column, Table } from "@tanstack/react-table";
 import { Settings2 } from "lucide-react";
+import { useEffect } from "react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -20,6 +21,46 @@ export function DataTableColumns<TData>({
   table: Table<TData>;
   className?: string;
 }) {
+  const tableMeta = table.options.meta;
+  const tableId = tableMeta && "id" in tableMeta ? tableMeta.id : undefined;
+  const storageKey = tableId ? `vaultHiddenColumns_${tableId}` : undefined;
+
+  useEffect(() => {
+    if (!storageKey) return;
+    const saved = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
+    saved.forEach((id: string) => {
+      const col = table.getColumn(id);
+      col?.toggleVisibility(false);
+    });
+  }, []);
+
+  const handleCheckedChange = ({
+    value,
+    column,
+  }: {
+    value: boolean;
+    column: Column<TData>;
+  }) => {
+    column.toggleVisibility(!!value);
+
+    if (!storageKey) return;
+
+    const current = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
+    let next: string[];
+
+    if (!value) {
+      next = Array.from(new Set([...current, column.id]));
+    } else {
+      next = current.filter((id: string) => id !== column.id);
+    }
+
+    if (next.length) {
+      localStorage.setItem(storageKey, JSON.stringify(next));
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -40,7 +81,9 @@ export function DataTableColumns<TData>({
                 key={column.id}
                 className="capitalize"
                 checked={column.getIsVisible()}
-                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                onCheckedChange={(value) =>
+                  handleCheckedChange({ value, column })
+                }
               >
                 {typeof column.columnDef.header == "string"
                   ? column.columnDef.header

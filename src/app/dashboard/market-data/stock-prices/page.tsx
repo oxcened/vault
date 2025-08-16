@@ -47,6 +47,9 @@ export default function StockPricesPage() {
     data,
     columns: stockPricesColumns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      id: "stockPrices",
+    },
   });
 
   const utils = api.useUtils();

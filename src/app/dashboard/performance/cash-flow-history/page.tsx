@@ -23,6 +23,9 @@ export default function CashFlowHistoryPage() {
     data,
     columns: cashFlowColumns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      id: "cashFlowHistory",
+    },
   });
 
   return (

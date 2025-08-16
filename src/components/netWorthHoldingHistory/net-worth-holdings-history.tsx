@@ -78,6 +78,9 @@ export default function NetWorthHoldingsHistory({
     data: filteredData,
     columns: holdingHistoryColumns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      id: `netWorthHoldingHistory${type === "asset" ? "Assets" : "Debts"}`,
+    },
   });
 
   return (

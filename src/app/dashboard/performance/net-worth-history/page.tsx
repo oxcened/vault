@@ -23,6 +23,9 @@ export default function NwHistoryPage() {
     data,
     columns: netWorthColumns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      id: "netWorthHistory",
+    },
   });
 
   return (
