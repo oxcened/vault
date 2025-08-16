@@ -267,26 +267,6 @@ export default function CashFlowPage() {
                     </TableRow>
                   ))}
                 </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TableCell>Total income</TableCell>
-                    <TableCell className="text-right">
-                      <Currency value={data?.latestCashFlow?.income} />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Total expenses</TableCell>
-                    <TableCell className="text-right">
-                      <Currency value={data?.latestCashFlow?.expenses} />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Cash flow</TableCell>
-                    <TableCell className="text-right">
-                      <Currency value={data?.latestCashFlow?.netFlow} />
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
               </Table>
             </CardContent>
           </Card>
