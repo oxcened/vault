@@ -22,12 +22,17 @@ export function DataTableColumns<TData>({
   className?: string;
 }) {
   const tableMeta = table.options.meta;
-  const tableId = tableMeta && "id" in tableMeta ? tableMeta.id : undefined;
+  const tableId =
+    tableMeta && "id" in tableMeta && typeof tableMeta.id === "string"
+      ? tableMeta.id
+      : undefined;
   const storageKey = tableId ? `vaultHiddenColumns_${tableId}` : undefined;
 
   useEffect(() => {
     if (!storageKey) return;
-    const saved = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
+    const saved = JSON.parse(
+      localStorage.getItem(storageKey) ?? "[]",
+    ) as string[];
     saved.forEach((id: string) => {
       const col = table.getColumn(id);
       col?.toggleVisibility(false);
@@ -45,7 +50,9 @@ export function DataTableColumns<TData>({
 
     if (!storageKey) return;
 
-    const current = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
+    const current = JSON.parse(
+      localStorage.getItem(storageKey) ?? "[]",
+    ) as string[];
     let next: string[];
 
     if (!value) {
