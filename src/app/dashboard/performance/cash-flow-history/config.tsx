@@ -2,9 +2,10 @@
 
 import { CashFlow } from "@prisma/client";
 import { createColumnHelper } from "@tanstack/react-table";
-import { RoundedCurrency } from "~/components/ui/number";
+import { Percentage, RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
+import { DECIMAL_ZERO } from "~/utils/number";
 
 const columnHelper = createColumnHelper<CashFlow>();
 
@@ -29,6 +30,21 @@ export const cashFlowColumns = [
     header: "Expenses",
     cell: ({ getValue }) => {
       return <RoundedCurrency value={getValue()} />;
+    },
+    meta: {
+      cellClassName: "text-right",
+      headerClassName: "text-right",
+    },
+  }),
+  columnHelper.display({
+    header: "Saving rate",
+    cell: ({ row }) => {
+      const { netFlow, income } = row.original;
+      return income.eq(DECIMAL_ZERO) ? (
+        "–"
+      ) : (
+        <Percentage value={netFlow.div(income)} />
+      );
     },
     meta: {
       cellClassName: "text-right",
