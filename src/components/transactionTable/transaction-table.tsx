@@ -5,19 +5,29 @@ import { AddTransactionDropdown } from "../add-transaction-dropdown";
 import { DataTablePagination } from "../ui/data-table-pagination";
 import { transactionColumns } from "./config";
 import { api } from "~/trpc/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TableSkeleton } from "../table-skeleton";
 import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
+import { Button } from "../ui/button";
+import { XIcon } from "lucide-react";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
-  const [query, setQuery] = useState("");
-  const handleSearch = useDebouncedCallback((value: string) => {
-    setQuery(value);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const search = useDebouncedCallback((value: string) => {
+    setDebouncedQuery(value);
     setPagination((state) => ({ ...state, pageIndex: 0 }));
   }, 1000);
+
+  const handleClear = () => {
+    if (inputRef.current) inputRef.current.value = "";
+    setDebouncedQuery("");
+    setPagination((state) => ({ ...state, pageIndex: 0 }));
+  };
 
   const { data, isPending } = api.transaction.getAll.useQuery(
     {
@@ -26,7 +36,7 @@ export function TransactionTable() {
       sortOrder: "desc",
       sortField: "timestamp",
       includeTotal: true,
-      query,
+      query: debouncedQuery,
     },
     {
       placeholderData: keepPreviousData,
@@ -58,11 +68,26 @@ export function TransactionTable() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-2 md:flex-row">
-        <Input
-          placeholder="Search transactions..."
-          className="flex-1"
-          onChange={(e) => handleSearch(e.target.value)}
-        />
+        <div className="relative flex-1">
+          <Input
+            ref={inputRef}
+            placeholder="Search transactions..."
+            onChange={(e) => search(e.target.value)}
+          />
+
+          {debouncedQuery && (
+            <Button
+              type="button"
+              className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+              size="icon"
+              variant="ghost"
+              onClick={handleClear}
+            >
+              <XIcon />
+              <span className="sr-only">Clear search</span>
+            </Button>
+          )}
+        </div>
         <DataTableColumns table={table} />
         <AddTransactionDropdown onSuccess={handleCreated} />
       </div>
