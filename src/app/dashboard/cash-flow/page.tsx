@@ -29,7 +29,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
-import { Bar, CartesianGrid, ComposedChart, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { TrendIndicator } from "~/components/ui/trend-indicator";
@@ -48,6 +55,14 @@ const cashFlowByMonthConfig = {
     label: "Cash flow",
     color: "hsl(var(--chart-1))",
   },
+  income: {
+    label: "Income",
+    color: "hsl(var(--chart-2))",
+  },
+  expenses: {
+    label: "Expenses",
+    color: "hsl(var(--chart-3))",
+  },
 } satisfies ChartConfig;
 
 export default function CashFlowPage() {
@@ -63,9 +78,8 @@ export default function CashFlowPage() {
         },
       }),
       cashFlow: item?.netFlow.toNumber(),
-      fill: item?.netFlow.gte(0)
-        ? "rgb(var(--financial-positive))"
-        : "rgb(var(--financial-negative))",
+      income: item?.income.toNumber(),
+      expenses: item?.expenses.toNumber(),
     };
   });
 
@@ -159,7 +173,6 @@ export default function CashFlowPage() {
                   />
 
                   <YAxis
-                    dataKey="cashFlow"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
@@ -181,7 +194,27 @@ export default function CashFlowPage() {
                     content={<ChartTooltipContent />}
                   />
 
-                  <Bar dataKey="cashFlow" barSize={30} radius={4} />
+                  <Bar
+                    dataKey="income"
+                    fill="var(--color-income)"
+                    barSize={30}
+                    radius={4}
+                  />
+
+                  <Bar
+                    dataKey="expenses"
+                    fill="var(--color-expenses)"
+                    barSize={30}
+                    radius={4}
+                  />
+
+                  <Line
+                    dataKey="cashFlow"
+                    type="monotone"
+                    stroke="var(--color-cashFlow)"
+                    strokeWidth={3}
+                    dot={false}
+                  />
                 </ComposedChart>
               </ChartContainer>
             </CardContent>
