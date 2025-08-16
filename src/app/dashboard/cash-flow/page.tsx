@@ -53,15 +53,15 @@ import {
 const cashFlowByMonthConfig = {
   cashFlow: {
     label: "Cash flow",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-3)",
   },
   income: {
     label: "Income",
-    color: "hsl(var(--chart-2))",
+    color: "var(--chart-1)",
   },
   expenses: {
     label: "Expenses",
-    color: "hsl(var(--chart-3))",
+    color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 

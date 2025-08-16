@@ -56,15 +56,15 @@ import {
 const netWorthChartConfig = {
   netWorth: {
     label: "Net worth",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-3)",
   },
   totalAssets: {
     label: "Assets",
-    color: "hsl(var(--chart-2))",
+    color: "var(--chart-1)",
   },
   totalDebts: {
     label: "Debts",
-    color: "hsl(var(--chart-3))",
+    color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
