@@ -19,7 +19,7 @@ export function DataSourceBadge({
         <TooltipTrigger>
           <Badge variant={isCarried ? "secondary" : "default"}>{label}</Badge>
         </TooltipTrigger>
-        <TooltipContent>{isCarried ? "Carried" : "Changed"}</TooltipContent>
+        <TooltipContent>{isCarried ? "Unchanged" : "Changed"}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
