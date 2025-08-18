@@ -181,14 +181,14 @@ export const holdingDetailColumn = [
         tableMeta &&
         "onQuantityEdit" in tableMeta &&
         typeof tableMeta.onQuantityEdit === "function"
-          ? tableMeta.onQuantityEdit
+          ? (tableMeta.onQuantityEdit as (args: { id: string }) => void)
           : undefined;
 
       const onQuantityDelete =
         tableMeta &&
         "onQuantityDelete" in tableMeta &&
         typeof tableMeta.onQuantityDelete === "function"
-          ? tableMeta.onQuantityDelete
+          ? (tableMeta.onQuantityDelete as (args: { timestamp: Date }) => void)
           : undefined;
 
       return (
@@ -207,7 +207,7 @@ export const holdingDetailColumn = [
                 <DropdownMenuItem
                   onClick={() =>
                     onQuantityEdit?.({
-                      id: quantityId!,
+                      id: quantityId,
                     })
                   }
                 >
