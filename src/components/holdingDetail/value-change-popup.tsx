@@ -6,10 +6,9 @@ import {
 import { Button } from "../ui/button";
 import { HelpCircleIcon } from "lucide-react";
 import { Currency, Number } from "../ui/number";
-import { ValueHistoryRow } from "./holding-detail";
+import { type ValueHistoryRow } from "./holding-detail";
 import { Separator } from "../ui/separator";
 import Decimal from "decimal.js";
-import { DECIMAL_ZERO } from "~/utils/number";
 import { cn } from "~/lib/utils";
 
 export function ValueChangePopup({

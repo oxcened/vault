@@ -2,7 +2,7 @@
 
 import { createColumnHelper } from "@tanstack/react-table";
 import { RoundedCurrency } from "~/components/ui/number";
-import { NetWorthHoldingsHistoryRow } from "./net-worth-holdings-history";
+import { type NetWorthHoldingsHistoryRow } from "./net-worth-holdings-history";
 import { Badge } from "../ui/badge";
 
 const columnHelper = createColumnHelper<NetWorthHoldingsHistoryRow>();

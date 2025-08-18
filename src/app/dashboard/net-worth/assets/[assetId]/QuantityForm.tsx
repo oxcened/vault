@@ -24,7 +24,7 @@ import { cn } from "~/lib/utils";
 import { forwardRef, useImperativeHandle } from "react";
 import { safeEvaluate } from "~/utils/number";
 import {
-  CreateQuantity,
+  type CreateQuantity,
   createQuantitySchema,
 } from "~/trpc/schemas/netWorthAsset";
 import { useParams } from "next/navigation";

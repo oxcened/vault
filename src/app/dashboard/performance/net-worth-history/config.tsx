@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
-import { NetWorth } from "@prisma/client";
+import { type NetWorth } from "@prisma/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import { RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";

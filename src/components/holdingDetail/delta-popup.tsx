@@ -6,7 +6,7 @@ import {
 import { Button } from "../ui/button";
 import { HelpCircleIcon } from "lucide-react";
 import { Number } from "../ui/number";
-import { ValueHistoryRow } from "./holding-detail";
+import { type ValueHistoryRow } from "./holding-detail";
 import Decimal from "decimal.js";
 import { DECIMAL_ZERO } from "~/utils/number";
 
@@ -34,7 +34,7 @@ export function DeltaPopup({
           <div className="grid grid-cols-2">
             <div>Quantity</div>
             <div className="text-right">
-              {(!previousRow || !previousRow.quantity.eq(row.quantity)) && (
+              {(!previousRow?.quantity.eq(row.quantity)) && (
                 <>
                   {" "}
                   <Number value={previousRow?.quantity ?? DECIMAL_ZERO} />{" "}

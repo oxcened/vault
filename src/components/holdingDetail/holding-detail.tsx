@@ -19,7 +19,7 @@ import {
 import { TableSkeleton } from "~/components/table-skeleton";
 import { Currency, RoundedCurrency } from "~/components/ui/number";
 import { formatDate } from "~/utils/date";
-import Decimal from "decimal.js";
+import type Decimal from "decimal.js";
 import {
   DropdownMenu,
   DropdownMenuContent,

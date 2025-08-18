@@ -6,7 +6,7 @@ import {
 import { Button } from "../ui/button";
 import { HelpCircleIcon } from "lucide-react";
 import { Currency, Number } from "../ui/number";
-import { ValueHistoryRow } from "./holding-detail";
+import { type ValueHistoryRow } from "./holding-detail";
 import { Separator } from "../ui/separator";
 
 export function ValuePopup({ row }: { row: ValueHistoryRow }) {

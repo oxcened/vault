@@ -1,4 +1,4 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
+import { type Prisma, type PrismaClient } from "@prisma/client";
 import { APP_CURRENCY } from "~/constants";
 
 export async function recomputeDerivedDataForDependency({

@@ -1,6 +1,6 @@
 import { DataTable } from "../ui/data-table";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { baseTransactionColumns, TransactionRow } from "./config";
+import { baseTransactionColumns, type TransactionRow } from "./config";
 import { TableSkeleton } from "../table-skeleton";
 import { cn } from "~/lib/utils";
 import { ArrowRight } from "lucide-react";

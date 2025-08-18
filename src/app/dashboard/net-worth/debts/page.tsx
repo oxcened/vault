@@ -4,7 +4,7 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import NewDebtDialog from "./NewDebtDialog";
 import { toast } from "sonner";
-import NetWorthHoldings, { Holding } from "~/components/net-worth-holdings";
+import NetWorthHoldings, { type Holding } from "~/components/net-worth-holdings";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { useRouter } from "next/navigation";
 

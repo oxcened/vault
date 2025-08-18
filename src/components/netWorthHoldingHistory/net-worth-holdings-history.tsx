@@ -1,6 +1,6 @@
 "use client";
 
-import { Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { format, lastDayOfMonth } from "date-fns";
 import { CalendarIcon, FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";

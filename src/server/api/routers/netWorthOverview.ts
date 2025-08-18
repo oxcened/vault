@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { getAssetValuesForUserMonth } from "~/server/utils/db";
 import { getPercentageDiff } from "~/server/utils/financial";

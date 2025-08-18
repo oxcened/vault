@@ -2,8 +2,8 @@ import {
   createContext,
   useContext,
   useState,
-  HTMLAttributes,
-  ReactNode,
+  type HTMLAttributes,
+  type ReactNode,
   Children,
   isValidElement,
 } from "react";

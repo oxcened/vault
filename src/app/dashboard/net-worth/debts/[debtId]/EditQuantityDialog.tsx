@@ -12,8 +12,8 @@ import {
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import QuantityForm from "./QuantityForm";
-import { CreateQuantity } from "~/trpc/schemas/netWorthDebt";
-import Decimal from "decimal.js";
+import { type CreateQuantity } from "~/trpc/schemas/netWorthDebt";
+import type Decimal from "decimal.js";
 
 export type EditQuantityDialogProps = {
   quantity?: {

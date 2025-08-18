@@ -14,7 +14,7 @@ import { api } from "~/trpc/react";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { toast } from "sonner";
-import QuantityForm, { QuantityFormRef } from "./QuantityForm";
+import QuantityForm, { type QuantityFormRef } from "./QuantityForm";
 
 export type NewQuantityDialogProps = {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
 import { createColumnHelper } from "@tanstack/react-table";
-import { api, RouterOutputs } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import { formatDate } from "~/utils/date";
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import { MoreHorizontalIcon } from "lucide-react";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { toast } from "sonner";
 import { useState } from "react";
-import { StockPriceHistory } from "@prisma/client";
+import { type StockPriceHistory } from "@prisma/client";
 import EditStockPriceDialog from "./EditStockPriceDialog";
 import { Number } from "~/components/ui/number";
 

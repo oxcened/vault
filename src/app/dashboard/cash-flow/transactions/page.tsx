@@ -11,8 +11,8 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { TransactionTable } from "~/components/transactionTable/transaction-table";
-import Decimal from "decimal.js";
-import { TransactionType } from "@prisma/client";
+import type Decimal from "decimal.js";
+import { type TransactionType } from "@prisma/client";
 
 export type Transaction = {
   id: string;
