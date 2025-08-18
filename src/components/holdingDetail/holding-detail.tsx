@@ -36,6 +36,7 @@ import { cn } from "~/lib/utils";
 import { DataSourceBadge } from "./data-source-badge";
 import { DeltaPopup } from "./delta-popup";
 import { ValuePopup } from "./value-popup";
+import { ValueChangePopup } from "./value-change-popup";
 
 export type ValueHistoryRow = {
   timestamp: Date;
@@ -254,6 +255,8 @@ export function ValueHistoryTable({
                         isCarried={row.fxRateIsCarried}
                       />
                     )}
+
+                    <DeltaPopup row={row} previousRow={previousRow} />
                   </div>
                 </TableCell>
 
@@ -266,9 +269,12 @@ export function ValueHistoryTable({
                           previousDelta.isPos() && "text-financial-positive",
                           previousDelta.isNeg() && "text-financial-negative",
                         )}
+                        options={{
+                          signDisplay: "exceptZero",
+                        }}
                       />
 
-                      <DeltaPopup row={row} previousRow={previousRow} />
+                      <ValueChangePopup row={row} previousRow={previousRow} />
                     </div>
                   ) : (
                     "–"

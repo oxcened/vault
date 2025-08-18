@@ -8,13 +8,14 @@ import { HelpCircleIcon } from "lucide-react";
 import { Number } from "../ui/number";
 import { ValueHistoryRow } from "./holding-detail";
 import Decimal from "decimal.js";
+import { DECIMAL_ZERO } from "~/utils/number";
 
 export function DeltaPopup({
   row,
   previousRow,
 }: {
   row: ValueHistoryRow;
-  previousRow: ValueHistoryRow;
+  previousRow?: ValueHistoryRow;
 }) {
   return (
     <Popover>
@@ -31,35 +32,49 @@ export function DeltaPopup({
       <PopoverContent>
         <div className="text-sm">
           <div className="grid grid-cols-2">
-            {!previousRow.quantity.eq(row.quantity) && (
-              <>
-                <div>Quantity</div>
-                <div className="text-right">
-                  <Number value={previousRow.quantity} /> →{" "}
-                  <Number value={row.quantity} className="font-medium" />
-                </div>
-              </>
-            )}
+            <div>Quantity</div>
+            <div className="text-right">
+              {(!previousRow || !previousRow.quantity.eq(row.quantity)) && (
+                <>
+                  {" "}
+                  <Number value={previousRow?.quantity ?? DECIMAL_ZERO} />{" "}
+                  →{" "}
+                </>
+              )}
+              <Number value={row.quantity} className="font-medium" />
+            </div>
 
-            {!(previousRow.stockPrice ?? new Decimal(0)).eq(
-              row.stockPrice ?? new Decimal(0),
-            ) && (
+            {row.stockPrice && (
               <>
                 <div>Stock price</div>
                 <div className="text-right">
-                  <Number value={previousRow.stockPrice} /> →{" "}
+                  {(!previousRow ||
+                    !(previousRow.stockPrice ?? DECIMAL_ZERO).eq(
+                      row.stockPrice ?? DECIMAL_ZERO,
+                    )) && (
+                    <>
+                      <Number value={previousRow?.stockPrice ?? DECIMAL_ZERO} />{" "}
+                      →{" "}
+                    </>
+                  )}
                   <Number value={row.stockPrice} className="font-medium" />
                 </div>
               </>
             )}
 
-            {!(previousRow.fxRate ?? new Decimal(1)).eq(
-              row.fxRate ?? new Decimal(1),
-            ) && (
+            {row.fxRate && (
               <>
                 <div>FX Rate</div>
                 <div className="text-right">
-                  <Number value={previousRow.fxRate} /> →{" "}
+                  {(!previousRow ||
+                    !(previousRow.fxRate ?? new Decimal(1)).eq(
+                      row.fxRate ?? new Decimal(1),
+                    )) && (
+                    <>
+                      <Number value={previousRow?.fxRate ?? new Decimal(1)} />{" "}
+                      →{" "}
+                    </>
+                  )}
                   <Number value={row.fxRate} className="font-medium" />
                 </div>
               </>
