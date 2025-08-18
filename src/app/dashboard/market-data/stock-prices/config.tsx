@@ -88,6 +88,7 @@ export const stockPricesColumns = [
 
             <DropdownMenuItem onClick={handleEditClick}>Edit</DropdownMenuItem>
             <DropdownMenuItem
+              className="text-red-500"
               onClick={() =>
                 confirm({
                   itemType: "stock price",

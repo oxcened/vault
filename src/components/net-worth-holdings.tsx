@@ -229,20 +229,19 @@ export default function NetWorthHoldings<T extends Holding>({
                               <DropdownMenuItem
                                 onClick={() => onEditHolding(row)}
                               >
-                                <EyeIcon />
                                 Details
                               </DropdownMenuItem>
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 disabled={!row.quantity?.eq(0)}
                                 onClick={() => onArchiveHolding(row)}
                               >
-                                <ArchiveIcon />
                                 Archive
                               </DropdownMenuItem>
                               <DropdownMenuItem
+                                className="text-red-500"
                                 onClick={() => onDeleteHolding(row)}
                               >
-                                <Trash2Icon />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>

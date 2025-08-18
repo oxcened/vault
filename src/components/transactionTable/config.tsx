@@ -153,6 +153,7 @@ export const transactionColumns = [
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
             <DropdownMenuItem
+              className="text-red-500"
               onClick={() =>
                 confirm({
                   itemType: "transaction",

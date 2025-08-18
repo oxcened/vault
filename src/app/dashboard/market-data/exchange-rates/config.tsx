@@ -91,6 +91,7 @@ export const exchangeRatesColumns = [
 
             <DropdownMenuItem onClick={handleEditClick}>Edit</DropdownMenuItem>
             <DropdownMenuItem
+              className="text-red-500"
               onClick={() =>
                 confirm({
                   itemType: "exchange rate",
