@@ -27,7 +27,13 @@ export function TrendIndicator({ value }: TrendIndicatorProps) {
         <TrendingDown className="size-4" />
       )}
       <p>
-        <Percentage value={value} /> this month
+        <Percentage
+          value={value}
+          options={{
+            signDisplay: "always",
+          }}
+        />{" "}
+        this month
       </p>
     </Badge>
   );
