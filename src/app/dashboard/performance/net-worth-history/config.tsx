@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
 import { type NetWorth } from "@prisma/client";
-import { createColumnHelper } from "@tanstack/react-table";
-import { RoundedCurrency } from "~/components/ui/number";
+import { createColumnHelper, Row } from "@tanstack/react-table";
+import { Number, RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
 
@@ -29,6 +29,42 @@ export const netWorthColumns = [
     header: "Debts",
     cell: ({ getValue }) => {
       return <RoundedCurrency value={getValue()} />;
+    },
+    meta: {
+      cellClassName: "text-right",
+      headerClassName: "text-right",
+    },
+  }),
+  columnHelper.display({
+    header: "Change",
+    cell: ({ table, row }) => {
+      let prevRow: Row<NetWorth> | undefined;
+
+      try {
+        prevRow = table.getRow((row.index + 1).toString());
+      } catch (e) {
+        prevRow = undefined;
+      }
+
+      const change = prevRow
+        ? row.original.netValue.minus(prevRow.original.netValue)
+        : undefined;
+
+      return prevRow && !prevRow.original.netValue.eq(0) && change ? (
+        <Number
+          value={change}
+          options={{
+            maximumFractionDigits: 0,
+            signDisplay: "always",
+          }}
+          className={cn(
+            change.isPos() && "text-financial-positive",
+            change.isNeg() && "text-financial-negative",
+          )}
+        />
+      ) : (
+        "–"
+      );
     },
     meta: {
       cellClassName: "text-right",
