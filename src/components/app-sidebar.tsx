@@ -3,10 +3,7 @@
 import * as React from "react";
 import {
   ArrowLeftRight,
-  AudioWaveform,
-  Command,
   Frame,
-  GalleryVerticalEnd,
   Globe,
   LayoutDashboard,
   LineChart,

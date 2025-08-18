@@ -10,7 +10,6 @@ import {
 } from "~/components/ui/dialog";
 import { api } from "~/trpc/react";
 import TransactionForm, { type TransactionFormRef } from "./TransactionForm";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
