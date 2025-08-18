@@ -72,6 +72,13 @@ export function HoldingDetail({
       onQuantityEdit,
       onQuantityDelete,
     },
+    initialState: {
+      columnVisibility: {
+        quantity: false,
+        stockPrice: false,
+        fxRate: false,
+      },
+    },
   });
 
   return (

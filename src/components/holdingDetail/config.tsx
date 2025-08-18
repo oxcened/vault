@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
 import { createColumnHelper, Row } from "@tanstack/react-table";
-import { Currency } from "~/components/ui/number";
+import { Currency, Number } from "~/components/ui/number";
 import { ValueHistoryRow } from "./holding-detail";
 import { formatDate } from "~/utils/date";
 import { DataSourceBadge } from "./data-source-badge";
@@ -104,6 +104,50 @@ export const holdingDetailColumn = [
           )}
         </>
       );
+    },
+    meta: {
+      cellClassName: "text-right",
+      headerClassName: "text-right",
+    },
+  }),
+  columnHelper.accessor("quantity", {
+    header: "Quantity",
+    cell: ({ getValue }) => {
+      return (
+        <Number
+          value={getValue()}
+          options={{
+            maximumFractionDigits: 2,
+          }}
+        />
+      );
+    },
+    meta: {
+      cellClassName: "text-right",
+      headerClassName: "text-right",
+    },
+  }),
+  columnHelper.accessor("stockPrice", {
+    header: "Stock",
+    cell: ({ getValue }) => {
+      return (
+        <Number
+          value={getValue()}
+          options={{
+            maximumFractionDigits: 2,
+          }}
+        />
+      );
+    },
+    meta: {
+      cellClassName: "text-right",
+      headerClassName: "text-right",
+    },
+  }),
+  columnHelper.accessor("fxRate", {
+    header: "FX",
+    cell: ({ getValue }) => {
+      return <Number value={getValue()} />;
     },
     meta: {
       cellClassName: "text-right",
