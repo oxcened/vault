@@ -2,7 +2,7 @@
 
 import { type NetWorth } from "@prisma/client";
 import { createColumnHelper, Row } from "@tanstack/react-table";
-import { Number, RoundedCurrency } from "~/components/ui/number";
+import { RoundedCurrency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
 
@@ -51,10 +51,9 @@ export const netWorthColumns = [
         : undefined;
 
       return prevRow && !prevRow.original.netValue.eq(0) && change ? (
-        <Number
+        <RoundedCurrency
           value={change}
           options={{
-            maximumFractionDigits: 0,
             signDisplay: "always",
           }}
           className={cn(
