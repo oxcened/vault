@@ -8,7 +8,6 @@ import { HelpCircleIcon } from "lucide-react";
 import { Number } from "../ui/number";
 import { type ValueHistoryRow } from "./holding-detail";
 import Decimal from "decimal.js";
-import { DECIMAL_ZERO } from "~/utils/number";
 
 export function DeltaPopup({
   row,
@@ -33,55 +32,65 @@ export function DeltaPopup({
         <div className="text-sm">
           <div className="grid grid-cols-2">
             <div>Quantity</div>
-            <div className="text-right">
-              {(!previousRow?.quantity.eq(row.quantity)) && (
-                <>
-                  {" "}
-                  <Number value={previousRow?.quantity ?? DECIMAL_ZERO} />{" "}
-                  →{" "}
-                </>
-              )}
-              <Number value={row.quantity} className="font-medium" />
-            </div>
+
+            <DeltaValue
+              value={row.quantity}
+              previousValue={previousRow?.quantity}
+            />
 
             {row.stockPrice && (
               <>
                 <div>Stock price</div>
-                <div className="text-right">
-                  {(!previousRow ||
-                    !(previousRow.stockPrice ?? DECIMAL_ZERO).eq(
-                      row.stockPrice ?? DECIMAL_ZERO,
-                    )) && (
-                    <>
-                      <Number value={previousRow?.stockPrice ?? DECIMAL_ZERO} />{" "}
-                      →{" "}
-                    </>
-                  )}
-                  <Number value={row.stockPrice} className="font-medium" />
-                </div>
+
+                <DeltaValue
+                  value={row.stockPrice}
+                  previousValue={previousRow?.stockPrice}
+                />
               </>
             )}
 
             {row.fxRate && (
               <>
                 <div>FX Rate</div>
-                <div className="text-right">
-                  {(!previousRow ||
-                    !(previousRow.fxRate ?? new Decimal(1)).eq(
-                      row.fxRate ?? new Decimal(1),
-                    )) && (
-                    <>
-                      <Number value={previousRow?.fxRate ?? new Decimal(1)} />{" "}
-                      →{" "}
-                    </>
-                  )}
-                  <Number value={row.fxRate} className="font-medium" />
-                </div>
+
+                <DeltaValue
+                  value={row.fxRate}
+                  previousValue={previousRow?.fxRate}
+                />
               </>
             )}
           </div>
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function DeltaValue({
+  value,
+  previousValue,
+}: {
+  value: Decimal;
+  previousValue?: Decimal | null;
+}) {
+  const newValueComponent = <Number value={value} className="font-medium" />;
+
+  if (!previousValue) {
+    return <div className="text-right">None → {newValueComponent}</div>;
+  }
+
+  if (previousValue.eq(value)) {
+    return <div className="text-right">{newValueComponent} (Unchanged)</div>;
+  }
+
+  return (
+    <div className="text-right">
+      {!previousValue.eq(value) && (
+        <>
+          <Number value={previousValue} /> →{" "}
+        </>
+      )}
+      {newValueComponent}
+    </div>
   );
 }
