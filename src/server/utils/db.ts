@@ -121,8 +121,14 @@ export async function getAssetValueHistory({
   {
     assetTimestamp: Date;
     quantity: Prisma.Decimal;
+    quantityId: string | null;
+    quantityIsCarried: boolean | null;
     stockPrice: Prisma.Decimal | null;
+    stockPriceId: string | null;
+    stockPriceIsCarried: boolean | null;
     fxRate: Prisma.Decimal | null;
+    fxRateId: string | null;
+    fxRateIsCarried: boolean | null;
     valueInTarget: Prisma.Decimal;
   }[]
 > {
@@ -141,7 +147,11 @@ export async function getDebtValueHistory({
   {
     debtTimestamp: Date;
     quantity: Prisma.Decimal;
+    quantityId: string | null;
+    quantityIsCarried: boolean | null;
     fxRate: Prisma.Decimal | null;
+    fxRateId: string | null;
+    fxRateIsCarried: boolean | null;
     valueInTarget: Prisma.Decimal;
   }[]
 > {

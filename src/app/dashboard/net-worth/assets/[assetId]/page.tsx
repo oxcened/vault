@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { HoldingDetail } from "~/components/holding-detail";
+import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
 import NewQuantityDialog from "./NewQuantityDialog";
 import { useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
@@ -74,7 +74,6 @@ export default function AssetDetailPage() {
           ...item,
           timestamp: item.assetTimestamp,
         }))}
-        quantityHistory={quantitiesData}
         holdingCurrency={data?.currency}
         latestStockPrice={data?.latestStockPrice?.price}
         tickerName={data?.ticker?.name}

@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { HoldingDetail } from "~/components/holding-detail";
+import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
 import NewQuantityDialog from "./NewQuantityDialog";
 import { useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
@@ -73,7 +73,6 @@ export default function DebtDetailPage() {
           ...item,
           timestamp: item.debtTimestamp,
         }))}
-        quantityHistory={quantitiesData}
         holdingCurrency={data?.currency}
         isPending={isPending || isPendingQuantities}
         holdingComputedValue={data?.computedValue}
