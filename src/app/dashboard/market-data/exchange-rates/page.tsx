@@ -16,14 +16,15 @@ import { Plus } from "lucide-react";
 import NewExchangeRateDialog from "./NewExchangeRateDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { DataTable } from "~/components/ui/data-table";
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { exchangeRatesColumns } from "./config";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
+import { useTable } from "~/hooks/useTable";
 
 export default function ExchangeRatesPage() {
   const { data = [], refetch, isPending } = api.exchangeRate.getAll.useQuery();
 
-  const table = useReactTable({
+  const table = useTable({
     data,
     columns: exchangeRatesColumns,
     getCoreRowModel: getCoreRowModel(),

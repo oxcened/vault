@@ -1,6 +1,6 @@
 "use client";
 
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,11 +15,12 @@ import { netWorthColumns } from "./config";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { DataTable } from "~/components/ui/data-table";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
+import { useTable } from "~/hooks/useTable";
 
 export default function NwHistoryPage() {
   const { data = [], isPending } = api.netWorth.getAll.useQuery();
 
-  const table = useReactTable({
+  const table = useTable({
     data,
     columns: netWorthColumns,
     getCoreRowModel: getCoreRowModel(),

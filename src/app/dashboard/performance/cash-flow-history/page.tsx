@@ -1,6 +1,6 @@
 "use client";
 
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { TableSkeleton } from "~/components/table-skeleton";
 import {
   Breadcrumb,
@@ -15,11 +15,12 @@ import { SidebarTrigger } from "~/components/ui/sidebar";
 import { api } from "~/trpc/react";
 import { cashFlowColumns } from "./config";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
+import { useTable } from "~/hooks/useTable";
 
 export default function CashFlowHistoryPage() {
   const { data = [], isPending } = api.cashFlow.getAll.useQuery();
 
-  const table = useReactTable({
+  const table = useTable({
     data,
     columns: cashFlowColumns,
     getCoreRowModel: getCoreRowModel(),

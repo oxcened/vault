@@ -13,10 +13,11 @@ import { Currency, RoundedCurrency } from "~/components/ui/number";
 import type Decimal from "decimal.js";
 import { Button } from "../ui/button";
 import { PlusIcon } from "lucide-react";
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { holdingDetailColumn } from "./config";
 import { DataTable } from "../ui/data-table";
 import { DataTableColumns } from "../ui/data-table-columns";
+import { useTable } from "~/hooks/useTable";
 
 export type ValueHistoryRow = {
   timestamp: Date;
@@ -63,7 +64,7 @@ export function HoldingDetail({
   onQuantityDelete: (args: { timestamp: Date }) => void;
   onNewHolding: () => void;
 }) {
-  const table = useReactTable({
+  const table = useTable({
     data: valueHistory,
     columns: holdingDetailColumn,
     getCoreRowModel: getCoreRowModel(),

@@ -1,5 +1,5 @@
 import { DataTable } from "../ui/data-table";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { AddTransactionDropdown } from "../add-transaction-dropdown";
 import { DataTablePagination } from "../ui/data-table-pagination";
@@ -12,6 +12,7 @@ import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
 import { XIcon } from "lucide-react";
+import { useTable } from "~/hooks/useTable";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
@@ -43,7 +44,7 @@ export function TransactionTable() {
     },
   );
 
-  const table = useReactTable({
+  const table = useTable({
     data: data?.items ?? [],
     columns: transactionColumns,
     getCoreRowModel: getCoreRowModel(),

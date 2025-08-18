@@ -33,10 +33,11 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 import { DECIMAL_ZERO } from "~/utils/number";
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { holdingHistoryColumns } from "./config";
 import { DataTable } from "../ui/data-table";
 import { DataTableColumns } from "../ui/data-table-columns";
+import { useTable } from "~/hooks/useTable";
 
 export type NetWorthHoldingsHistoryRow = {
   id: string;
@@ -74,7 +75,7 @@ export default function NetWorthHoldingsHistory({
     DECIMAL_ZERO,
   );
 
-  const table = useReactTable({
+  const table = useTable({
     data: filteredData,
     columns: holdingHistoryColumns,
     getCoreRowModel: getCoreRowModel(),

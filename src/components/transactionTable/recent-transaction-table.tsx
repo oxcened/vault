@@ -1,11 +1,12 @@
 import { DataTable } from "../ui/data-table";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { baseTransactionColumns, type TransactionRow } from "./config";
 import { TableSkeleton } from "../table-skeleton";
 import { cn } from "~/lib/utils";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "../ui/button";
 import Link from "next/link";
+import { useTable } from "~/hooks/useTable";
 
 export type TransactionTableProps = {
   className?: string;
@@ -18,7 +19,7 @@ export function RecentTransactionTable({
   transactions = [],
   isPending,
 }: TransactionTableProps) {
-  const table = useReactTable({
+  const table = useTable({
     data: transactions,
     columns: baseTransactionColumns,
     getCoreRowModel: getCoreRowModel(),

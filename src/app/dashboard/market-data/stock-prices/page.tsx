@@ -15,7 +15,7 @@ import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import NewStockPriceDialog from "./NewStockPriceDialog";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel } from "@tanstack/react-table";
 import { stockPricesColumns } from "./config";
 import { DataTable } from "~/components/ui/data-table";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useTable } from "~/hooks/useTable";
 
 export default function StockPricesPage() {
   const [tickerId, setTickerId] = useState<string>();
@@ -43,7 +44,7 @@ export default function StockPricesPage() {
     },
   );
 
-  const table = useReactTable({
+  const table = useTable({
     data,
     columns: stockPricesColumns,
     getCoreRowModel: getCoreRowModel(),
