@@ -270,7 +270,7 @@ export function ValueHistoryTable({
                           previousDelta.isNeg() && "text-financial-negative",
                         )}
                         options={{
-                          signDisplay: "exceptZero",
+                          signDisplay: "always",
                         }}
                       />
 

@@ -58,7 +58,7 @@ export function ValueChangePopup({
               <Number
                 value={qtyDelta}
                 options={{
-                  signDisplay: "exceptZero",
+                  signDisplay: "always",
                   maximumFractionDigits: 2,
                 }}
                 className={cn(
@@ -75,7 +75,7 @@ export function ValueChangePopup({
                   <Number
                     value={stockDelta}
                     options={{
-                      signDisplay: "exceptZero",
+                      signDisplay: "always",
                       maximumFractionDigits: 2,
                     }}
                     className={cn(
@@ -94,7 +94,7 @@ export function ValueChangePopup({
                   <Number
                     value={fxRateDelta}
                     options={{
-                      signDisplay: "exceptZero",
+                      signDisplay: "always",
                       maximumFractionDigits: 2,
                     }}
                     className={cn(
@@ -113,7 +113,7 @@ export function ValueChangePopup({
               <Currency
                 value={totalDelta}
                 options={{
-                  signDisplay: "exceptZero",
+                  signDisplay: "always",
                 }}
                 className={cn(
                   totalDelta.isPos() && "text-financial-positive",
