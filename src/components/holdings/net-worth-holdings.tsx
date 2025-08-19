@@ -245,9 +245,14 @@ function CategoryTable<T extends Holding>({
 
   const [isOpen, setOpen] = useState(true);
 
+  const total = holdings.reduce(
+    (prev, curr) => (curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev),
+    DECIMAL_ZERO,
+  );
+
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2">
         <Button
           variant="ghost"
           size="icon"
@@ -255,11 +260,19 @@ function CategoryTable<T extends Holding>({
         >
           {isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
         </Button>
-        <p className="mr-auto font-medium">{category.name}</p>
+
+        <div className="mr-auto">
+          <p className="text-sm text-muted-foreground">{category.name}</p>
+          <RoundedCurrency value={total} className="text-sm font-medium" />
+        </div>
         <DataTableColumns table={table} />
       </div>
 
-      {isOpen && <DataTable table={table} />}
+      {isOpen && (
+        <>
+          <DataTable table={table} />
+        </>
+      )}
     </div>
   );
 }
