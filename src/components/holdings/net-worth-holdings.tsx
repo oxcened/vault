@@ -94,9 +94,10 @@ export default function NetWorthHoldings<T extends Holding>({
     return true;
   });
 
-  const { data: categories = [] } = api.netWorthCategory.getByType.useQuery({
-    type: [type === "asset" ? "ASSET" : "DEBT", "BOTH"],
-  });
+  const { data: categories = [], isPending: isLoadingCategories } =
+    api.netWorthCategory.getByType.useQuery({
+      type: [type === "asset" ? "ASSET" : "DEBT", "BOTH"],
+    });
 
   const total = filteredHoldings.reduce(
     (prev, curr) => (curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev),
@@ -124,7 +125,7 @@ export default function NetWorthHoldings<T extends Holding>({
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-md flex-col gap-5 p-5">
-        {isFetching ? (
+        {isFetching || isLoadingCategories ? (
           <TableSkeleton />
         ) : (
           <>
