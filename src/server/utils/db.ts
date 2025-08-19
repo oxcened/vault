@@ -96,7 +96,7 @@ export async function getDebtValuesForUserMonth({
     timestamp: Date;
     quantity: Prisma.Decimal | null;
     debtCurrency: string;
-    fxRate: string | null;
+    fxRate: Prisma.Decimal | null;
     exchangeRateId: string | null;
     valueInTarget: Prisma.Decimal;
     debtId: string;

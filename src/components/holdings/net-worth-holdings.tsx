@@ -26,7 +26,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { NetWorthCategory, type Prisma } from "@prisma/client";
+import { NetWorthCategory } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
@@ -40,21 +40,22 @@ import { holdingsColumns } from "./config";
 import { DataTable } from "../ui/data-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { api } from "~/trpc/react";
+import Decimal from "decimal.js";
 
 export type Holding = {
   quantityId: string;
   createdById: string;
   timestamp: Date;
-  quantity: Prisma.Decimal | null;
-  fxRate: Prisma.Decimal | null;
+  quantity: Decimal | null;
+  fxRate: Decimal | null;
   exchangeRateId: string | null;
-  valueInTarget: Prisma.Decimal;
+  valueInTarget: Decimal;
   categoryId: string | null;
   categoryName: string | null;
   id: string;
   name: string;
   currency: string;
-  stockPrice?: Prisma.Decimal | null;
+  stockPrice?: Decimal | null;
   stockPriceId?: string | null;
   stockTicker?: string | null;
   tickerId?: string | null;
