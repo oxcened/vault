@@ -113,6 +113,8 @@ export const holdingDetailColumn = [
   columnHelper.accessor("quantity", {
     header: "Quantity",
     cell: ({ getValue }) => {
+      if (!getValue()) return "–";
+
       return (
         <Number
           value={getValue()}
@@ -130,6 +132,8 @@ export const holdingDetailColumn = [
   columnHelper.accessor("stockPrice", {
     header: "Stock",
     cell: ({ getValue }) => {
+      if (!getValue()) return "–";
+
       return (
         <Number
           value={getValue()}
@@ -147,6 +151,8 @@ export const holdingDetailColumn = [
   columnHelper.accessor("fxRate", {
     header: "FX",
     cell: ({ getValue }) => {
+      if (!getValue()) return "–";
+
       return <Number value={getValue()} />;
     },
     meta: {
