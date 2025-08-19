@@ -1,6 +1,11 @@
 "use client";
 
-import { flexRender, type Table as TableType } from "@tanstack/react-table";
+import {
+  flexRender,
+  Header,
+  type Table as TableType,
+} from "@tanstack/react-table";
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,6 +15,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
+import { Button } from "./button";
 
 export function DataTable<TData>({
   table,
@@ -41,12 +47,7 @@ export function DataTable<TData>({
                         meta.headerClassName,
                     )}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                    <CustomTableHead header={header} />
                   </TableHead>
                 );
               })}
@@ -95,4 +96,34 @@ export function DataTable<TData>({
       </Table>
     </div>
   );
+}
+
+function CustomTableHead<TData, TValue>({
+  header,
+}: {
+  header: Header<TData, TValue>;
+}) {
+  const content = flexRender(
+    header.column.columnDef.header,
+    header.getContext(),
+  );
+
+  if (header.isPlaceholder) {
+    return null;
+  }
+
+  if (header.column.getCanSort()) {
+    return (
+      <Button variant="ghost" onClick={header.column.getToggleSortingHandler()}>
+        {content}
+
+        {{
+          asc: <ArrowUpIcon />,
+          desc: <ArrowDownIcon />,
+        }[header.column.getIsSorted() as string] ?? null}
+      </Button>
+    );
+  }
+
+  return content;
 }

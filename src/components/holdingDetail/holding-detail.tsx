@@ -114,7 +114,7 @@ export function HoldingDetail({
         {isPending && <TableSkeleton />}
 
         {!isPending && (
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2 md:flex-row">
               <div className="mr-auto">
                 <p className="text-sm text-muted-foreground">{holdingName}</p>

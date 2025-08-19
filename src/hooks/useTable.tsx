@@ -31,6 +31,7 @@ export function useTable<TData>({
       },
       ...initialStateRest,
     },
+    enableSorting: false,
     ...options,
   });
 }

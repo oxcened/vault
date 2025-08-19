@@ -67,7 +67,7 @@ export async function getAssetValuesForUserMonth({
     tickerId: string | null;
     stockPrice: Prisma.Decimal | null;
     stockPriceId: string | null;
-    fxRate: string | null;
+    fxRate: Prisma.Decimal | null;
     exchangeRateId: string | null;
     valueInTarget: Prisma.Decimal;
     assetId: string;

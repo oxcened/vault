@@ -4,7 +4,9 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import NewDebtDialog from "./NewDebtDialog";
 import { toast } from "sonner";
-import NetWorthHoldings, { type Holding } from "~/components/net-worth-holdings";
+import NetWorthHoldings, {
+  type Holding,
+} from "~/components/holdings/net-worth-holdings";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { useRouter } from "next/navigation";
 
@@ -66,6 +68,7 @@ export default function AssetsPage() {
         isFetching={isPending}
         holdingLabel="Debt"
         holdingLabelPlural="Debts"
+        type="debt"
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={(holding) =>
           router.push(`/dashboard/net-worth/debts/${holding.id}`)
