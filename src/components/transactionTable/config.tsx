@@ -82,6 +82,7 @@ export const baseTransactionColumns = [
           value={amount}
           options={{
             currency: row.original.currency,
+            signDisplay: "always",
           }}
           className={cn(
             "text-right",
