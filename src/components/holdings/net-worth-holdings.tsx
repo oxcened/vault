@@ -95,7 +95,7 @@ export default function NetWorthHoldings<T extends Holding>({
   });
 
   const { data: categories = [] } = api.netWorthCategory.getByType.useQuery({
-    type: [type === "asset" ? "ASSET" : "DEBT"],
+    type: [type === "asset" ? "ASSET" : "DEBT", "BOTH"],
   });
 
   const total = filteredHoldings.reduce(
