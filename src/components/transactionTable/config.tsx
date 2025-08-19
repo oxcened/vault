@@ -75,11 +75,11 @@ export const baseTransactionColumns = [
     header: "Amount",
     cell: ({ getValue, row }) => {
       const isExpense = row.original.type === "EXPENSE";
-      const amount = row.original.amount.mul(isExpense ? -1 : 1);
+      const amount = getValue().mul(isExpense ? -1 : 1);
 
       return (
         <Currency
-          value={getValue()}
+          value={amount}
           options={{
             currency: row.original.currency,
           }}
