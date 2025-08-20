@@ -170,24 +170,33 @@ export default function NetWorthHoldings<T extends Holding>({
               </Button>
             </div>
 
-            {categories.map((category) => {
-              const categoryHoldings = filteredHoldings.filter(
-                (holding) => holding.categoryId === category.id,
-              );
-
-              if (!categoryHoldings.length) return null;
-
-              return (
-                <CategoryTable
-                  key={category.id}
-                  holdings={categoryHoldings}
-                  category={category}
-                  onArchiveHolding={onArchiveHolding}
-                  onDeleteHolding={onDeleteHolding}
-                  onEditHolding={onEditHolding}
-                />
-              );
-            })}
+            {categories
+              .map((category) => {
+                const holdingsForCat = filteredHoldings.filter(
+                  (holding) => holding.categoryId === category.id,
+                );
+                const total = holdingsForCat.reduce(
+                  (prev, curr) =>
+                    curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev,
+                  DECIMAL_ZERO,
+                );
+                return { category, holdingsForCat, total };
+              })
+              .sort((a, b) => b.total.comparedTo(a.total))
+              .map(({ category, holdingsForCat, total }) => {
+                if (!holdingsForCat.length) return null;
+                return (
+                  <CategoryTable
+                    key={category.id}
+                    holdings={holdingsForCat}
+                    category={category}
+                    total={total}
+                    onArchiveHolding={onArchiveHolding}
+                    onDeleteHolding={onDeleteHolding}
+                    onEditHolding={onEditHolding}
+                  />
+                );
+              })}
           </>
         )}
       </div>
@@ -198,12 +207,14 @@ export default function NetWorthHoldings<T extends Holding>({
 function CategoryTable<T extends Holding>({
   holdings,
   category,
+  total,
   onEditHolding,
   onDeleteHolding,
   onArchiveHolding,
 }: {
   holdings: T[];
   category: NetWorthCategory;
+  total: Decimal;
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
   onArchiveHolding: (holding: T) => void;
@@ -244,11 +255,6 @@ function CategoryTable<T extends Holding>({
   });
 
   const [isOpen, setOpen] = useState(true);
-
-  const total = holdings.reduce(
-    (prev, curr) => (curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev),
-    DECIMAL_ZERO,
-  );
 
   return (
     <div className="flex flex-col gap-2">
