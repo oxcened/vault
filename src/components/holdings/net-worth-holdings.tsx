@@ -210,8 +210,8 @@ function CategoryTable<T extends Holding>({
 }) {
   const [sorting, setSorting] = useState<SortingState>([
     {
-      id: "name",
-      desc: false,
+      id: "valueInTarget",
+      desc: true,
     },
   ]);
 
