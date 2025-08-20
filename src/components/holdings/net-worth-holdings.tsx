@@ -19,28 +19,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  FilterIcon,
-  Plus,
-} from "lucide-react";
+import { FilterIcon, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { NetWorthCategory } from "@prisma/client";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
-} from "@tanstack/react-table";
-import { useTable } from "~/hooks/useTable";
-import { holdingsColumns } from "./config";
-import { DataTable } from "../ui/data-table";
-import { DataTableColumns } from "../ui/data-table-columns";
 import { api } from "~/trpc/react";
 import Decimal from "decimal.js";
+import { CategoryTable } from "./category-table";
 
 export type Holding = {
   quantityId: string;
@@ -201,84 +187,5 @@ export default function NetWorthHoldings<T extends Holding>({
         )}
       </div>
     </>
-  );
-}
-
-function CategoryTable<T extends Holding>({
-  holdings,
-  category,
-  total,
-  onEditHolding,
-  onDeleteHolding,
-  onArchiveHolding,
-}: {
-  holdings: T[];
-  category: NetWorthCategory;
-  total: Decimal;
-  onEditHolding: (holding: T) => void;
-  onDeleteHolding: (holding: T) => void;
-  onArchiveHolding: (holding: T) => void;
-}) {
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "valueInTarget",
-      desc: true,
-    },
-  ]);
-
-  const table = useTable({
-    data: holdings,
-    columns: holdingsColumns({ isStock: category.isStock }),
-    getCoreRowModel: getCoreRowModel(),
-    meta: {
-      id: "exchangeRates",
-      onEditHolding,
-      onDeleteHolding,
-      onArchiveHolding,
-    },
-    initialState: {
-      columnVisibility: {
-        archivedAt: false,
-        fxRate: false,
-        stockPrice: category.isStock,
-        stockTicker: false,
-        currency: false,
-        quantity: category.isStock,
-      },
-    },
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    enableSorting: true,
-  });
-
-  const [isOpen, setOpen] = useState(true);
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setOpen((state) => !state)}
-        >
-          {isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </Button>
-
-        <div className="mr-auto">
-          <p className="text-sm text-muted-foreground">{category.name}</p>
-          <RoundedCurrency value={total} className="text-sm font-medium" />
-        </div>
-        <DataTableColumns table={table} />
-      </div>
-
-      {isOpen && (
-        <>
-          <DataTable table={table} />
-        </>
-      )}
-    </div>
   );
 }
