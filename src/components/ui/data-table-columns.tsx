@@ -3,7 +3,7 @@
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { type Column, type Table } from "@tanstack/react-table";
 import { Settings2 } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { Button, ButtonProps } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -15,11 +15,10 @@ import { STORAGE_KEY_HIDDEN_COLUMNS } from "~/constants";
 
 export function DataTableColumns<TData>({
   table,
-  className,
+  ...props
 }: {
   table: Table<TData>;
-  className?: string;
-}) {
+} & ButtonProps) {
   const tableMeta = table.options.meta;
   const tableId =
     tableMeta && "id" in tableMeta && typeof tableMeta.id === "string"
@@ -52,7 +51,7 @@ export function DataTableColumns<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className={className}>
+        <Button {...props} variant={props.variant ?? "outline"}>
           <Settings2 />
           Columns
         </Button>

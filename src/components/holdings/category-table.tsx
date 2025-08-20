@@ -82,7 +82,7 @@ export function CategoryTable<T extends Holding>({
           <p className="text-sm text-muted-foreground">{category.name}</p>
           <RoundedCurrency value={total} className="text-sm font-medium" />
         </div>
-        <DataTableColumns table={table} />
+        {isOpen && <DataTableColumns table={table} variant="ghost" size="sm" />}
       </div>
 
       {isOpen && (
