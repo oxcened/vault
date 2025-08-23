@@ -18,7 +18,7 @@ export const envelopeRouter = createTRPCRouter({
     });
 
     const poolAmount = assets.reduce((prev, curr) => {
-      if (curr.poolInEnvelopes) return prev;
+      if (!curr.poolInEnvelopes) return prev;
       return prev.plus(curr.valueInTarget);
     }, DECIMAL_ZERO);
 
