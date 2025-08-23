@@ -37,11 +37,11 @@ export default function TransactionCategoriesPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbPage>Market data</BreadcrumbPage>
+              <BreadcrumbPage>Settings</BreadcrumbPage>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Exchange rates</BreadcrumbPage>
+              <BreadcrumbPage>Transaction categories</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
