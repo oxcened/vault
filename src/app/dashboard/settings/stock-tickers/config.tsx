@@ -86,7 +86,7 @@ export const stockTickerColumns = [
             isOpen={isEditDialogOpen}
             stockTicker={editingTicker}
             onOpenChange={setEditDialogOpen}
-            onSuccess={() => void utils.stockTicker.getAll.invalidate}
+            onSuccess={() => void utils.stockTicker.getAll.invalidate()}
           />
         </DropdownMenu>
       );
