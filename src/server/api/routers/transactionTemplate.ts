@@ -52,13 +52,8 @@ export const transactionTemplateRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const deleted = await ctx.db.transaction.delete({
+      const deleted = await ctx.db.transactionTemplate.delete({
         where: { id: input.id },
-      });
-
-      appEmitter.emit("transaction:updated", {
-        userId: ctx.session.user.id,
-        timestamp: deleted.timestamp,
       });
 
       return deleted;

@@ -9,6 +9,8 @@ import {
   LineChart,
   Map,
   PieChart,
+  Settings2Icon,
+  SettingsIcon,
   Vault,
   Wallet,
 } from "lucide-react";
@@ -105,22 +107,28 @@ const data = {
         },
       ],
     },
-  ],
-  projects: [
     {
-      name: "Design Engineering",
+      title: "Settings",
       url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      icon: SettingsIcon,
+      items: [
+        {
+          title: "Transaction templates",
+          url: "/dashboard/settings/transaction-templates",
+        },
+        {
+          title: "Transaction categories",
+          url: "/dashboard/settings/transaction-categories",
+        },
+        {
+          title: "Net worth categories",
+          url: "/dashboard/settings/net-worth-categories",
+        },
+        {
+          title: "Stock tickers",
+          url: "/dashboard/settings/stock-tickers",
+        },
+      ],
     },
   ],
 };
