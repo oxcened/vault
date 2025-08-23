@@ -20,10 +20,10 @@ const columnHelper = createColumnHelper<TransactionCategory>();
 
 export const transactionCategoryColumns = [
   columnHelper.accessor("name", {
-    header: "Description",
+    header: "Name",
   }),
   columnHelper.accessor("type", {
-    header: "Description",
+    header: "Type",
     cell: ({ getValue }) => {
       return (
         <Badge variant="secondary" className="capitalize">
