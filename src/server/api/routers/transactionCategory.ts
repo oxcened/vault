@@ -1,5 +1,6 @@
 import { TransactionCategoryType } from "@prisma/client";
 import * as yup from "yup";
+import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const transactionCategoryRouter = createTRPCRouter({
@@ -30,5 +31,14 @@ export const transactionCategoryRouter = createTRPCRouter({
           },
         },
       });
+    }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const deleted = await ctx.db.transactionCategory.delete({
+        where: { id: input.id },
+      });
+
+      return deleted;
     }),
 });
