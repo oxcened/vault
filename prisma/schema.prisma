@@ -58,6 +58,7 @@ model User {
     transactions        Transaction[]
     cashFlows           CashFlow[]
     TransactionTemplate TransactionTemplate[]
+    Envelope            Envelope[]
 }
 
 model VerificationToken {
@@ -99,19 +100,20 @@ model NetWorthCategory {
 }
 
 model NetWorthAsset {
-    id          String                  @id @default(cuid())
-    name        String
-    categoryId  String
-    tickerId    String?
-    currency    String
-    createdAt   DateTime                @default(now())
-    updatedAt   DateTime                @updatedAt
-    createdById String
-    archivedAt  DateTime?
-    createdBy   User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    ticker      StockTicker?            @relation(fields: [tickerId], references: [id])
-    quantities  NetWorthAssetQuantity[]
-    category    NetWorthCategory        @relation(fields: [categoryId], references: [id])
+    id              String                  @id @default(cuid())
+    name            String
+    categoryId      String
+    tickerId        String?
+    currency        String
+    createdAt       DateTime                @default(now())
+    updatedAt       DateTime                @updatedAt
+    createdById     String
+    archivedAt      DateTime?
+    poolInEnvelopes Boolean                 @default(false)
+    createdBy       User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    ticker          StockTicker?            @relation(fields: [tickerId], references: [id])
+    quantities      NetWorthAssetQuantity[]
+    category        NetWorthCategory        @relation(fields: [categoryId], references: [id])
 }
 
 model NetWorthAssetQuantity {
@@ -272,4 +274,15 @@ model UserWhitelist {
     email     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Envelope {
+    id          String   @id @default(cuid())
+    name        String
+    target      Decimal  @db.Decimal(38, 18)
+    priority    Int
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    createdById String
+    createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 }

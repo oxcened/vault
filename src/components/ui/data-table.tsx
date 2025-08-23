@@ -16,13 +16,18 @@ import {
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 import { Button } from "./button";
+import { ComponentProps } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export function DataTable<TData>({
   table,
   className,
+  isDraggable = false,
 }: {
   table: TableType<TData>;
   className?: string;
+  isDraggable?: boolean;
 }) {
   return (
     <div
@@ -31,7 +36,7 @@ export function DataTable<TData>({
         className,
       )}
     >
-      <Table>
+      <Table className={cn(isDraggable && "overflow-hidden")}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -57,9 +62,11 @@ export function DataTable<TData>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
+              <CustomTableRow
                 key={row.id}
+                id={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                isDraggable={isDraggable}
               >
                 {row.getVisibleCells().map((cell) => {
                   const meta = cell.column.columnDef.meta;
@@ -80,7 +87,7 @@ export function DataTable<TData>({
                     </TableCell>
                   );
                 })}
-              </TableRow>
+              </CustomTableRow>
             ))
           ) : (
             <TableRow>
@@ -126,4 +133,36 @@ function CustomTableHead<TData, TValue>({
   }
 
   return content;
+}
+
+function CustomTableRow({
+  isDraggable = false,
+  ...props
+}: ComponentProps<typeof TableRow> & { isDraggable?: boolean; id: string }) {
+  if (isDraggable) {
+    return <DraggableRow {...props} id={props.id} />;
+  }
+
+  return <TableRow {...props} />;
+}
+
+function DraggableRow<T>({
+  ...props
+}: ComponentProps<typeof TableRow> & { id: string }) {
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: props.id,
+  });
+
+  return (
+    <TableRow
+      data-dragging={isDragging}
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: transition,
+      }}
+      {...props}
+    />
+  );
 }

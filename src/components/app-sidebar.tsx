@@ -67,6 +67,10 @@ const data = {
           title: "Transactions",
           url: "/dashboard/cash-flow/transactions",
         },
+        {
+          title: "Envelopes",
+          url: "/dashboard/cash-flow/envelopes",
+        },
       ],
     },
     {
