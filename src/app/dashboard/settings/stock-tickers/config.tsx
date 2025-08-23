@@ -14,6 +14,8 @@ import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { StockTicker } from "@prisma/client";
+import { useState } from "react";
+import EditStockTickerDialog from "./EditStockTickerDialog";
 
 const columnHelper = createColumnHelper<StockTicker>();
 
@@ -38,7 +40,16 @@ export const stockTickerColumns = [
           void utils.stockTicker.getAll.invalidate();
         },
       });
+
       const { confirm, modal } = useConfirmDelete();
+
+      const [editingTicker, setEditingTicker] = useState<StockTicker>();
+      const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+
+      function handleEditClick() {
+        setEditingTicker(row.original);
+        setEditDialogOpen(true);
+      }
 
       return (
         <DropdownMenu>
@@ -51,6 +62,7 @@ export const stockTickerColumns = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
+            <DropdownMenuItem onClick={handleEditClick}>Edit</DropdownMenuItem>
             <DropdownMenuItem
               className="text-red-500"
               onClick={() =>
@@ -68,6 +80,14 @@ export const stockTickerColumns = [
             </DropdownMenuItem>
           </DropdownMenuContent>
           {modal}
+
+          <EditStockTickerDialog
+            key={`edit-exchange-rate-dialog-${isEditDialogOpen}`}
+            isOpen={isEditDialogOpen}
+            stockTicker={editingTicker}
+            onOpenChange={setEditDialogOpen}
+            onSuccess={utils.stockTicker.getAll.invalidate}
+          />
         </DropdownMenu>
       );
     },

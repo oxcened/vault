@@ -16,9 +16,13 @@ import { getCoreRowModel } from "@tanstack/react-table";
 import { stockTickerColumns } from "./config";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
 import { useTable } from "~/hooks/useTable";
+import { Button } from "~/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import NewStockTickerDialog from "./NewStockTickerDialog";
 
 export default function StockTickersPage() {
-  const { data = [], isPending } = api.stockTicker.getAll.useQuery();
+  const { data = [], isPending, refetch } = api.stockTicker.getAll.useQuery();
 
   const table = useTable({
     data,
@@ -28,6 +32,8 @@ export default function StockTickersPage() {
       id: "stockTickers",
     },
   });
+
+  const [isNewDialogOpen, setNewDialogOpen] = useState(false);
 
   return (
     <>
@@ -50,10 +56,21 @@ export default function StockTickersPage() {
       <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
         <div className="flex justify-end gap-2">
           <DataTableColumns table={table} />
+          <Button variant="default" onClick={() => setNewDialogOpen(true)}>
+            <PlusIcon />
+            Add
+          </Button>
         </div>
 
         {isPending ? <TableSkeleton /> : <DataTable table={table} />}
       </div>
+
+      <NewStockTickerDialog
+        key={`new-exchange-rate-dialog-${isNewDialogOpen}`}
+        isOpen={isNewDialogOpen}
+        onOpenChange={setNewDialogOpen}
+        onSuccess={refetch}
+      />
     </>
   );
 }
