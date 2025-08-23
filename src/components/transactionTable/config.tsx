@@ -115,7 +115,7 @@ export const transactionColumns = [
       const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
         onSuccess: () => {
           toast.success("Transaction deleted.");
-          void utils.transaction.getAll.invalidate();
+          handleEdited();
         },
       });
       const { confirm, modal } = useConfirmDelete();
