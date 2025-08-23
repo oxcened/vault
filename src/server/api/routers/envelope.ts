@@ -17,10 +17,9 @@ export const envelopeRouter = createTRPCRouter({
       userId: ctx.session.user.id,
     });
 
-    const poolAmount = assets.reduce((prev, curr) => {
-      if (!curr.poolInEnvelopes) return prev;
-      return prev.plus(curr.valueInTarget);
-    }, DECIMAL_ZERO);
+    const poolAmount = assets
+      .filter((asset) => asset.poolInEnvelopes)
+      .reduce((prev, curr) => prev.plus(curr.valueInTarget), DECIMAL_ZERO);
 
     const envelopes = await ctx.db.envelope.findMany({
       orderBy: { priority: "asc" },
