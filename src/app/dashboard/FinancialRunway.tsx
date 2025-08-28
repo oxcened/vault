@@ -17,6 +17,8 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { usePrivacy } from "~/components/privacy";
+import { cn } from "~/lib/utils";
 
 export default function FinancialRunway() {
   const { data } = api.dashboard.getSummary.useQuery();
@@ -50,6 +52,8 @@ export default function FinancialRunway() {
     return null;
   }
 
+  const { mode } = usePrivacy();
+
   return (
     <Card className="flex-1">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -68,7 +72,15 @@ export default function FinancialRunway() {
         </TooltipProvider>
       </CardHeader>
       <CardContent>
-        <CardTitle className="text-3xl">{formattedRunwayDuration}</CardTitle>
+        <CardTitle
+          className={cn(
+            "text-3xl",
+            mode !== "off" && "blur-md",
+            mode === "hoverToReveal" && "hover:blur-none",
+          )}
+        >
+          {formattedRunwayDuration}
+        </CardTitle>
       </CardContent>
     </Card>
   );

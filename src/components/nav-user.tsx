@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
+import { PrivacyToggle } from "./privacy-toggle";
 
 export function NavUser({
   user,
@@ -71,6 +72,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
+            <PrivacyToggle />
             <ModeToggle />
 
             <DropdownMenuSeparator />

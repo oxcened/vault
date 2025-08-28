@@ -1,16 +1,32 @@
 import { type Prisma } from "@prisma/client";
 import { APP_CURRENCY } from "~/constants";
+import { cn } from "~/lib/utils";
 import { formatNumber } from "~/utils/number";
+import { usePrivacy } from "../privacy";
 
 export type NumberProps = {
   value?: Prisma.Decimal | number | null;
   options?: Intl.NumberFormatOptions;
   className?: string;
+  sensitive?: boolean;
 };
 
-export function Number({ value, options, className }: NumberProps) {
+export function Number({
+  value,
+  options,
+  className,
+  sensitive = false,
+}: NumberProps) {
+  const { mode } = usePrivacy();
+
   return (
-    <span className={className}>
+    <span
+      className={cn(
+        sensitive && mode !== "off" && "blur-md",
+        sensitive && mode === "hoverToReveal" && "hover:blur-none",
+        className,
+      )}
+    >
       {formatNumber({ value: value ?? 0, options })}
     </span>
   );
@@ -33,10 +49,11 @@ const defaultCurrencyOptions: Intl.NumberFormatOptions = {
   currency: APP_CURRENCY,
 };
 
-export function Currency({ options, ...props }: NumberProps) {
+export function Currency({ options, sensitive = true, ...props }: NumberProps) {
   return (
     <Number
       {...props}
+      sensitive={sensitive}
       options={{
         ...defaultCurrencyOptions,
         ...options,
@@ -47,7 +64,7 @@ export function Currency({ options, ...props }: NumberProps) {
 
 export function RoundedCurrency({ options, ...props }: NumberProps) {
   return (
-    <Number
+    <Currency
       {...props}
       options={{
         ...defaultCurrencyOptions,

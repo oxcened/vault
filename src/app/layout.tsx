@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "~/components/ui/sonner";
+import { PrivacyProvider } from "~/components/privacy";
 
 export const metadata: Metadata = {
   title: "Vault",
@@ -24,7 +25,7 @@ export default function RootLayout({
       <body>
         <TRPCReactProvider>
           <ThemeProvider attribute="class" disableTransitionOnChange>
-            {children}
+            <PrivacyProvider>{children}</PrivacyProvider>
           </ThemeProvider>
         </TRPCReactProvider>
         <Toaster />
