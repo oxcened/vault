@@ -39,6 +39,8 @@ export default function FinancialRunway() {
     return `${floored} ${unit}${floored !== 1 ? "s" : ""}`;
   }
 
+  const { mode } = usePrivacy();
+
   if (runwayDuration.years >= 1) {
     formattedRunwayDuration = formatDurationUnit(runwayDuration.years, "year");
   } else if (runwayDuration.months >= 1) {
@@ -51,8 +53,6 @@ export default function FinancialRunway() {
   } else {
     return null;
   }
-
-  const { mode } = usePrivacy();
 
   return (
     <Card className="flex-1">
