@@ -74,7 +74,7 @@ export default function FinancialRunway() {
       <CardContent>
         <CardTitle
           className={cn(
-            "text-3xl",
+            "text-3xl tabular-nums",
             mode !== "off" && "blur-md",
             mode === "hoverToReveal" && "hover:blur-none",
           )}
