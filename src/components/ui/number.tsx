@@ -24,6 +24,7 @@ export function Number({
       className={cn(
         sensitive && mode !== "off" && "blur-md",
         sensitive && mode === "hoverToReveal" && "hover:blur-none",
+        "tabular-nums",
         className,
       )}
     >
