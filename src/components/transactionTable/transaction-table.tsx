@@ -11,8 +11,16 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
-import { XIcon } from "lucide-react";
+import { FilterIcon, XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
+import { TransactionType } from "@prisma/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from "~/components/ui/dropdown-menu";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
@@ -30,6 +38,12 @@ export function TransactionTable() {
     setPagination((state) => ({ ...state, pageIndex: 0 }));
   };
 
+  const [filters, setFilters] = useState<{
+    types: TransactionType[];
+  }>({
+    types: Object.values(TransactionType),
+  });
+
   const { data, isPending } = api.transaction.getAll.useQuery(
     {
       page: pagination.pageIndex + 1,
@@ -38,6 +52,7 @@ export function TransactionTable() {
       sortField: "timestamp",
       includeTotal: true,
       query: debouncedQuery,
+      types: filters.types,
     },
     {
       placeholderData: keepPreviousData,
@@ -89,6 +104,38 @@ export function TransactionTable() {
             </Button>
           )}
         </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button type="button" variant="outline" onClick={handleClear}>
+              <FilterIcon />
+              Filters
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Types</DropdownMenuLabel>
+            {Object.values(TransactionType).map((type) => (
+              <DropdownMenuCheckboxItem
+                key={type}
+                checked={filters.types?.includes(type)}
+                className="capitalize"
+                onCheckedChange={(checked) =>
+                  setFilters((filters) => ({
+                    ...filters,
+                    types: checked
+                      ? new Set([...filters.types, type]).values().toArray()
+                      : filters.types.filter(
+                          (filterType) => filterType !== type,
+                        ),
+                  }))
+                }
+              >
+                {type.toLocaleLowerCase()}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <DataTableColumns table={table} />
         <AddTransactionDropdown onSuccess={handleCreated} />
       </div>

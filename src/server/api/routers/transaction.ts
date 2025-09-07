@@ -7,6 +7,7 @@ import {
 import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
+import { TransactionType } from "@prisma/client";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
 type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
@@ -29,6 +30,14 @@ export const transactionRouter = createTRPCRouter({
           .oneOf(ALLOWED_SORT_ORDERS)
           .default("desc"),
         includeTotal: yup.boolean().default(true),
+        types: yup
+          .array(
+            yup
+              .string<TransactionType>()
+              .required()
+              .oneOf(Object.values(TransactionType)),
+          )
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -40,6 +49,9 @@ export const transactionRouter = createTRPCRouter({
         ...(query
           ? ({ description: { contains: query, mode: "insensitive" } } as const)
           : {}),
+        type: {
+          in: input.types,
+        },
       };
 
       const [items, total] = await Promise.all([
