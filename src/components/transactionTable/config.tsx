@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-
 import type { Prisma, TransactionType } from "@prisma/client";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, Row } from "@tanstack/react-table";
 import { Currency } from "../ui/number";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
@@ -43,8 +41,83 @@ export type TransactionRow = {
 
 const columnHelper = createColumnHelper<TransactionRow>();
 
-export const baseTransactionColumns = [
-  columnHelper.accessor("description", {
+function ActionsCell({ row }: { row: Row<TransactionRow> }) {
+  const utils = api.useUtils();
+  const { mutate: saveTemplate } = api.transactionTemplate.create.useMutation({
+    onSuccess: () => {
+      toast.success("Transaction template created.");
+      void utils.transactionTemplate.getAll.invalidate();
+    },
+  });
+  const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Transaction deleted.");
+      handleEdited();
+    },
+  });
+  const { confirm, modal } = useConfirmDelete();
+  const [editingTransaction, setEditingTransaction] =
+    useState<TransactionRow>();
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+
+  const handleEdited = () => {
+    void utils.transaction.getAll.invalidate();
+    void utils.cashFlow.getMonthlyCashFlow.invalidate();
+    void utils.cashFlow.getAll.invalidate();
+    void utils.dashboard.getSummary.invalidate();
+  };
+
+  const handleEdit = () => {
+    setEditingTransaction(row.original);
+    setEditDialogOpen(true);
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontalIcon />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+        <DropdownMenuItem
+          onClick={() => saveTemplate({ transactionId: row.original.id })}
+        >
+          Save to quick add
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
+        <DropdownMenuItem
+          className="text-red-500"
+          onClick={() =>
+            confirm({
+              itemType: "transaction",
+              itemName: row.original.description,
+              onConfirm: () => deleteTransaction({ id: row.original.id }),
+            })
+          }
+        >
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+      {modal}
+      <EditTransactionDialog
+        key={`edit-transaction-dialog-${isEditDialogOpen}`}
+        isOpen={isEditDialogOpen}
+        transaction={editingTransaction}
+        onOpenChange={setEditDialogOpen}
+        onSuccess={handleEdited}
+      />
+    </DropdownMenu>
+  );
+}
+
+// Single source of truth for column definitions.
+const columnsByKey = {
+  description: columnHelper.accessor("description", {
     header: "Description",
     cell: ({ getValue }) => (
       <TooltipProvider>
@@ -59,19 +132,19 @@ export const baseTransactionColumns = [
       </TooltipProvider>
     ),
   }),
-  columnHelper.accessor("timestamp", {
+  date: columnHelper.accessor("timestamp", {
     header: "Date",
     cell: ({ getValue }) => {
       return formatDate({ date: getValue() });
     },
   }),
-  columnHelper.accessor("category.name", {
+  category: columnHelper.accessor("category.name", {
     header: "Category",
     cell: ({ getValue }) => {
       return <Badge variant="secondary">{getValue()}</Badge>;
     },
   }),
-  columnHelper.accessor("type", {
+  type: columnHelper.accessor("type", {
     header: "Type",
     cell: ({ getValue }) => {
       return (
@@ -81,7 +154,7 @@ export const baseTransactionColumns = [
       );
     },
   }),
-  columnHelper.accessor("amount", {
+  amount: columnHelper.accessor("amount", {
     header: "Amount",
     cell: ({ getValue, row }) => {
       const isExpense = row.original.type === "EXPENSE";
@@ -107,85 +180,27 @@ export const baseTransactionColumns = [
       headerClassName: "text-right",
     },
   }),
-];
-
-export const transactionColumns = [
-  ...baseTransactionColumns,
-  columnHelper.display({
+  actions: columnHelper.display({
     id: "actions",
-    cell: ({ row }) => {
-      const utils = api.useUtils();
-      const { mutate: saveTemplate } =
-        api.transactionTemplate.create.useMutation({
-          onSuccess: () => {
-            toast.success("Transaction template created.");
-            void utils.transactionTemplate.getAll.invalidate();
-          },
-        });
-      const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
-        onSuccess: () => {
-          toast.success("Transaction deleted.");
-          handleEdited();
-        },
-      });
-      const { confirm, modal } = useConfirmDelete();
-      const [editingTransaction, setEditingTransaction] =
-        useState<TransactionRow>();
-      const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-
-      const handleEdited = () => {
-        void utils.transaction.getAll.invalidate();
-        void utils.cashFlow.getMonthlyCashFlow.invalidate();
-        void utils.cashFlow.getAll.invalidate();
-        void utils.dashboard.getSummary.invalidate();
-      };
-
-      const handleEdit = () => {
-        setEditingTransaction(row.original);
-        setEditDialogOpen(true);
-      };
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontalIcon />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-            <DropdownMenuItem
-              onClick={() => saveTemplate({ transactionId: row.original.id })}
-            >
-              Save to quick add
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-500"
-              onClick={() =>
-                confirm({
-                  itemType: "transaction",
-                  itemName: row.original.description,
-                  onConfirm: () => deleteTransaction({ id: row.original.id }),
-                })
-              }
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-          {modal}
-          <EditTransactionDialog
-            key={`edit-transaction-dialog-${isEditDialogOpen}`}
-            isOpen={isEditDialogOpen}
-            transaction={editingTransaction}
-            onOpenChange={setEditDialogOpen}
-            onSuccess={handleEdited}
-          />
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <ActionsCell row={row} />,
   }),
-];
+} as const;
+
+type ColumnKey = keyof typeof columnsByKey;
+const buildColumns = (keys: ColumnKey[]) => keys.map((k) => columnsByKey[k]);
+
+export const baseTransactionColumns = buildColumns([
+  "description",
+  "date",
+  "category",
+  "amount",
+]);
+
+export const transactionColumns = buildColumns([
+  "description",
+  "date",
+  "category",
+  "type",
+  "amount",
+  "actions",
+]);
