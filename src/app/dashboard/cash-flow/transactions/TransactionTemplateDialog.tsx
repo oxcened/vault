@@ -24,6 +24,7 @@ import {
   CommandList,
 } from "~/components/ui/command";
 import { cn } from "~/lib/utils";
+import { TransactionStatus } from "@prisma/client";
 
 export type TransactionTemplateDialogProps = {
   isOpen: boolean;
@@ -49,6 +50,7 @@ export default function TransactionTemplateDialog({
         ...template,
         amount: template.amount.toNumber(),
         timestamp: new Date(),
+        status: "POSTED" as const satisfies TransactionStatus,
       }
     : undefined;
 

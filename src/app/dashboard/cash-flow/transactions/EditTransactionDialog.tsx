@@ -13,7 +13,11 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import TransactionForm from "./TransactionForm";
 import { type CreateTransaction } from "~/trpc/schemas/transaction";
-import { type Prisma, type TransactionType } from "@prisma/client";
+import {
+  TransactionStatus,
+  type Prisma,
+  type TransactionType,
+} from "@prisma/client";
 
 export type EditTransactionDialogProps = {
   transaction?: {
@@ -24,6 +28,7 @@ export type EditTransactionDialogProps = {
     description: string;
     currency: string;
     categoryId: string;
+    status: TransactionStatus;
   };
   isOpen: boolean;
   onOpenChange: (newOpen: boolean) => void;
@@ -52,6 +57,7 @@ export default function EditTransactionDialog({
         currency: transaction.currency,
         description: transaction.description,
         timestamp: transaction.timestamp,
+        status: transaction.status,
       }
     : undefined;
 

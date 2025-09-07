@@ -26,7 +26,7 @@ import {
   type CreateTransaction,
   createTransactionSchema,
 } from "~/trpc/schemas/transaction";
-import { TransactionType } from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
 import {
   Popover,
   PopoverContent,
@@ -55,11 +55,13 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
         description: "",
         timestamp: new Date(),
         type: "" as TransactionType,
+        status: "POSTED" satisfies TransactionStatus,
       },
       resolver: yupResolver(createTransactionSchema),
     });
 
     const watchType = form.watch("type");
+    const watchStatus = form.watch("status");
 
     const { data: categories = [], isPending: isFetchingCategories } =
       api.transactionCategory.getByType.useQuery(
@@ -79,7 +81,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
       <Form {...form}>
         <form
           id={formId}
-          className="grid grid-cols-1 gap-2 md:grid-cols-3"
+          className="grid grid-cols-1 gap-2 md:grid-cols-2"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
@@ -103,6 +105,37 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                         className="capitalize"
                       >
                         {type.toLocaleLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="capitalize">
+                      <SelectValue placeholder="Select a status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.values(TransactionStatus).map((status) => (
+                      <SelectItem
+                        key={status}
+                        value={status}
+                        className="capitalize"
+                      >
+                        {status.toLocaleLowerCase()}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -168,7 +201,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             control={form.control}
             name="categoryId"
             render={({ field }) => (
-              <FormItem className="md:col-span-2">
+              <FormItem>
                 <FormLabel>Category</FormLabel>
 
                 <Select
@@ -222,10 +255,14 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
+                      initialFocus
                       mode="single"
                       selected={field.value}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
+                      disabled={(date) =>
+                        watchStatus === "POSTED"
+                          ? date > new Date()
+                          : date < new Date()
+                      }
                       defaultMonth={field.value}
                       onSelect={(date) =>
                         date &&

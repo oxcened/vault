@@ -1,4 +1,4 @@
-import { TransactionType } from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
 import * as yup from "yup";
 
 export const createTransactionSchema = yup.object({
@@ -12,6 +12,11 @@ export const createTransactionSchema = yup.object({
     .label("Type")
     .required(),
   categoryId: yup.string().label("Category").required(),
+  status: yup
+    .string()
+    .oneOf(Object.values(TransactionStatus))
+    .label("Status")
+    .required(),
 });
 
 export type CreateTransaction = yup.InferType<typeof createTransactionSchema>;

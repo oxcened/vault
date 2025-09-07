@@ -7,10 +7,10 @@ import {
 import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
-import { TransactionType } from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
-type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
+export type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
 const ALLOWED_SORT_ORDERS = ["asc", "desc"] as const;
 type SortOrder = (typeof ALLOWED_SORT_ORDERS)[number];
 
@@ -38,6 +38,14 @@ export const transactionRouter = createTRPCRouter({
               .oneOf(Object.values(TransactionType)),
           )
           .optional(),
+        statuses: yup
+          .array(
+            yup
+              .string<TransactionStatus>()
+              .required()
+              .oneOf(Object.values(TransactionStatus)),
+          )
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -51,6 +59,9 @@ export const transactionRouter = createTRPCRouter({
           : {}),
         type: {
           in: input.types,
+        },
+        status: {
+          in: input.statuses,
         },
       };
 
@@ -71,6 +82,7 @@ export const transactionRouter = createTRPCRouter({
             timestamp: true,
             description: true,
             type: true,
+            status: true,
             categoryId: true,
             category: {
               select: {
@@ -111,6 +123,7 @@ export const transactionRouter = createTRPCRouter({
             currency: input.currency,
             description: input.description,
             type: input.type,
+            status: input.status,
             category: { connect: { id: input.categoryId } },
             createdBy: { connect: { id: ctx.session.user.id } },
           },
