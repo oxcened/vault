@@ -71,6 +71,16 @@ export const baseTransactionColumns = [
       return <Badge variant="secondary">{getValue()}</Badge>;
     },
   }),
+  columnHelper.accessor("type", {
+    header: "Type",
+    cell: ({ getValue }) => {
+      return (
+        <Badge variant="secondary" className="capitalize">
+          {getValue().toLocaleLowerCase()}
+        </Badge>
+      );
+    },
+  }),
   columnHelper.accessor("amount", {
     header: "Amount",
     cell: ({ getValue, row }) => {

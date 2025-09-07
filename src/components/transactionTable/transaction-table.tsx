@@ -70,6 +70,11 @@ export function TransactionTable() {
     meta: {
       id: "transactions",
     },
+    initialState: {
+      columnVisibility: {
+        type: false,
+      },
+    },
   });
 
   const utils = api.useUtils();
