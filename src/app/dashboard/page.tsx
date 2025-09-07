@@ -30,6 +30,7 @@ export default function OverviewPage() {
       sortOrder: "desc",
       sortField: "timestamp",
       includeTotal: false,
+      statuses: ["POSTED"],
     });
 
   const handleTransactionCreated = () => {
