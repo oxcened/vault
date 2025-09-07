@@ -198,6 +198,7 @@ model Transaction {
     createdAt   DateTime            @default(now())
     updatedAt   DateTime            @updatedAt
     createdById String
+    status      TransactionStatus   @default(POSTED)
     createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
     category    TransactionCategory @relation(fields: [categoryId], references: [id])
 }
@@ -222,6 +223,11 @@ enum TransactionType {
     INCOME
     EXPENSE
     TRANSFER
+}
+
+enum TransactionStatus {
+    POSTED
+    PLANNED
 }
 
 model CashFlow {
