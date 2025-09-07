@@ -1,5 +1,5 @@
 import { DataTable } from "../ui/data-table";
-import { getCoreRowModel } from "@tanstack/react-table";
+import { getCoreRowModel, SortingState } from "@tanstack/react-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { AddTransactionDropdown } from "../add-transaction-dropdown";
 import { DataTablePagination } from "../ui/data-table-pagination";
@@ -13,7 +13,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
 import { FilterIcon, XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
-import { TransactionType } from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "~/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { SortField } from "~/server/api/routers/transaction";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
@@ -40,19 +42,29 @@ export function TransactionTable() {
 
   const [filters, setFilters] = useState<{
     types: TransactionType[];
+    status: TransactionStatus;
   }>({
     types: Object.values(TransactionType),
+    status: "POSTED",
   });
+
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: "timestamp",
+      desc: true,
+    },
+  ]);
 
   const { data, isPending } = api.transaction.getAll.useQuery(
     {
       page: pagination.pageIndex + 1,
       pageSize: pagination.pageSize,
-      sortOrder: "desc",
-      sortField: "timestamp",
+      sortOrder: sorting[0]?.desc ? "desc" : "asc",
+      sortField: (sorting[0]?.id as SortField) ?? "timestamp",
       includeTotal: true,
       query: debouncedQuery,
       types: filters.types,
+      statuses: [filters.status],
     },
     {
       placeholderData: keepPreviousData,
@@ -63,7 +75,7 @@ export function TransactionTable() {
     data: data?.items ?? [],
     columns: transactionColumns,
     getCoreRowModel: getCoreRowModel(),
-    state: { pagination },
+    state: { pagination, sorting },
     onPaginationChange: setPagination,
     manualPagination: true,
     pageCount: data?.totalPages ?? 1,
@@ -75,6 +87,8 @@ export function TransactionTable() {
         type: false,
       },
     },
+    onSortingChange: setSorting,
+    enableSorting: true,
   });
 
   const utils = api.useUtils();
@@ -89,26 +103,28 @@ export function TransactionTable() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-2 md:flex-row">
-        <div className="relative flex-1">
-          <Input
-            ref={inputRef}
-            placeholder="Search transactions..."
-            onChange={(e) => search(e.target.value)}
-          />
-
-          {debouncedQuery && (
-            <Button
-              type="button"
-              className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
-              size="icon"
-              variant="ghost"
-              onClick={handleClear}
-            >
-              <XIcon />
-              <span className="sr-only">Clear search</span>
-            </Button>
-          )}
-        </div>
+        <Tabs
+          className="mr-auto"
+          value={filters.status}
+          onValueChange={(value) => {
+            setFilters({ ...filters, status: value as TransactionStatus });
+            setSorting([
+              {
+                id: "timestamp",
+                desc: value === "POSTED",
+              },
+            ]);
+          }}
+        >
+          <TabsList>
+            <TabsTrigger value={"POSTED" satisfies TransactionStatus}>
+              Past
+            </TabsTrigger>
+            <TabsTrigger value={"PLANNED" satisfies TransactionStatus}>
+              Upcoming
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -142,7 +158,31 @@ export function TransactionTable() {
         </DropdownMenu>
 
         <DataTableColumns table={table} />
+
         <AddTransactionDropdown onSuccess={handleCreated} />
+      </div>
+
+      <div className="flex flex-col gap-2 md:flex-row">
+        <div className="relative flex-1">
+          <Input
+            ref={inputRef}
+            placeholder="Search transactions..."
+            onChange={(e) => search(e.target.value)}
+          />
+
+          {debouncedQuery && (
+            <Button
+              type="button"
+              className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+              size="icon"
+              variant="ghost"
+              onClick={handleClear}
+            >
+              <XIcon />
+              <span className="sr-only">Clear search</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {isPending ? <TableSkeleton /> : <DataTable table={table} />}

@@ -1,4 +1,8 @@
-import type { Prisma, TransactionType } from "@prisma/client";
+import type {
+  Prisma,
+  TransactionStatus,
+  TransactionType,
+} from "@prisma/client";
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import { Currency } from "../ui/number";
 import { cn } from "~/lib/utils";
@@ -37,6 +41,7 @@ export type TransactionRow = {
   description: string;
   currency: string;
   categoryId: string;
+  status: TransactionStatus;
 };
 
 const columnHelper = createColumnHelper<TransactionRow>();
@@ -131,18 +136,21 @@ const columnsByKey = {
         </Tooltip>
       </TooltipProvider>
     ),
+    enableSorting: false,
   }),
   date: columnHelper.accessor("timestamp", {
     header: "Date",
     cell: ({ getValue }) => {
       return formatDate({ date: getValue() });
     },
+    enableSorting: true,
   }),
   category: columnHelper.accessor("category.name", {
     header: "Category",
     cell: ({ getValue }) => {
       return <Badge variant="secondary">{getValue()}</Badge>;
     },
+    enableSorting: false,
   }),
   type: columnHelper.accessor("type", {
     header: "Type",
@@ -153,6 +161,7 @@ const columnsByKey = {
         </Badge>
       );
     },
+    enableSorting: false,
   }),
   amount: columnHelper.accessor("amount", {
     header: "Amount",
@@ -179,10 +188,12 @@ const columnsByKey = {
       cellClassName: "text-right",
       headerClassName: "text-right",
     },
+    enableSorting: false,
   }),
   actions: columnHelper.display({
     id: "actions",
     cell: ({ row }) => <ActionsCell row={row} />,
+    enableSorting: false,
   }),
 } as const;
 
