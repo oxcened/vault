@@ -91,7 +91,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
 
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="capitalize">
                       <SelectValue placeholder="Select a type" />
                     </SelectTrigger>
                   </FormControl>
