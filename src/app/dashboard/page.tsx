@@ -18,25 +18,19 @@ import { NetWorthCard } from "./NetWorthCard";
 import { CashFlowCard } from "./CashFlowCard";
 import { AddTransactionDropdown } from "~/components/add-transaction-dropdown";
 import { RecentTransactionTable } from "~/components/transactionTable/recent-transaction-table";
-import { keepPreviousData } from "@tanstack/react-query";
 
 export default function OverviewPage() {
   const { data, isPending, refetch } = api.dashboard.getSummary.useQuery();
   const { data: session, status } = useSession();
   const utils = api.useUtils();
   const { data: transactions, isPending: transactionsPending } =
-    api.transaction.getAll.useQuery(
-      {
-        page: 1,
-        pageSize: 5,
-        sortOrder: "desc",
-        sortField: "timestamp",
-        includeTotal: false,
-      },
-      {
-        placeholderData: keepPreviousData,
-      },
-    );
+    api.transaction.getAll.useQuery({
+      page: 1,
+      pageSize: 5,
+      sortOrder: "desc",
+      sortField: "timestamp",
+      includeTotal: false,
+    });
 
   const handleTransactionCreated = () => {
     void refetch();
