@@ -97,8 +97,12 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                   </FormControl>
                   <SelectContent>
                     {Object.values(TransactionType).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
+                      <SelectItem
+                        key={type}
+                        value={type}
+                        className="capitalize"
+                      >
+                        {type.toLocaleLowerCase()}
                       </SelectItem>
                     ))}
                   </SelectContent>
