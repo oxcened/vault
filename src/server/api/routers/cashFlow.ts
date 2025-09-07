@@ -90,6 +90,9 @@ export const cashFlowRouter = createTRPCRouter({
     const cashFlowByMonth = await ctx.db.cashFlow.findMany({
       where: {
         createdById: ctx.session.user.id,
+        timestamp: {
+          lte: new Date(),
+        },
       },
       orderBy: {
         timestamp: "desc",
