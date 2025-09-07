@@ -46,6 +46,8 @@ export const transactionRouter = createTRPCRouter({
               .oneOf(Object.values(TransactionStatus)),
           )
           .optional(),
+        timestampFrom: yup.date().optional(),
+        timestampTo: yup.date().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -62,6 +64,10 @@ export const transactionRouter = createTRPCRouter({
         },
         status: {
           in: input.statuses,
+        },
+        timestamp: {
+          gte: input.timestampFrom,
+          lte: input.timestampTo,
         },
       };
 

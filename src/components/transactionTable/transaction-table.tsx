@@ -13,7 +13,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
 import { FilterIcon, XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
-import { TransactionStatus, TransactionType } from "@prisma/client";
+import { type TransactionStatus, TransactionType } from "@prisma/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +23,8 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { SortField } from "~/server/api/routers/transaction";
+
+type Tab = TransactionStatus | "OVERDUE";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
@@ -42,7 +44,7 @@ export function TransactionTable() {
 
   const [filters, setFilters] = useState<{
     types: TransactionType[];
-    status: TransactionStatus;
+    status: Tab;
   }>({
     types: Object.values(TransactionType),
     status: "POSTED",
@@ -64,7 +66,17 @@ export function TransactionTable() {
       includeTotal: true,
       query: debouncedQuery,
       types: filters.types,
-      statuses: [filters.status],
+      statuses: [
+        (
+          {
+            POSTED: "POSTED",
+            PLANNED: "PLANNED",
+            OVERDUE: "PLANNED",
+          } as const
+        )[filters.status],
+      ],
+      timestampTo: filters.status === "OVERDUE" ? new Date() : undefined,
+      timestampFrom: filters.status === "PLANNED" ? new Date() : undefined,
     },
     {
       placeholderData: keepPreviousData,
@@ -107,7 +119,7 @@ export function TransactionTable() {
           className="mr-auto"
           value={filters.status}
           onValueChange={(value) => {
-            setFilters({ ...filters, status: value as TransactionStatus });
+            setFilters({ ...filters, status: value as Tab });
             setSorting([
               {
                 id: "timestamp",
@@ -117,12 +129,9 @@ export function TransactionTable() {
           }}
         >
           <TabsList>
-            <TabsTrigger value={"POSTED" satisfies TransactionStatus}>
-              Past
-            </TabsTrigger>
-            <TabsTrigger value={"PLANNED" satisfies TransactionStatus}>
-              Upcoming
-            </TabsTrigger>
+            <TabsTrigger value={"POSTED" satisfies Tab}>Posted</TabsTrigger>
+            <TabsTrigger value={"PLANNED" satisfies Tab}>Upcoming</TabsTrigger>
+            <TabsTrigger value={"OVERDUE" satisfies Tab}>Overdue</TabsTrigger>
           </TabsList>
         </Tabs>
 
