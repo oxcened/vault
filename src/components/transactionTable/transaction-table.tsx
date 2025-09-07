@@ -118,7 +118,7 @@ export function TransactionTable() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Types</DropdownMenuLabel>
+            <DropdownMenuLabel>Type</DropdownMenuLabel>
             {Object.values(TransactionType).map((type) => (
               <DropdownMenuCheckboxItem
                 key={type}
