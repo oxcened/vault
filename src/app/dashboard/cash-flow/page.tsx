@@ -120,7 +120,7 @@ export default function CashFlowPage() {
 
         {!isPending && (
           <div>
-            <p className="text-sm text-muted-foreground">Cash flow</p>
+            <p className="text-sm text-muted-foreground">MTD cash flow</p>
 
             <div className="flex items-end gap-3">
               <p className="text-3xl font-semibold">

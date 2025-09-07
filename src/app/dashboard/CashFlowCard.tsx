@@ -19,7 +19,7 @@ export function CashFlowCard() {
   return (
     <Card>
       <CardHeader className="flex-row justify-between space-y-0 pb-2">
-        <CardDescription>Cash flow</CardDescription>
+        <CardDescription>MTD cash flow</CardDescription>
         <TrendIndicator value={data.cashFlowTrend} />
       </CardHeader>
 
