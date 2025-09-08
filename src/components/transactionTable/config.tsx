@@ -163,6 +163,17 @@ const columnsByKey = {
     },
     enableSorting: false,
   }),
+  status: columnHelper.accessor("status", {
+    header: "Status",
+    cell: ({ getValue }) => {
+      return (
+        <Badge variant="secondary" className="capitalize">
+          {getValue().toLocaleLowerCase()}
+        </Badge>
+      );
+    },
+    enableSorting: false,
+  }),
   amount: columnHelper.accessor("amount", {
     header: "Amount",
     cell: ({ getValue, row }) => {
@@ -212,6 +223,7 @@ export const transactionColumns = buildColumns([
   "date",
   "category",
   "type",
+  "status",
   "amount",
   "actions",
 ]);

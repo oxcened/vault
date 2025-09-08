@@ -97,6 +97,7 @@ export function TransactionTable() {
     initialState: {
       columnVisibility: {
         type: false,
+        status: false,
       },
     },
     onSortingChange: setSorting,
