@@ -113,21 +113,27 @@ export function TransactionTable() {
     void utils.dashboard.getSummary.invalidate();
   };
 
+  const handleTabChange = (value: Tab) => {
+    setFilters({ ...filters, status: value as Tab });
+    setSorting([
+      {
+        id: "timestamp",
+        desc: value === "POSTED",
+      },
+    ]);
+    setPagination((pagination) => ({
+      ...pagination,
+      pageIndex: 0,
+    }));
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-2 md:flex-row">
         <Tabs
           className="mr-auto"
           value={filters.status}
-          onValueChange={(value) => {
-            setFilters({ ...filters, status: value as Tab });
-            setSorting([
-              {
-                id: "timestamp",
-                desc: value === "POSTED",
-              },
-            ]);
-          }}
+          onValueChange={(value) => handleTabChange(value as Tab)}
         >
           <TabsList>
             <TabsTrigger value={"POSTED" satisfies Tab}>Posted</TabsTrigger>
