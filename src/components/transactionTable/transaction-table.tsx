@@ -114,7 +114,7 @@ export function TransactionTable() {
   };
 
   const handleTabChange = (value: Tab) => {
-    setFilters({ ...filters, status: value as Tab });
+    setFilters({ ...filters, status: value });
     setSorting([
       {
         id: "timestamp",
