@@ -80,6 +80,9 @@ export function TransactionTable() {
     },
     {
       placeholderData: keepPreviousData,
+      meta: {
+        persist: false,
+      },
     },
   );
 
