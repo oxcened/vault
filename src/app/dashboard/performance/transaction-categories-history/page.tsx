@@ -157,9 +157,7 @@ export default function TransactionCategoriesPage() {
                 mode="range"
                 selected={dateRange}
                 defaultMonth={dateRange.from}
-                onSelect={(date) =>
-                  setDateRange((oldDate) => (date ? date : oldDate))
-                }
+                onSelect={(date) => setDateRange((oldDate) => date ?? oldDate)}
               />
             </PopoverContent>
           </Popover>
