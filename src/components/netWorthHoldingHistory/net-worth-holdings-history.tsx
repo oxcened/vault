@@ -93,7 +93,7 @@ export default function NetWorthHoldingsHistory({
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="/dashboard/net-worth">
-                Net worth
+                Performance & History
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />

@@ -94,6 +94,10 @@ const data = {
           title: "Cash flow history",
           url: "/dashboard/performance/cash-flow-history",
         },
+        {
+          title: "Transaction categories history",
+          url: "/dashboard/performance/transaction-categories-history",
+        },
       ],
     },
     {

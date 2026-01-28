@@ -7,7 +7,14 @@ import {
 import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
-import { TransactionStatus, TransactionType } from "@prisma/client";
+import {
+  Prisma,
+  TransactionCategoryType,
+  TransactionStatus,
+  TransactionType,
+} from "@prisma/client";
+import { DECIMAL_ZERO } from "~/utils/number";
+import { endOfDay, startOfDay } from "date-fns";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
 export type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
@@ -198,5 +205,94 @@ export const transactionRouter = createTRPCRouter({
       });
 
       return updated;
+    }),
+
+  aggregateByCategory: protectedProcedure
+    .input(
+      yup.object({
+        fromDate: yup.date().required(),
+        toDate: yup.date().required(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const fromDate = startOfDay(input.fromDate);
+      const toDate = endOfDay(input.toDate);
+
+      const [rangeStart, rangeEnd] =
+        fromDate <= toDate ? [fromDate, toDate] : [toDate, fromDate];
+
+      const groupedByCategory = await ctx.db.transaction.groupBy({
+        by: ["categoryId"],
+        where: {
+          createdById: ctx.session.user.id,
+          timestamp: {
+            gte: rangeStart,
+            lte: rangeEnd,
+          },
+          status: TransactionStatus.POSTED,
+        },
+        _sum: {
+          amount: true,
+        },
+        _count: {
+          _all: true,
+        },
+      });
+
+      console.log("ciaooooooooooooo");
+      console.log(groupedByCategory);
+
+      if (!groupedByCategory.length) {
+        return [];
+      }
+
+      const categories = await ctx.db.transactionCategory.findMany({
+        where: {
+          id: {
+            in: groupedByCategory.map((group) => group.categoryId),
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+        },
+      });
+
+      const categoryById = new Map(
+        categories.map((category) => [category.id, category]),
+      );
+
+      type CategoryAggregate = {
+        categoryId: string;
+        categoryName: string;
+        categoryType: TransactionCategoryType;
+        totalAmount: Prisma.Decimal;
+        transactionCount: number;
+      };
+
+      console.log("ciaooooooooooooo");
+      console.log(groupedByCategory);
+
+      return groupedByCategory
+        .map<CategoryAggregate | null>((group) => {
+          const category = categoryById.get(group.categoryId);
+
+          if (!category) {
+            return null;
+          }
+
+          return {
+            categoryId: category.id,
+            categoryName: category.name,
+            categoryType: category.type,
+            totalAmount: group._sum.amount ?? DECIMAL_ZERO,
+            transactionCount: group._count?._all ?? 0,
+          };
+        })
+        .filter((group): group is CategoryAggregate => Boolean(group))
+        .sort((a, b) => {
+          return b.totalAmount.abs().minus(a.totalAmount.abs()).toNumber();
+        });
     }),
 });
