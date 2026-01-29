@@ -34,8 +34,8 @@ const today = DateTime.now();
 
 export default function TransactionCategoriesPage() {
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: today.startOf("month").startOf("day").toUTC().toJSDate(),
-    to: today.endOf("month").endOf("day").toUTC().toJSDate(),
+    from: today.startOf("month").startOf("day").toJSDate(),
+    to: today.endOf("month").endOf("day").toJSDate(),
   });
 
   const rangeLabel = useMemo(() => {

@@ -14,7 +14,6 @@ import {
   TransactionType,
 } from "@prisma/client";
 import { DECIMAL_ZERO } from "~/utils/number";
-import { endOfDay, startOfDay } from "date-fns";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
 export type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
@@ -215,8 +214,8 @@ export const transactionRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const fromDate = startOfDay(input.fromDate);
-      const toDate = endOfDay(input.toDate);
+      const fromDate = input.fromDate;
+      const toDate = input.toDate;
 
       const [rangeStart, rangeEnd] =
         fromDate <= toDate ? [fromDate, toDate] : [toDate, fromDate];
@@ -238,9 +237,6 @@ export const transactionRouter = createTRPCRouter({
           _all: true,
         },
       });
-
-      console.log("ciaooooooooooooo");
-      console.log(groupedByCategory);
 
       if (!groupedByCategory.length) {
         return [];
@@ -270,9 +266,6 @@ export const transactionRouter = createTRPCRouter({
         totalAmount: Prisma.Decimal;
         transactionCount: number;
       };
-
-      console.log("ciaooooooooooooo");
-      console.log(groupedByCategory);
 
       return groupedByCategory
         .map<CategoryAggregate | null>((group) => {
