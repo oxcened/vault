@@ -10,6 +10,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -100,6 +101,32 @@ export function DataTable<TData>({
             </TableRow>
           )}
         </TableBody>
+
+        <TableFooter>
+          {table.getFooterGroups().map((footerGroup) => (
+            <TableRow key={footerGroup.id}>
+              {footerGroup.headers.map((header) => {
+                const meta = header.column.columnDef.meta;
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      meta &&
+                        "footerClassName" in meta &&
+                        typeof meta.footerClassName === "string" &&
+                        meta.footerClassName,
+                    )}
+                  >
+                    {flexRender(
+                      header.column.columnDef.footer,
+                      header.getContext(),
+                    )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableFooter>
       </Table>
     </div>
   );

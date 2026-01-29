@@ -28,18 +28,14 @@ import { DataTableColumns } from "~/components/ui/data-table-columns";
 import { useTable } from "~/hooks/useTable";
 import { Calendar } from "~/components/ui/calendar";
 import { transactionCategoryColumns } from "./config";
+import { DateTime } from "luxon";
+
+const today = DateTime.now();
 
 export default function TransactionCategoriesPage() {
-  const today = useMemo(() => {
-    const now = new Date();
-    return new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-    );
-  }, []);
-
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: today,
-    to: new Date(today),
+    from: today.startOf("month").startOf("day").toUTC().toJSDate(),
+    to: today.endOf("month").endOf("day").toUTC().toJSDate(),
   });
 
   const rangeLabel = useMemo(() => {
@@ -60,8 +56,8 @@ export default function TransactionCategoriesPage() {
 
   const { data = [], isPending } = api.transaction.aggregateByCategory.useQuery(
     {
-      fromDate: dateRange?.from ?? today,
-      toDate: dateRange?.to ?? today,
+      fromDate: dateRange.from!,
+      toDate: dateRange.to!,
     },
     {
       enabled: Boolean(dateRange),
@@ -77,13 +73,7 @@ export default function TransactionCategoriesPage() {
     [data],
   );
   const expenseData = useMemo(
-    () =>
-      data
-        .filter((row) => row.categoryType === "EXPENSE")
-        .map((row) => ({
-          ...row,
-          totalAmount: row.totalAmount.mul(-1),
-        })),
+    () => data.filter((row) => row.categoryType === "EXPENSE"),
     [data],
   );
 
