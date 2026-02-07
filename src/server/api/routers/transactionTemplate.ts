@@ -35,7 +35,6 @@ export const transactionTemplateRouter = createTRPCRouter({
           id: input.transactionId,
         },
       });
-      console.log(input);
 
       return ctx.db.transactionTemplate.create({
         data: {

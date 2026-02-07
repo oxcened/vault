@@ -93,7 +93,7 @@ export const TransactionFiltersForm = ({
           name="types"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Transaction types</FormLabel>
+              <FormLabel>Types</FormLabel>
 
               {Object.values(TransactionType).map((type) => (
                 <FormItem
@@ -130,7 +130,7 @@ export const TransactionFiltersForm = ({
           name="categories"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Select categories</FormLabel>
+              <FormLabel>Categories</FormLabel>
               <FormDescription>
                 Leave empty to select all categories
               </FormDescription>
