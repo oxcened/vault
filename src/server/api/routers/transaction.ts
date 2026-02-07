@@ -54,11 +54,19 @@ export const transactionRouter = createTRPCRouter({
           .optional(),
         timestampFrom: yup.date().optional(),
         timestampTo: yup.date().optional(),
+        categoryIds: yup.array(yup.string().required()).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { page, pageSize, query, sortField, sortOrder, includeTotal } =
-        input;
+      const {
+        page,
+        pageSize,
+        query,
+        sortField,
+        sortOrder,
+        includeTotal,
+        categoryIds,
+      } = input;
 
       const where = {
         createdById: ctx.session.user.id,
@@ -75,6 +83,9 @@ export const transactionRouter = createTRPCRouter({
           gte: input.timestampFrom,
           lte: input.timestampTo,
         },
+        ...(categoryIds && categoryIds.length > 0
+          ? { categoryId: { in: categoryIds } }
+          : {}),
       };
 
       const [items, total] = await Promise.all([

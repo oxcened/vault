@@ -11,20 +11,19 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
-import { FilterIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
 import { type TransactionStatus, TransactionType } from "@prisma/client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-} from "~/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { SortField } from "~/server/api/routers/transaction";
+import { TransactionFiltersDialog } from "./transaction-filters-dialog";
+import type { TransactionFilters as DialogTransactionFilters } from "./transaction-filters-form";
 
 type Tab = TransactionStatus | "OVERDUE";
+
+type TransactionFilters = DialogTransactionFilters & {
+  status: Tab;
+};
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
@@ -42,12 +41,10 @@ export function TransactionTable() {
     setPagination((state) => ({ ...state, pageIndex: 0 }));
   };
 
-  const [filters, setFilters] = useState<{
-    types: TransactionType[];
-    status: Tab;
-  }>({
-    types: Object.values(TransactionType),
+  const [filters, setFilters] = useState<TransactionFilters>({
     status: "POSTED",
+    types: Object.values(TransactionType),
+    categories: [],
   });
 
   const [sorting, setSorting] = useState<SortingState>([
@@ -77,6 +74,7 @@ export function TransactionTable() {
       ],
       timestampTo: filters.status === "OVERDUE" ? new Date() : undefined,
       timestampFrom: filters.status === "PLANNED" ? new Date() : undefined,
+      categoryIds: filters.categories,
     },
     {
       placeholderData: keepPreviousData,
@@ -130,6 +128,13 @@ export function TransactionTable() {
     }));
   };
 
+  const handleFilterDialogSubmit = (newFilters: DialogTransactionFilters) => {
+    setFilters((oldFilters) => ({
+      status: oldFilters.status,
+      ...newFilters,
+    }));
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-2 md:flex-row">
@@ -145,36 +150,10 @@ export function TransactionTable() {
           </TabsList>
         </Tabs>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="outline" onClick={handleClear}>
-              <FilterIcon />
-              Filters
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Type</DropdownMenuLabel>
-            {Object.values(TransactionType).map((type) => (
-              <DropdownMenuCheckboxItem
-                key={type}
-                checked={filters.types?.includes(type)}
-                className="capitalize"
-                onCheckedChange={(checked) =>
-                  setFilters((filters) => ({
-                    ...filters,
-                    types: checked
-                      ? new Set([...filters.types, type]).values().toArray()
-                      : filters.types.filter(
-                          (filterType) => filterType !== type,
-                        ),
-                  }))
-                }
-              >
-                {type.toLocaleLowerCase()}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <TransactionFiltersDialog
+          defaultValues={filters}
+          onSubmit={handleFilterDialogSubmit}
+        />
 
         <DataTableColumns table={table} />
 
