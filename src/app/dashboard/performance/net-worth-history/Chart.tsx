@@ -55,7 +55,7 @@ export function Chart({
   selectedTimeframe,
 }: {
   data: ChartDataItem[];
-  selectedTimeframe: Timeframe;
+  selectedTimeframe?: Timeframe;
 }) {
   const chartData = data.map((nw) => ({
     month: formatDate({
@@ -75,7 +75,9 @@ export function Chart({
     <Card>
       <CardHeader>
         <CardTitle>Net worth history</CardTitle>
-        <CardDescription>{selectedTimeframe.label}</CardDescription>
+        {selectedTimeframe && (
+          <CardDescription>{selectedTimeframe.label}</CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <ChartContainer

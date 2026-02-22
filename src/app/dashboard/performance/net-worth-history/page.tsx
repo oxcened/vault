@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectValue,
 } from "~/components/ui/select";
-import { isAfter, subYears } from "date-fns";
+import { subYears } from "date-fns";
 
 type Tab = "TABLE" | "CHART";
 type TimeframeId = "1Y" | "3Y" | "5Y" | "All";
