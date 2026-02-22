@@ -17,14 +17,74 @@ import { DataTable } from "~/components/ui/data-table";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
 import { useTable } from "~/hooks/useTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Chart } from "./Chart";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "~/components/ui/select";
+import { isAfter, subYears } from "date-fns";
 
 type Tab = "TABLE" | "CHART";
+type TimeframeId = "1Y" | "3Y" | "5Y" | "All";
+type Timeframe = {
+  id: TimeframeId;
+  label: string;
+  fromDate?: Date;
+};
+
+const chartTimeframes: Timeframe[] = [
+  {
+    id: "1Y",
+    label: "Last year",
+    fromDate: subYears(new Date(), 1),
+  },
+  {
+    id: "3Y",
+    label: "Last 3 years",
+    fromDate: subYears(new Date(), 3),
+  },
+  {
+    id: "5Y",
+    label: "Last 5 years",
+    fromDate: subYears(new Date(), 5),
+  },
+  {
+    id: "All",
+    label: "All time",
+    fromDate: undefined,
+  },
+] as const;
+
+function findStartIndex(
+  arr: {
+    timestamp: Date;
+  }[],
+  cutoff: Date,
+) {
+  let left = 0;
+  let right = arr.length;
+
+  while (left < right) {
+    const mid = Math.floor((left + right) / 2);
+    if (!arr[mid]) continue;
+    if (arr[mid].timestamp < cutoff) {
+      left = mid + 1;
+    } else {
+      right = mid;
+    }
+  }
+
+  return left;
+}
 
 export default function NwHistoryPage() {
   const { data = [], isPending } = api.netWorth.getAll.useQuery();
   const [tab, setTab] = useState<Tab>("TABLE");
+  const [chartTimeframe, setChartTimeframe] = useState<TimeframeId>("All");
 
   const table = useTable({
     data,
@@ -34,6 +94,16 @@ export default function NwHistoryPage() {
       id: "netWorthHistory",
     },
   });
+
+  const chartData = useMemo(() => {
+    const startingData = data.toReversed();
+    const timeframe = chartTimeframes.find(
+      (timeframe) => timeframe.id === chartTimeframe,
+    );
+    if (!timeframe?.fromDate) return startingData;
+    const startIndex = findStartIndex(startingData, timeframe?.fromDate);
+    return startingData.slice(startIndex);
+  }, [data, chartTimeframe]);
 
   return (
     <>
@@ -64,6 +134,27 @@ export default function NwHistoryPage() {
             {tab === "TABLE" && (
               <DataTableColumns table={table} className="self-end" />
             )}
+
+            {tab === "CHART" && (
+              <Select
+                value={chartTimeframe}
+                onValueChange={(value) =>
+                  setChartTimeframe(value as TimeframeId)
+                }
+              >
+                <SelectTrigger className="w-fit">
+                  <SelectValue placeholder="Select a time frame" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {chartTimeframes.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <TabsContent value={"TABLE" satisfies Tab}>
@@ -71,7 +162,7 @@ export default function NwHistoryPage() {
           </TabsContent>
 
           <TabsContent value={"CHART" satisfies Tab} className="mt-5">
-            <Chart data={data} />
+            <Chart data={chartData} />
           </TabsContent>
         </Tabs>
       </div>

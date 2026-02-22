@@ -50,12 +50,13 @@ const netWorthChartConfig: ChartConfig = {
 };
 
 export function Chart({ data }: { data: ChartDataItem[] }) {
-  const chartData = data.toReversed().map((nw) => ({
+  const chartData = data.map((nw) => ({
     month: formatDate({
       date: nw.timestamp,
       options: {
         dateStyle: undefined,
         month: "short",
+        year: "2-digit",
       },
     }),
     netWorth: nw.netValue.toNumber(),
