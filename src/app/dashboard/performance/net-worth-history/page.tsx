@@ -16,9 +16,15 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { DataTable } from "~/components/ui/data-table";
 import { DataTableColumns } from "~/components/ui/data-table-columns";
 import { useTable } from "~/hooks/useTable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { useState } from "react";
+import { Chart } from "./Chart";
+
+type Tab = "TABLE" | "CHART";
 
 export default function NwHistoryPage() {
   const { data = [], isPending } = api.netWorth.getAll.useQuery();
+  const [tab, setTab] = useState<Tab>("TABLE");
 
   const table = useTable({
     data,
@@ -48,9 +54,26 @@ export default function NwHistoryPage() {
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
-        <DataTableColumns table={table} className="self-end" />
+        <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
+          <div className="flex justify-between">
+            <TabsList>
+              <TabsTrigger value={"TABLE" satisfies Tab}>Table</TabsTrigger>
+              <TabsTrigger value={"CHART" satisfies Tab}>Chart</TabsTrigger>
+            </TabsList>
 
-        {isPending ? <TableSkeleton /> : <DataTable table={table} />}
+            {tab === "TABLE" && (
+              <DataTableColumns table={table} className="self-end" />
+            )}
+          </div>
+
+          <TabsContent value={"TABLE" satisfies Tab}>
+            {isPending ? <TableSkeleton /> : <DataTable table={table} />}
+          </TabsContent>
+
+          <TabsContent value={"CHART" satisfies Tab} className="mt-5">
+            <Chart data={data} />
+          </TabsContent>
+        </Tabs>
       </div>
     </>
   );
