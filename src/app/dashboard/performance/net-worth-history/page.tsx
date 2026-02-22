@@ -161,7 +161,7 @@ export default function NwHistoryPage() {
             {isPending ? <TableSkeleton /> : <DataTable table={table} />}
           </TabsContent>
 
-          <TabsContent value={"CHART" satisfies Tab} className="mt-5">
+          <TabsContent value={"CHART" satisfies Tab}>
             <Chart data={chartData} />
           </TabsContent>
         </Tabs>
