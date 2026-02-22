@@ -62,7 +62,6 @@ export function Chart({ data }: { data: ChartDataItem[] }) {
     totalAssets: nw.totalAssets.toNumber(),
     totalDebts: nw.totalDebts.toNumber(),
   }));
-  console.log(data, chartData);
 
   return (
     <Card>
