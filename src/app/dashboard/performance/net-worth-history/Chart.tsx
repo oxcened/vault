@@ -25,6 +25,7 @@ import { APP_CURRENCY } from "~/constants";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { formatNumber } from "~/utils/number";
+import { Timeframe } from "./page";
 
 type ChartDataItem = {
   id: string;
@@ -49,7 +50,13 @@ const netWorthChartConfig: ChartConfig = {
   },
 };
 
-export function Chart({ data }: { data: ChartDataItem[] }) {
+export function Chart({
+  data,
+  selectedTimeframe,
+}: {
+  data: ChartDataItem[];
+  selectedTimeframe: Timeframe;
+}) {
   const chartData = data.map((nw) => ({
     month: formatDate({
       date: nw.timestamp,
@@ -68,7 +75,7 @@ export function Chart({ data }: { data: ChartDataItem[] }) {
     <Card>
       <CardHeader>
         <CardTitle>Net worth history</CardTitle>
-        <CardDescription>All time</CardDescription>
+        <CardDescription>{selectedTimeframe.label}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer

@@ -30,7 +30,7 @@ import { isAfter, subYears } from "date-fns";
 
 type Tab = "TABLE" | "CHART";
 type TimeframeId = "1Y" | "3Y" | "5Y" | "All";
-type Timeframe = {
+export type Timeframe = {
   id: TimeframeId;
   label: string;
   fromDate?: Date;
@@ -95,11 +95,12 @@ export default function NwHistoryPage() {
     },
   });
 
+  const timeframe = chartTimeframes.find(
+    (timeframe) => timeframe.id === chartTimeframe,
+  );
+
   const chartData = useMemo(() => {
     const startingData = data.toReversed();
-    const timeframe = chartTimeframes.find(
-      (timeframe) => timeframe.id === chartTimeframe,
-    );
     if (!timeframe?.fromDate) return startingData;
     const startIndex = findStartIndex(startingData, timeframe?.fromDate);
     return startingData.slice(startIndex);
@@ -162,7 +163,7 @@ export default function NwHistoryPage() {
           </TabsContent>
 
           <TabsContent value={"CHART" satisfies Tab}>
-            <Chart data={chartData} />
+            <Chart data={chartData} selectedTimeframe={timeframe} />
           </TabsContent>
         </Tabs>
       </div>
