@@ -9,7 +9,11 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { TableSkeleton } from "~/components/table-skeleton";
-import { Currency, RoundedCurrency } from "~/components/ui/number";
+import {
+  Currency,
+  RoundedCurrency,
+  RoundedNumber,
+} from "~/components/ui/number";
 import type Decimal from "decimal.js";
 import { Button } from "../ui/button";
 import { PlusIcon } from "lucide-react";
@@ -18,6 +22,7 @@ import { holdingDetailColumn } from "./config";
 import { DataTable } from "../ui/data-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { useTable } from "~/hooks/useTable";
+import { Badge } from "../ui/badge";
 
 export type ValueHistoryRow = {
   timestamp: Date;
@@ -45,6 +50,7 @@ export function HoldingDetail({
   tickerName,
   valueHistory = [],
   type,
+  quantity,
   onQuantityEdit,
   onQuantityDelete,
   onNewHolding,
@@ -60,6 +66,7 @@ export function HoldingDetail({
   latestStockPrice?: Decimal;
   valueHistory?: ValueHistoryRow[];
   type: "asset" | "debt";
+  quantity?: Decimal;
   onQuantityEdit: (args: { id: string }) => void;
   onQuantityDelete: (args: { timestamp: Date }) => void;
   onNewHolding: () => void;
@@ -118,9 +125,17 @@ export function HoldingDetail({
             <div className="flex flex-col gap-2 md:flex-row">
               <div className="mr-auto">
                 <p className="text-sm text-muted-foreground">{holdingName}</p>
-                <p className="text-3xl font-semibold">
-                  <RoundedCurrency value={holdingComputedValue} />
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-3xl font-semibold">
+                    <RoundedCurrency value={holdingComputedValue} />
+                  </p>
+                  {isCategoryStock && (
+                    <Badge variant="secondary">
+                      <RoundedNumber value={quantity} />
+                      &nbsp;shares
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               <DataTableColumns table={table} />
@@ -131,14 +146,15 @@ export function HoldingDetail({
               </Button>
             </div>
 
-            <Overview
-              holdingCurrency={holdingCurrency}
-              isCategoryStock={isCategoryStock}
-              latestStockPrice={latestStockPrice}
-              ticker={ticker}
-              tickerName={tickerName}
-              tickerExchange={tickerExchange}
-            />
+            {isCategoryStock && (
+              <Overview
+                holdingCurrency={holdingCurrency}
+                latestStockPrice={latestStockPrice}
+                ticker={ticker}
+                tickerName={tickerName}
+                tickerExchange={tickerExchange}
+              />
+            )}
 
             <DataTable table={table} />
           </div>
@@ -152,7 +168,6 @@ export function Overview({
   ticker,
   tickerName,
   tickerExchange,
-  isCategoryStock,
   holdingCurrency,
   latestStockPrice,
 }: {
@@ -160,30 +175,25 @@ export function Overview({
   tickerName?: string;
   ticker?: string;
   tickerExchange?: string;
-  isCategoryStock?: boolean;
   latestStockPrice?: Decimal;
 }) {
   return (
-    <>
-      {isCategoryStock && (
-        <div className="flex items-center justify-between rounded-lg border p-5 text-sm">
-          <div>
-            <p>{tickerName}</p>
-            <p className="text-muted-foreground">
-              {ticker} &middot; {tickerExchange}
-            </p>
-          </div>
-          <p>
-            <Currency
-              value={latestStockPrice}
-              options={{
-                currency: holdingCurrency,
-                maximumFractionDigits: 2,
-              }}
-            />
-          </p>
-        </div>
-      )}
-    </>
+    <div className="flex items-center justify-between rounded-lg border p-5 text-sm">
+      <div>
+        <p>{tickerName}</p>
+        <p className="text-muted-foreground">
+          {ticker} &middot; {tickerExchange}
+        </p>
+      </div>
+      <p>
+        <Currency
+          value={latestStockPrice}
+          options={{
+            currency: holdingCurrency,
+            maximumFractionDigits: 2,
+          }}
+        />
+      </p>
+    </div>
   );
 }

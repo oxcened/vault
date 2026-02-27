@@ -80,6 +80,7 @@ export default function AssetDetailPage() {
         tickerExchange={data?.ticker?.exchange}
         isPending={isPending || isPendingQuantities}
         holdingComputedValue={data?.computedValue}
+        quantity={data?.latestQuantity?.quantity}
         holdingName={data?.name}
         type="asset"
         onQuantityEdit={handleQuantityEdit}
