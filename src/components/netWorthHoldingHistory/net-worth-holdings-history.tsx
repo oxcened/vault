@@ -122,54 +122,54 @@ export default function NetWorthHoldingsHistory({
                 />
               </div>
 
-              <DataTableColumns table={table} />
+              <div className="flex flex-wrap gap-2 [&>*]:flex-1">
+                <DataTableColumns table={table} />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <FilterIcon />
+                      Filter
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      Filter {type === "asset" ? "assets" : "debts"}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem
+                      checked={hideZeroItems}
+                      onCheckedChange={setHideZeroItems}
+                    >
+                      Hide zero {type === "asset" ? "assets" : "debts"}
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      className={cn(
+                        "font-normal",
+                        !date && "text-muted-foreground",
+                      )}
+                    >
+                      {date ? (
+                        format(date, "MMMM yyyy")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <FilterIcon />
-                    Filter
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>
-                    Filter {type === "asset" ? "assets" : "debts"}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem
-                    checked={hideZeroItems}
-                    onCheckedChange={setHideZeroItems}
-                  >
-                    Hide zero {type === "asset" ? "assets" : "debts"}
-                  </DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    className={cn(
-                      "font-normal",
-                      !date && "text-muted-foreground",
-                    )}
-                  >
-                    {date ? (
-                      format(date, "MMMM yyyy")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-
-                    <CalendarIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <MonthPicker
-                    value={date}
-                    disabled={(date) => date > new Date()}
-                    onChange={(date) => onDateChange(lastDayOfMonth(date))}
-                  />
-                </PopoverContent>
-              </Popover>
+                      <CalendarIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <MonthPicker
+                      value={date}
+                      disabled={(date) => date > new Date()}
+                      onChange={(date) => onDateChange(lastDayOfMonth(date))}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
 
             <DataTable table={table} />

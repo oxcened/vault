@@ -150,14 +150,16 @@ export function TransactionTable() {
           </TabsList>
         </Tabs>
 
-        <TransactionFiltersDialog
-          defaultValues={filters}
-          onSubmit={handleFilterDialogSubmit}
-        />
+        <div className="flex flex-wrap gap-2 [&>*]:flex-1">
+          <TransactionFiltersDialog
+            defaultValues={filters}
+            onSubmit={handleFilterDialogSubmit}
+          />
 
-        <DataTableColumns table={table} />
+          <DataTableColumns table={table} />
 
-        <AddTransactionDropdown onSuccess={handleCreated} />
+          <AddTransactionDropdown onSuccess={handleCreated} />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 md:flex-row">

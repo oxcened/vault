@@ -127,35 +127,37 @@ export default function NetWorthHoldings<T extends Holding>({
                 </p>
               </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <FilterIcon />
-                    Filter
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>
-                    Filter {holdingLabelPlural.toLocaleLowerCase()}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem
-                    checked={hideArchivedHolding}
-                    onCheckedChange={setHideArchivedHoldings}
-                  >
-                    Hide archived
-                  </DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex flex-wrap gap-2 [&>*]:flex-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <FilterIcon />
+                      Filter
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      Filter {holdingLabelPlural.toLocaleLowerCase()}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem
+                      checked={hideArchivedHolding}
+                      onCheckedChange={setHideArchivedHoldings}
+                    >
+                      Hide archived
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              <Button
-                variant="default"
-                title="Collapse holdings table"
-                onClick={() => onNewHolding()}
-              >
-                <Plus />
-                Add
-              </Button>
+                <Button
+                  variant="default"
+                  title="Collapse holdings table"
+                  onClick={() => onNewHolding()}
+                >
+                  <Plus />
+                  Add
+                </Button>
+              </div>
             </div>
 
             {categories
