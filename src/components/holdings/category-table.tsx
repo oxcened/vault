@@ -44,7 +44,7 @@ export function CategoryTable<T extends Holding>({
     columns: holdingsColumns({ isStock: category.isStock }),
     getCoreRowModel: getCoreRowModel(),
     meta: {
-      id: "exchangeRates",
+      id: `holdings_${category.id}`,
       onEditHolding,
       onDeleteHolding,
       onArchiveHolding,
