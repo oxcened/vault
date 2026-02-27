@@ -160,7 +160,11 @@ export default function TransactionCategoriesPage() {
             <section className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h2 className="font-medium">Income</h2>
-                <DataTableColumns table={incomeTable} />
+                <DataTableColumns
+                  table={incomeTable}
+                  variant="ghost"
+                  size="sm"
+                />
               </div>
               <DataTable table={incomeTable} />
             </section>
@@ -168,7 +172,11 @@ export default function TransactionCategoriesPage() {
             <section className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h2 className="font-medium">Expenses</h2>
-                <DataTableColumns table={expenseTable} />
+                <DataTableColumns
+                  table={expenseTable}
+                  variant="ghost"
+                  size="sm"
+                />
               </div>
               <DataTable table={expenseTable} />
             </section>
