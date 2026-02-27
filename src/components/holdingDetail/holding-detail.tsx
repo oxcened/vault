@@ -138,12 +138,14 @@ export function HoldingDetail({
                 </div>
               </div>
 
-              <DataTableColumns table={table} />
+              <div className="flex flex-wrap gap-2 [&>*]:flex-1">
+                <DataTableColumns table={table} />
 
-              <Button variant="default" onClick={onNewHolding}>
-                <PlusIcon />
-                Add
-              </Button>
+                <Button variant="default" onClick={onNewHolding}>
+                  <PlusIcon />
+                  Add
+                </Button>
+              </div>
             </div>
 
             {isCategoryStock && (
