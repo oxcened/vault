@@ -58,6 +58,7 @@ export type NetWorthHoldingsProps<T> = {
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
   onArchiveHolding: (holding: T) => void;
+  getHoldingDetailUrl: (holding: T) => string;
 };
 
 export default function NetWorthHoldings<T extends Holding>({
@@ -70,6 +71,7 @@ export default function NetWorthHoldings<T extends Holding>({
   onEditHolding,
   onDeleteHolding,
   onArchiveHolding,
+  getHoldingDetailUrl,
 }: NetWorthHoldingsProps<T>) {
   const [hideArchivedHolding, setHideArchivedHoldings] = useState(true);
 
@@ -180,6 +182,7 @@ export default function NetWorthHoldings<T extends Holding>({
                     onArchiveHolding={onArchiveHolding}
                     onDeleteHolding={onDeleteHolding}
                     onEditHolding={onEditHolding}
+                    getHoldingDetailUrl={getHoldingDetailUrl}
                   />
                 );
               })}

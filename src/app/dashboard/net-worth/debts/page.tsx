@@ -83,6 +83,9 @@ export default function AssetsPage() {
         onArchiveHolding={(holding) =>
           archiveDebt({ id: holding.id, archivedAt: new Date() })
         }
+        getHoldingDetailUrl={(holding) =>
+          `/dashboard/net-worth/debts/${holding.id}`
+        }
       />
 
       <NewDebtDialog

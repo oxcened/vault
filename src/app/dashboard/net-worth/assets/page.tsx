@@ -83,6 +83,9 @@ export default function AssetsPage() {
         onArchiveHolding={(holding) =>
           archiveAsset({ id: holding.id, archivedAt: new Date() })
         }
+        getHoldingDetailUrl={(holding) =>
+          `/dashboard/net-worth/assets/${holding.id}`
+        }
       />
 
       <NewAssetDialog

@@ -22,6 +22,7 @@ export function CategoryTable<T extends Holding>({
   onEditHolding,
   onDeleteHolding,
   onArchiveHolding,
+  getHoldingDetailUrl,
 }: {
   holdings: T[];
   category: NetWorthCategory;
@@ -29,6 +30,7 @@ export function CategoryTable<T extends Holding>({
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
   onArchiveHolding: (holding: T) => void;
+  getHoldingDetailUrl: (holding: T) => string;
 }) {
   const [sorting, setSorting] = useState<SortingState>([
     {
@@ -46,6 +48,7 @@ export function CategoryTable<T extends Holding>({
       onEditHolding,
       onDeleteHolding,
       onArchiveHolding,
+      getHoldingDetailUrl,
     },
     initialState: {
       columnVisibility: {

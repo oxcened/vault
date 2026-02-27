@@ -11,16 +11,38 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
 import { Holding } from "./net-worth-holdings";
 import { Badge } from "../ui/badge";
+import Link from "next/link";
 
 const columnHelper = createColumnHelper<Holding>();
 
 export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
   columnHelper.accessor("name", {
     header: "Name",
+    cell: ({ getValue, row, table }) => {
+      const tableMeta = table.options.meta;
+
+      const getDetailUrl =
+        tableMeta &&
+        "getHoldingDetailUrl" in tableMeta &&
+        typeof tableMeta.getHoldingDetailUrl === "function"
+          ? (tableMeta.getHoldingDetailUrl as (holding: Holding) => string)
+          : undefined;
+
+      return (
+        <Link
+          href={getDetailUrl?.(row.original) ?? ""}
+          className={buttonVariants({
+            variant: "link",
+          })}
+        >
+          {getValue()}
+        </Link>
+      );
+    },
   }),
   columnHelper.accessor("quantity", {
     header: "Quantity",
