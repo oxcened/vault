@@ -110,7 +110,7 @@ export function HoldingDetail({
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto w-full max-w-screen-md p-5">
+      <div className="mx-auto w-full max-w-screen-lg p-5">
         {isPending && <TableSkeleton />}
 
         {!isPending && (

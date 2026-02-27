@@ -48,7 +48,7 @@ export default function TransactionsPage() {
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto flex w-screen max-w-screen-md flex-col gap-2 p-5">
+      <div className="mx-auto flex w-screen max-w-screen-lg flex-col gap-2 p-5">
         <TransactionTable />
       </div>
     </>

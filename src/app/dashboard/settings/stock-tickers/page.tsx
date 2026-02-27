@@ -53,7 +53,7 @@ export default function StockTickersPage() {
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+      <div className="mx-auto flex w-full max-w-screen-lg flex-col gap-2 p-5">
         <div className="flex justify-end gap-2">
           <DataTableColumns table={table} />
           <Button variant="default" onClick={() => setNewDialogOpen(true)}>

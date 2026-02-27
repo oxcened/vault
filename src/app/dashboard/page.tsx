@@ -55,7 +55,7 @@ export default function OverviewPage() {
       </header>
 
       {isPending && (
-        <div className="mx-auto w-full max-w-screen-md p-5">
+        <div className="mx-auto w-full max-w-screen-lg p-5">
           <TableSkeleton />
         </div>
       )}
@@ -68,7 +68,7 @@ export default function OverviewPage() {
 
       {!isPending && data && (
         <>
-          <div className="mx-auto w-full max-w-screen-md p-5">
+          <div className="mx-auto w-full max-w-screen-lg p-5">
             <div className="flex justify-between gap-2">
               <div>
                 {status === "loading" ? (

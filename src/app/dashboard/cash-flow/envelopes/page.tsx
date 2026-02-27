@@ -126,7 +126,7 @@ export default function EnvelopesPage() {
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto flex w-screen max-w-screen-md flex-col gap-5 p-5">
+      <div className="mx-auto flex w-screen max-w-screen-lg flex-col gap-5 p-5">
         <div className="flex gap-2">
           <div className="mr-auto">
             <p className="text-sm text-muted-foreground">Envelopes pool</p>

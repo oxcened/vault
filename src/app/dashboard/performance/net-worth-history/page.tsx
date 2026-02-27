@@ -124,7 +124,7 @@ export default function NwHistoryPage() {
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-2 p-5">
+      <div className="mx-auto flex w-full max-w-screen-lg flex-col gap-2 p-5">
         <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
           <div className="flex justify-between">
             <TabsList>

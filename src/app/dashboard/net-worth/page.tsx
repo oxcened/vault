@@ -105,7 +105,7 @@ export default function NetWorthPage() {
         </Breadcrumb>
       </header>
 
-      <div className="mx-auto flex w-full max-w-screen-md flex-col gap-5 p-5">
+      <div className="mx-auto flex w-full max-w-screen-lg flex-col gap-5 p-5">
         {isPending && <TableSkeleton />}
 
         {!isPending && (
