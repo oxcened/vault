@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -60,6 +61,29 @@ export function EnvelopeForm({
               <FormControl>
                 <Input
                   placeholder="Target"
+                  type="number"
+                  step="any"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormDescription>
+                Leave empty for a flexible envelope
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Amount"
                   type="number"
                   step="any"
                   {...field}

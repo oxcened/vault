@@ -39,7 +39,8 @@ export default function EditEnvelopeDialog({
   const initialData: CreateEnvelope | undefined = envelope
     ? {
         ...envelope,
-        target: envelope.target.toNumber(),
+        target: envelope.target?.toNumber(),
+        amount: envelope.amount.toNumber(),
       }
     : undefined;
 

@@ -71,6 +71,10 @@ export default {
           negative: "rgb(var(--financial-negative))",
         },
       },
+      backgroundImage: {
+        stripes:
+          "repeating-linear-gradient(135deg, currentColor 0px, currentColor 6px, transparent 6px, transparent 12px)",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

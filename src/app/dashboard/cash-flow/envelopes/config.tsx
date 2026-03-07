@@ -11,9 +11,11 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
 import {
+  AlertTriangleIcon,
   CheckCircle2Icon,
+  CircleArrowUpIcon,
+  CircleDashedIcon,
   MoreHorizontalIcon,
-  TriangleAlertIcon,
 } from "lucide-react";
 import { Badge, BadgeProps } from "~/components/ui/badge";
 import { api, RouterOutputs } from "~/trpc/react";
@@ -22,6 +24,9 @@ import { useState } from "react";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import EditEnvelopeDialog from "./EditEnvelopeDialog";
 import { DragHandle } from "~/components/drag-handle";
+import { Progress } from "~/components/ui/progress";
+import { cn } from "~/lib/utils";
+import Decimal from "decimal.js";
 
 type EnvelopeRow = RouterOutputs["envelope"]["getAll"]["envelopes"][number];
 
@@ -33,56 +38,96 @@ export const envelopeColumns = [
     header: () => null,
     cell: ({ row }) => <DragHandle id={row.id} />,
   }),
-  columnHelper.accessor("priority", {
-    header: "#",
-  }),
   columnHelper.accessor("name", {
     header: "Name",
   }),
-  columnHelper.accessor("isFull", {
+  columnHelper.display({
     header: "Status",
-    cell: ({ getValue, row }) => {
-      const valueMap: Record<
-        number,
-        {
-          label: React.ReactNode;
-          variant: BadgeProps["variant"];
-          icon: React.ReactNode;
+    cell: ({ row }) => {
+      const getConfig = (): {
+        label: React.ReactNode;
+        variant: BadgeProps["variant"];
+        icon?: React.ReactNode;
+      } => {
+        const { amount, target } = row.original;
+
+        if (!target) {
+          return {
+            variant: "secondary",
+            icon: <CircleDashedIcon className="size-4" />,
+            label: "Flexible",
+          };
+        } else if (amount.greaterThan(target)) {
+          return {
+            variant: "secondary",
+            icon: <CircleArrowUpIcon className="size-4" />,
+            label: (
+              <>
+                Overfunded by <RoundedCurrency value={amount.minus(target)} />
+              </>
+            ),
+          };
+        } else if (amount.eq(target)) {
+          return {
+            variant: "secondary",
+            icon: <CheckCircle2Icon className="size-4" />,
+            label: "Funded",
+          };
+        } else {
+          return {
+            variant: "secondary",
+            icon: <AlertTriangleIcon className="size-4" />,
+            label: (
+              <>
+                Underfunded by <RoundedCurrency value={target.minus(amount)} />
+              </>
+            ),
+          };
         }
-      > = {
-        0: {
-          icon: <TriangleAlertIcon className="size-4" />,
-          label: (
-            <span>
-              Needs <RoundedCurrency value={row.original.shortfall} />
-            </span>
-          ),
-          variant: "destructive",
-        },
-        1: {
-          icon: <CheckCircle2Icon className="size-4" />,
-          label: "Fully funded",
-          variant: "default",
-        },
       };
 
-      const mappedValue = valueMap[Number(getValue())];
-      if (!mappedValue) return null;
+      const mappedValue = getConfig();
 
       return (
         <Badge className="gap-1" variant={mappedValue.variant}>
-          {mappedValue.icon} {mappedValue.label}
+          {mappedValue.icon}
+          {mappedValue.label}
         </Badge>
       );
     },
   }),
-  columnHelper.accessor("target", {
-    header: "Target",
-    cell: ({ getValue }) => <RoundedCurrency value={getValue()} />,
-  }),
-  columnHelper.accessor("funded", {
-    header: "Funded",
-    cell: ({ getValue }) => <RoundedCurrency value={getValue()} />,
+  columnHelper.display({
+    header: "Amount",
+    cell: ({ row }) => {
+      const { amount, target } = row.original;
+      const progressValue = target
+        ? amount.div(target).mul(100)
+        : new Decimal(0);
+
+      return (
+        <div className="flex flex-col gap-2">
+          <div>
+            <RoundedCurrency value={amount} /> /{" "}
+            <span className="text-muted-foreground">
+              {target ? <RoundedCurrency value={target} /> : "∞"}
+            </span>
+          </div>
+
+          <Progress
+            value={progressValue.toNumber()}
+            className={cn(
+              "max-w-[300px]",
+              progressValue.eq(0) && "bg-stripes text-neutral-500",
+            )}
+            indicatorClassName={cn(
+              progressValue.eq(100) && "bg-financial-positive",
+              progressValue.greaterThan(100) && "bg-purple-500",
+              progressValue.lessThan(100) && "bg-yellow-500",
+            )}
+          />
+        </div>
+      );
+    },
   }),
   columnHelper.display({
     id: "actions",

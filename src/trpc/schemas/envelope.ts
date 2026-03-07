@@ -2,7 +2,8 @@ import * as yup from "yup";
 
 export const createEnvelopeSchema = yup.object({
   name: yup.string().label("Name").required(),
-  target: yup.number().label("Target").required(),
+  target: yup.number().label("Target").optional(),
+  amount: yup.number().label("Amount").required(),
   priority: yup.number().label("Priority").required(),
 });
 

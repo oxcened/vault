@@ -40,6 +40,7 @@ import {
   type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { cn } from "~/lib/utils";
 
 export type Envelope = {
   id: string;
@@ -106,6 +107,8 @@ export default function EnvelopesPage() {
 
   const sortableId = useId();
 
+  if (!data) return null;
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -127,12 +130,32 @@ export default function EnvelopesPage() {
       </header>
 
       <div className="mx-auto flex w-screen max-w-screen-lg flex-col gap-5 p-5">
-        <div className="flex gap-2">
-          <div className="mr-auto">
-            <p className="text-sm text-muted-foreground">Envelopes pool</p>
+        <div className="flex gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">Pool</p>
             <RoundedCurrency
-              value={data?.pool}
+              value={data.pool}
               className="text-sx font-medium"
+            />
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Assigned</p>
+            <RoundedCurrency
+              value={data.pool.minus(data.remaining)}
+              className="text-sx font-medium"
+            />
+          </div>
+
+          <div className="mr-auto">
+            <p className="text-sm text-muted-foreground">Available</p>
+            <RoundedCurrency
+              value={data.remaining}
+              className={cn(
+                "text-sx font-medium",
+                data.remaining.isPos() && "text-financial-positive",
+                data.remaining.isNeg() && "text-financial-negative",
+              )}
             />
           </div>
 

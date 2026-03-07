@@ -28,25 +28,13 @@ export const envelopeRouter = createTRPCRouter({
       },
     });
 
-    let remaining = new Decimal(poolAmount);
-    const resultEnvelops: (Envelope & {
-      funded?: Decimal;
-      isFull?: boolean;
-      shortfall?: Decimal;
-    })[] = [...envelopes];
-
-    for (const envelope of resultEnvelops) {
-      envelope.funded = Decimal.min(envelope.target, remaining);
-      envelope.isFull = envelope.funded.eq(envelope.target);
-      envelope.shortfall = envelope.isFull
-        ? undefined
-        : envelope.target.minus(envelope.funded);
-
-      remaining = remaining.minus(envelope.funded);
-    }
+    const envelopesTotalAmount = envelopes.reduce((prev, curr) => {
+      return prev.plus(curr.amount);
+    }, new Decimal(0));
+    const remaining = new Decimal(poolAmount).minus(envelopesTotalAmount);
 
     return {
-      envelopes: resultEnvelops,
+      envelopes,
       pool: poolAmount,
       remaining,
     };
@@ -83,8 +71,9 @@ export const envelopeRouter = createTRPCRouter({
       const updated = await ctx.db.envelope.update({
         where: { id: input.id, createdById: ctx.session.user.id },
         data: {
-          target: input.target,
+          ...(input.target ? { target: input.target } : {}),
           name: input.name,
+          amount: input.amount,
         },
       });
 

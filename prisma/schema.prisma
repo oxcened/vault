@@ -285,7 +285,8 @@ model UserWhitelist {
 model Envelope {
     id          String   @id @default(cuid())
     name        String
-    target      Decimal  @db.Decimal(38, 18)
+    target      Decimal?  @db.Decimal(38, 18)
+    amount      Decimal  @db.Decimal(38, 18)
     priority    Int
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
