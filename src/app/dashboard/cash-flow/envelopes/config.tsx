@@ -117,7 +117,7 @@ export const envelopeColumns = [
             value={progressValue.toNumber()}
             className={cn(
               "max-w-[300px]",
-              progressValue.eq(0) && "bg-stripes text-neutral-500",
+              !target && "bg-stripes text-neutral-500",
             )}
             indicatorClassName={cn(
               progressValue.eq(100) && "bg-financial-positive",
