@@ -70,11 +70,7 @@ export const envelopeRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const updated = await ctx.db.envelope.update({
         where: { id: input.id, createdById: ctx.session.user.id },
-        data: {
-          ...(input.target ? { target: input.target } : {}),
-          name: input.name,
-          amount: input.amount,
-        },
+        data: input,
       });
 
       return updated;

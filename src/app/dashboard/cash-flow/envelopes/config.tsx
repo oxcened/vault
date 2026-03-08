@@ -114,6 +114,7 @@ export const envelopeColumns = [
           </div>
 
           <Progress
+            key={progressValue.toNumber()}
             value={progressValue.toNumber()}
             className={cn(
               "max-w-[300px]",
