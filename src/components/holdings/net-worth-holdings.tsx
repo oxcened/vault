@@ -46,6 +46,7 @@ export type Holding = {
   stockTicker?: string | null;
   tickerId?: string | null;
   archivedAt: Date | null;
+  poolInEnvelopes?: boolean | null;
 };
 
 export type NetWorthHoldingsProps<T> = {
@@ -58,6 +59,7 @@ export type NetWorthHoldingsProps<T> = {
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
   onArchiveHolding: (holding: T) => void;
+  onPoolToEnvelopesHolding?: (holding: T) => void;
   getHoldingDetailUrl: (holding: T) => string;
 };
 
@@ -71,6 +73,7 @@ export default function NetWorthHoldings<T extends Holding>({
   onEditHolding,
   onDeleteHolding,
   onArchiveHolding,
+  onPoolToEnvelopesHolding,
   getHoldingDetailUrl,
 }: NetWorthHoldingsProps<T>) {
   const [hideArchivedHolding, setHideArchivedHoldings] = useState(true);
@@ -184,6 +187,7 @@ export default function NetWorthHoldings<T extends Holding>({
                     onArchiveHolding={onArchiveHolding}
                     onDeleteHolding={onDeleteHolding}
                     onEditHolding={onEditHolding}
+                    onPoolToEnvelopesHolding={onPoolToEnvelopesHolding}
                     getHoldingDetailUrl={getHoldingDetailUrl}
                   />
                 );

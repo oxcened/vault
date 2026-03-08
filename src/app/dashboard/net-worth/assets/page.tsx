@@ -32,9 +32,8 @@ export default function AssetsPage() {
     },
   });
 
-  const { mutate: archiveAsset } = api.netWorthAsset.update.useMutation({
+  const { mutate: patchAsset } = api.netWorthAsset.update.useMutation({
     onSuccess: () => {
-      toast.success("Asset archived.");
       handleAssetSuccess();
     },
   });
@@ -61,6 +60,42 @@ export default function AssetsPage() {
   const { confirm, modal } = useConfirmDelete();
   const router = useRouter();
 
+  const handleEdit = (holding: Holding) =>
+    router.push(`/dashboard/net-worth/assets/${holding.id}`);
+  const handleDelete = (holding: Holding) => {
+    confirm({
+      itemType: "asset",
+      itemName: holding.name,
+      onConfirm: () => deleteAsset({ id: holding.id }),
+    });
+  };
+  const handleArchive = (holding: Holding) => {
+    patchAsset(
+      { id: holding.id, archivedAt: new Date() },
+      {
+        onSuccess: () => toast.success("Asset archived."),
+      },
+    );
+  };
+  const handlePoolToEnvelopes = (holding: Holding) => {
+    const newValue = !holding.poolInEnvelopes;
+
+    patchAsset(
+      {
+        id: holding.id,
+        poolInEnvelopes: newValue,
+      },
+      {
+        onSuccess: () =>
+          toast.success(
+            newValue
+              ? "Asset included in envelope pool."
+              : "Asset not included in envelope pool.",
+          ),
+      },
+    );
+  };
+
   return (
     <>
       <NetWorthHoldings
@@ -70,19 +105,10 @@ export default function AssetsPage() {
         holdingLabelPlural="Assets"
         type="asset"
         onNewHolding={() => setNewDialog(true)}
-        onEditHolding={(holding) =>
-          router.push(`/dashboard/net-worth/assets/${holding.id}`)
-        }
-        onDeleteHolding={(holding) =>
-          confirm({
-            itemType: "asset",
-            itemName: holding.name,
-            onConfirm: () => deleteAsset({ id: holding.id }),
-          })
-        }
-        onArchiveHolding={(holding) =>
-          archiveAsset({ id: holding.id, archivedAt: new Date() })
-        }
+        onEditHolding={handleEdit}
+        onDeleteHolding={handleDelete}
+        onArchiveHolding={handleArchive}
+        onPoolToEnvelopesHolding={handlePoolToEnvelopes}
         getHoldingDetailUrl={(holding) =>
           `/dashboard/net-worth/assets/${holding.id}`
         }

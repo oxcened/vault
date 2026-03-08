@@ -214,6 +214,7 @@ export const netWorthAssetRouter = createTRPCRouter({
         archivedAt: yup.date(),
         tickerId: yup.string(),
         currency: yup.string(),
+        poolInEnvelopes: yup.boolean().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

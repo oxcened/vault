@@ -5,6 +5,7 @@ import { Number, RoundedCurrency, RoundedNumber } from "~/components/ui/number";
 import { formatDate } from "~/utils/date";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -160,6 +161,13 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
           ? (tableMeta.onEditHolding as (holding: Holding) => void)
           : undefined;
 
+      const onPoolToEnvelopesHolding =
+        tableMeta &&
+        "onPoolToEnvelopesHolding" in tableMeta &&
+        typeof tableMeta.onPoolToEnvelopesHolding === "function"
+          ? (tableMeta.onPoolToEnvelopesHolding as (holding: Holding) => void)
+          : undefined;
+
       const onArchiveHolding =
         tableMeta &&
         "onArchiveHolding" in tableMeta &&
@@ -174,7 +182,7 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
           ? (tableMeta.onDeleteHolding as (holding: Holding) => void)
           : undefined;
 
-      const { quantity } = row.original;
+      const { quantity, poolInEnvelopes } = row.original;
 
       return (
         <DropdownMenu>
@@ -191,6 +199,14 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
               Details
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {poolInEnvelopes != null && (
+              <DropdownMenuCheckboxItem
+                checked={poolInEnvelopes === true}
+                onClick={() => onPoolToEnvelopesHolding?.(row.original)}
+              >
+                Include in envelope pool
+              </DropdownMenuCheckboxItem>
+            )}
             <DropdownMenuItem
               disabled={!!quantity && !quantity.eq(0)}
               onClick={() => onArchiveHolding?.(row.original)}
