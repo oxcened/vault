@@ -83,6 +83,7 @@ export default function AssetDetailPage() {
         quantity={data?.latestQuantity?.quantity}
         holdingName={data?.name}
         type="asset"
+        archivedAt={data?.archivedAt}
         onQuantityEdit={handleQuantityEdit}
         onQuantityDelete={({ timestamp }) =>
           deleteQuantity({

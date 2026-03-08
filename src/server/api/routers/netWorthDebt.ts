@@ -174,7 +174,7 @@ export const netWorthDebtRouter = createTRPCRouter({
         id: yup.string().required(),
         name: yup.string(),
         categoryId: yup.string(),
-        archivedAt: yup.date(),
+        archivedAt: yup.date().nullable(),
         currency: yup.string(),
       }),
     )

@@ -16,7 +16,7 @@ import {
 } from "~/components/ui/number";
 import type Decimal from "decimal.js";
 import { Button } from "../ui/button";
-import { PlusIcon } from "lucide-react";
+import { ArchiveIcon, PlusIcon } from "lucide-react";
 import { getCoreRowModel } from "@tanstack/react-table";
 import { holdingDetailColumn } from "./config";
 import { DataTable } from "../ui/data-table";
@@ -51,6 +51,7 @@ export function HoldingDetail({
   valueHistory = [],
   type,
   quantity,
+  archivedAt,
   onQuantityEdit,
   onQuantityDelete,
   onNewHolding,
@@ -67,6 +68,7 @@ export function HoldingDetail({
   valueHistory?: ValueHistoryRow[];
   type: "asset" | "debt";
   quantity?: Decimal;
+  archivedAt?: Date | null;
   onQuantityEdit: (args: { id: string }) => void;
   onQuantityDelete: (args: { timestamp: Date }) => void;
   onNewHolding: () => void;
@@ -124,7 +126,10 @@ export function HoldingDetail({
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2 md:flex-row">
               <div className="mr-auto">
-                <p className="text-sm text-muted-foreground">{holdingName}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground">{holdingName}</p>
+                  {archivedAt && <ArchiveIcon className="size-4" />}
+                </div>
                 <div className="flex items-center gap-2">
                   <p className="text-3xl font-semibold">
                     <RoundedCurrency value={holdingComputedValue} />

@@ -47,6 +47,7 @@ export default function AssetsPage() {
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.netWorth.getAll.invalidate();
+    void utils.netWorthAsset.getDetailById.invalidate();
   }
 
   const mappedData: Holding[] = data.map((row) => ({
@@ -70,10 +71,13 @@ export default function AssetsPage() {
     });
   };
   const handleArchive = (holding: Holding) => {
+    const newValue = holding.archivedAt ? null : new Date();
+
     patchAsset(
-      { id: holding.id, archivedAt: new Date() },
+      { id: holding.id, archivedAt: newValue },
       {
-        onSuccess: () => toast.success("Asset archived."),
+        onSuccess: () =>
+          toast.success(newValue ? "Asset archived." : "Asset unarchived."),
       },
     );
   };

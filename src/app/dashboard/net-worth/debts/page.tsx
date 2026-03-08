@@ -32,9 +32,8 @@ export default function AssetsPage() {
     },
   });
 
-  const { mutate: archiveDebt } = api.netWorthDebt.update.useMutation({
+  const { mutate: patchDebt } = api.netWorthDebt.update.useMutation({
     onSuccess: () => {
-      toast.success("Debt archived.");
       handleDebtSuccess();
     },
   });
@@ -48,6 +47,7 @@ export default function AssetsPage() {
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.netWorth.getAll.invalidate();
+    void utils.netWorthDebt.getDetailById.invalidate();
   }
 
   const mappedData: Holding[] = data.map((row) => ({
@@ -61,6 +61,27 @@ export default function AssetsPage() {
   const { confirm, modal } = useConfirmDelete();
   const router = useRouter();
 
+  const handleEdit = (holding: Holding) =>
+    router.push(`/dashboard/net-worth/debts/${holding.id}`);
+  const handleDelete = (holding: Holding) => {
+    confirm({
+      itemType: "debt",
+      itemName: holding.name,
+      onConfirm: () => deleteDebt({ id: holding.id }),
+    });
+  };
+  const handleArchive = (holding: Holding) => {
+    const newValue = holding.archivedAt ? null : new Date();
+
+    patchDebt(
+      { id: holding.id, archivedAt: newValue },
+      {
+        onSuccess: () =>
+          toast.success(newValue ? "Debt archived." : "Debt unarchived."),
+      },
+    );
+  };
+
   return (
     <>
       <NetWorthHoldings
@@ -70,19 +91,9 @@ export default function AssetsPage() {
         holdingLabelPlural="Debts"
         type="debt"
         onNewHolding={() => setNewDialog(true)}
-        onEditHolding={(holding) =>
-          router.push(`/dashboard/net-worth/debts/${holding.id}`)
-        }
-        onDeleteHolding={(holding) =>
-          confirm({
-            itemType: "debt",
-            itemName: holding.name,
-            onConfirm: () => deleteDebt({ id: holding.id }),
-          })
-        }
-        onArchiveHolding={(holding) =>
-          archiveDebt({ id: holding.id, archivedAt: new Date() })
-        }
+        onEditHolding={handleEdit}
+        onDeleteHolding={handleDelete}
+        onArchiveHolding={handleArchive}
         getHoldingDetailUrl={(holding) =>
           `/dashboard/net-worth/debts/${holding.id}`
         }

@@ -78,6 +78,7 @@ export default function DebtDetailPage() {
         holdingComputedValue={data?.computedValue}
         holdingName={data?.name}
         type="debt"
+        archivedAt={data?.archivedAt}
         onQuantityEdit={handleQuantityEdit}
         onQuantityDelete={({ timestamp }) =>
           deleteQuantity({

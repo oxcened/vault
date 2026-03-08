@@ -13,10 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { MoreHorizontalIcon } from "lucide-react";
+import { ArchiveIcon, HelpCircleIcon, MoreHorizontalIcon } from "lucide-react";
 import { Holding } from "./net-worth-holdings";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const columnHelper = createColumnHelper<Holding>();
 
@@ -41,6 +42,7 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
           })}
         >
           {getValue()}
+          {row.original.archivedAt && <ArchiveIcon />}
         </Link>
       );
     },
@@ -182,7 +184,8 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
           ? (tableMeta.onDeleteHolding as (holding: Holding) => void)
           : undefined;
 
-      const { quantity, poolInEnvelopes } = row.original;
+      const { quantity, poolInEnvelopes, archivedAt } = row.original;
+      const isArchiveDisabled = !!quantity && !quantity.eq(0);
 
       return (
         <DropdownMenu>
@@ -207,12 +210,28 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
                 Include in envelope pool
               </DropdownMenuCheckboxItem>
             )}
-            <DropdownMenuItem
-              disabled={!!quantity && !quantity.eq(0)}
-              onClick={() => onArchiveHolding?.(row.original)}
-            >
-              Archive
-            </DropdownMenuItem>
+
+            <div className="flex items-center gap-1">
+              <DropdownMenuItem
+                className="flex-1"
+                disabled={isArchiveDisabled}
+                onClick={() => onArchiveHolding?.(row.original)}
+              >
+                {archivedAt ? "Unarchive" : "Archive"}
+              </DropdownMenuItem>
+
+              {isArchiveDisabled && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircleIcon className="mr-2 size-4 opacity-50" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Quantity must be 0 to archive.
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+
             <DropdownMenuItem
               className="text-red-500"
               onClick={() => onDeleteHolding?.(row.original)}
