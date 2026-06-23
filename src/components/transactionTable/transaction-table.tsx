@@ -72,8 +72,10 @@ export function TransactionTable() {
           } as const
         )[filters.status],
       ],
-      timestampTo: filters.status === "OVERDUE" ? new Date() : undefined,
-      timestampFrom: filters.status === "PLANNED" ? new Date() : undefined,
+      timestampTo:
+        filters.status === "OVERDUE" ? new Date() : filters.dateRange?.to,
+      timestampFrom:
+        filters.status === "PLANNED" ? new Date() : filters.dateRange?.from,
       categoryIds: filters.categories,
     },
     {
@@ -144,7 +146,7 @@ export function TransactionTable() {
           onValueChange={(value) => handleTabChange(value as Tab)}
         >
           <TabsList>
-            <TabsTrigger value={"POSTED" satisfies Tab}>Posted</TabsTrigger>
+            <TabsTrigger value={"POSTED" satisfies Tab}>Past</TabsTrigger>
             <TabsTrigger value={"PLANNED" satisfies Tab}>Upcoming</TabsTrigger>
             <TabsTrigger value={"OVERDUE" satisfies Tab}>Overdue</TabsTrigger>
           </TabsList>
@@ -154,6 +156,7 @@ export function TransactionTable() {
           <TransactionFiltersDialog
             defaultValues={filters}
             onSubmit={handleFilterDialogSubmit}
+            showDateRangeFilter={filters.status === "POSTED"}
           />
 
           <DataTableColumns table={table} />

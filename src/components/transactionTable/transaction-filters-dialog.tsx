@@ -18,9 +18,11 @@ import { useState } from "react";
 
 export const TransactionFiltersDialog = ({
   defaultValues,
+  showDateRangeFilter = true,
   onSubmit,
 }: {
   defaultValues: TransactionFilters;
+  showDateRangeFilter?: boolean;
   onSubmit: (data: TransactionFilters) => void;
 }) => {
   const { data: transactionCategories = [], isPending: isLoadingCategories } =
@@ -49,6 +51,7 @@ export const TransactionFiltersDialog = ({
           defaultValues={defaultValues}
           transactionCategories={transactionCategories}
           isLoadingCategories={isLoadingCategories}
+          showDateRangeFilter={showDateRangeFilter}
           onSubmit={handleSubmit}
         />
 
