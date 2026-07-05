@@ -15,6 +15,7 @@ import {
 } from "./transaction-filters-form";
 import { api } from "~/trpc/react";
 import { useState } from "react";
+import { TransactionType } from "@prisma/client";
 
 export const TransactionFiltersDialog = ({
   defaultValues,
@@ -31,6 +32,14 @@ export const TransactionFiltersDialog = ({
 
   const handleSubmit = (data: TransactionFilters) => {
     onSubmit(data);
+    setOpen(false);
+  };
+
+  const handleReset = () => {
+    onSubmit({
+      types: Object.values(TransactionType),
+      categories: [],
+    });
     setOpen(false);
   };
 
@@ -56,6 +65,15 @@ export const TransactionFiltersDialog = ({
         />
 
         <DialogFooter>
+          <Button
+            variant="outline"
+            type="button"
+            className="mr-auto"
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+
           <DialogClose asChild>
             <Button variant="outline" type="button">
               Cancel
