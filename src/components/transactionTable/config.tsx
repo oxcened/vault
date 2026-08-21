@@ -22,6 +22,8 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { useConfirmDelete } from "../confirm-delete-modal";
 import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
+import NewTransactionDialog from "~/app/dashboard/cash-flow/transactions/NewTransactionDialog";
+import { type CreateTransaction } from "~/trpc/schemas/transaction";
 import { useState } from "react";
 import {
   Tooltip,
@@ -64,6 +66,17 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionRow>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [isOppositeDialogOpen, setOppositeDialogOpen] = useState(false);
+
+  const oppositeTransaction: CreateTransaction = {
+    amount: row.original.amount.mul(-1).toNumber(),
+    type: row.original.type,
+    categoryId: row.original.categoryId,
+    currency: row.original.currency,
+    description: row.original.description,
+    timestamp: new Date(),
+    status: "POSTED",
+  };
 
   const handleEdited = () => {
     void utils.transaction.getAll.invalidate();
@@ -93,6 +106,11 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
         >
           Save to quick add
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setOppositeDialogOpen(true)}>
+          {row.original.type === "EXPENSE" && row.original.amount.isPos()
+            ? "Add refund"
+            : "Add opposite transaction"}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
         <DropdownMenuItem
@@ -114,6 +132,18 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
         isOpen={isEditDialogOpen}
         transaction={editingTransaction}
         onOpenChange={setEditDialogOpen}
+        onSuccess={handleEdited}
+      />
+      <NewTransactionDialog
+        key={`opposite-transaction-dialog-${isOppositeDialogOpen}`}
+        isOpen={isOppositeDialogOpen}
+        initialData={oppositeTransaction}
+        title={
+          row.original.type === "EXPENSE" && row.original.amount.isPos()
+            ? "Add refund"
+            : "Add opposite transaction"
+        }
+        onOpenChange={setOppositeDialogOpen}
         onSuccess={handleEdited}
       />
     </DropdownMenu>

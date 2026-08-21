@@ -53,13 +53,14 @@ export type TransactionFormRef = { reset: () => void };
 
 export type TransactionFormProps = {
   initialData?: CreateTransaction;
+  isEditing?: boolean;
   formId?: string;
   onSubmit: (data: CreateTransaction) => void;
 };
 
 const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
-  function ({ initialData, formId, onSubmit }, ref) {
-    const [showMoreOptions, setShowMoreOptions] = useState(!!initialData);
+  function ({ initialData, isEditing = false, formId, onSubmit }, ref) {
+    const [showMoreOptions, setShowMoreOptions] = useState(isEditing);
     const [categorySuggestionSource, setCategorySuggestionSource] = useState<
       string | null
     >(null);
@@ -93,7 +94,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
           type: watchType,
         },
         {
-          enabled: !initialData && debouncedDescription.length > 0,
+          enabled: !isEditing && debouncedDescription.length > 0,
         },
       );
 
@@ -101,13 +102,13 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
       api.transaction.descriptionSuggestions.useQuery(
         { query: debouncedDescription, type: watchType },
         {
-          enabled: !initialData && debouncedDescription.length > 0,
+          enabled: !isEditing && debouncedDescription.length > 0,
         },
       );
 
     useEffect(() => {
       if (
-        initialData ||
+        isEditing ||
         categoryWasManuallySelected.current ||
         categorySuggestion === undefined
       ) {
@@ -129,7 +130,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
           shouldValidate: false,
         });
       }
-    }, [categorySuggestion, debouncedDescription, form, initialData]);
+    }, [categorySuggestion, debouncedDescription, form, isEditing]);
 
     const isToday =
       watchTimestamp?.toDateString() === new Date().toDateString();
@@ -190,7 +191,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                     currency={watchCurrency}
                     maxFractionDigits={getCurrencyFractionDigits(watchCurrency)}
                     placeholder="0.00"
-                    autoFocus={!initialData}
+                    autoFocus={!isEditing}
                     aria-invalid={!!form.formState.errors.amount}
                   />
                 </FormControl>

@@ -70,6 +70,7 @@ export default function EditTransactionDialog({
         <TransactionForm
           formId="edit-transaction-dialog-form"
           initialData={initialData}
+          isEditing
           onSubmit={(data) =>
             transaction && mutate({ ...data, id: transaction.id })
           }
