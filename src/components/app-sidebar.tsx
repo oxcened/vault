@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
   ArrowLeftRight,
-  ChartNoAxesCombined,
   CreditCard,
   Database,
   LayoutDashboard,
@@ -67,16 +66,6 @@ const navigation = {
     },
   ],
   collections: [
-    {
-      title: "Insights",
-      icon: ChartNoAxesCombined,
-      items: [
-        {
-          title: "Transaction categories",
-          url: "/dashboard/performance/transaction-categories-history",
-        },
-      ],
-    },
     {
       title: "Market data",
       icon: Database,

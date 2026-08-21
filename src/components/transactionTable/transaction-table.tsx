@@ -251,7 +251,7 @@ export function TransactionTable() {
       )}
 
       {view === "TRANSACTIONS" && selectedIds.length > 0 && (
-        <div className="hidden items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 md:flex">
+        <div className="fixed bottom-6 left-1/2 z-50 hidden w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 items-center gap-2 rounded-xl border bg-popover/95 px-3 py-2 shadow-2xl backdrop-blur md:flex">
           <span className="mr-auto text-sm font-medium">
             {selectedIds.length} selected
           </span>

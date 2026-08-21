@@ -27,6 +27,7 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { Skeleton } from "~/components/ui/skeleton";
 import { HistoryDot } from "~/components/ui/history-dot";
+import { MonthPicker } from "~/components/ui/month-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   getTransactionAccent,
@@ -49,7 +50,11 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function CashFlowPage() {
-  const { data, isPending } = api.cashFlow.getMonthlyCashFlow.useQuery();
+  const [categoryDate, setCategoryDate] = useState(new Date());
+  const { data, isPending } = api.cashFlow.getMonthlyCashFlow.useQuery(
+    { categoryDate },
+    { placeholderData: (previousData) => previousData },
+  );
 
   return (
     <>
@@ -78,7 +83,11 @@ export default function CashFlowPage() {
           <>
             <SummaryCard data={data} />
             <HistoryCard data={data} />
-            <CategoryCard data={data} />
+            <CategoryCard
+              data={data}
+              date={categoryDate}
+              onDateChange={setCategoryDate}
+            />
           </>
         ) : (
           <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
@@ -428,7 +437,15 @@ function CashFlowHistoryMetric({
   );
 }
 
-function CategoryCard({ data }: { data: Overview }) {
+function CategoryCard({
+  data,
+  date,
+  onDateChange,
+}: {
+  data: Overview;
+  date: Date;
+  onDateChange: (date: Date) => void;
+}) {
   const [type, setType] = useState<CategoryType>("EXPENSE");
   const amountKey = type === "INCOME" ? "income" : "expenses";
   const items = data.cashFlowByCategory.filter((item) => item[amountKey].gt(0));
@@ -443,21 +460,29 @@ function CategoryCard({ data }: { data: Overview }) {
         <div>
           <CardTitle>By category</CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            {format(data.latestCashFlow!.timestamp, "MMMM yyyy")}
+            {format(date, "MMMM yyyy")}
           </p>
         </div>
-        <div className="flex rounded-md border p-0.5">
-          {(["EXPENSE", "INCOME"] as const).map((option) => (
-            <Button
-              key={option}
-              variant={type === option ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 capitalize"
-              onClick={() => setType(option)}
-            >
-              {option.toLowerCase()}s
-            </Button>
-          ))}
+        <div className="flex flex-wrap gap-2">
+          <MonthPicker
+            value={date}
+            maxMonth={new Date()}
+            className="h-8 w-auto"
+            onChange={onDateChange}
+          />
+          <div className="flex rounded-md border p-0.5">
+            {(["EXPENSE", "INCOME"] as const).map((option) => (
+              <Button
+                key={option}
+                variant={type === option ? "secondary" : "ghost"}
+                size="sm"
+                className="h-7 capitalize"
+                onClick={() => setType(option)}
+              >
+                {option.toLowerCase()}s
+              </Button>
+            ))}
+          </div>
         </div>
       </CardHeader>
       <CardContent>

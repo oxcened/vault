@@ -243,7 +243,7 @@ const columnsByKey = {
                 row.toggleSelected(checked === true)
               }
               className={cn(
-                "absolute inset-0 size-9 rounded-full border-0 bg-muted opacity-0 transition-opacity before:absolute before:left-1/2 before:top-1/2 before:size-4 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-[3px] before:border before:border-muted-foreground focus-visible:opacity-100 group-hover/transaction-select:opacity-100 data-[state=checked]:bg-primary data-[state=checked]:before:border-primary-foreground",
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity focus-visible:opacity-100 group-hover/transaction-select:opacity-100",
                 row.getIsSelected() && "opacity-100",
               )}
               aria-label={`Select ${transaction.description}`}
