@@ -5,6 +5,8 @@ import {
   updateExchangeRateSchema,
 } from "~/trpc/schemas/exchangeRate";
 import { appEmitter } from "~/server/eventBus";
+import { TRPCError } from "@trpc/server";
+import { toMonthTimestamp, toNextMonthTimestamp } from "~/utils/date";
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -16,25 +18,60 @@ export const exchangeRateRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createExchangeRateSchema)
     .mutation(async ({ input, ctx }) => {
+      const baseCurrency = input.baseCurrency.toUpperCase();
+      const quoteCurrency = input.quoteCurrency.toUpperCase();
+      const timestamp = toMonthTimestamp(input.timestamp);
+      const existing = await ctx.db.exchangeRate.findFirst({
+        where: {
+          baseCurrency,
+          quoteCurrency,
+          timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+        },
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "An exchange rate already exists for this currency pair and month. Edit it instead.",
+        });
+      }
       return ctx.db.exchangeRate.create({
         data: {
-          baseCurrency: input.baseCurrency.toUpperCase(),
-          quoteCurrency: input.quoteCurrency.toUpperCase(),
+          baseCurrency,
+          quoteCurrency,
           rate: input.rate,
-          timestamp: input.timestamp,
+          timestamp,
         },
       });
     }),
   update: protectedProcedure
     .input(updateExchangeRateSchema)
     .mutation(async ({ input, ctx }) => {
+      const baseCurrency = input.baseCurrency.toUpperCase();
+      const quoteCurrency = input.quoteCurrency.toUpperCase();
+      const timestamp = toMonthTimestamp(input.timestamp);
+      const existing = await ctx.db.exchangeRate.findFirst({
+        where: {
+          baseCurrency,
+          quoteCurrency,
+          id: { not: input.id },
+          timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+        },
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "An exchange rate already exists for this currency pair and month.",
+        });
+      }
       const updated = await ctx.db.exchangeRate.update({
         where: { id: input.id },
         data: {
-          baseCurrency: input.baseCurrency,
-          quoteCurrency: input.quoteCurrency,
+          baseCurrency,
+          quoteCurrency,
           rate: input.rate,
-          timestamp: input.timestamp,
+          timestamp,
         },
       });
 

@@ -28,6 +28,7 @@ export default function NewStockPriceDialog({
       onOpenChange(false);
       onSuccess();
     },
+    onError: (error) => toast.error(error.message),
   });
 
   return (

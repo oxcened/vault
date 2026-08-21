@@ -4,7 +4,7 @@ export const createExchangeRateSchema = yup.object({
   baseCurrency: yup.string().label("Base currency").required().length(3),
   quoteCurrency: yup.string().label("Quote currency").required().length(3),
   rate: yup.number().label("Rate").required(),
-  timestamp: yup.date().label("Date").required(),
+  timestamp: yup.date().label("Month").required(),
 });
 
 export type CreateExchangeRate = yup.InferType<typeof createExchangeRateSchema>;

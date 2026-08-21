@@ -84,6 +84,8 @@ export default function AssetDetailPage() {
         holdingComputedValue={data?.computedValue}
         quantity={data?.latestQuantity?.quantity}
         holdingName={data?.name}
+        holdingCategory={data?.category?.name}
+        isLiquid={data?.isLiquid}
         type="asset"
         archivedAt={data?.archivedAt}
         onQuantityEdit={handleQuantityEdit}

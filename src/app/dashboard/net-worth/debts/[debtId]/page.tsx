@@ -79,6 +79,7 @@ export default function DebtDetailPage() {
         isPending={isPending || isPendingQuantities}
         holdingComputedValue={data?.computedValue}
         holdingName={data?.name}
+        holdingCategory={data?.category?.name}
         type="debt"
         archivedAt={data?.archivedAt}
         onQuantityEdit={handleQuantityEdit}

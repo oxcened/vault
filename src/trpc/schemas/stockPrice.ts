@@ -3,7 +3,7 @@ import * as yup from "yup";
 export const createStockPriceSchema = yup.object({
   tickerId: yup.string().label("Stock ticker").required(),
   price: yup.number().label("Price").required(),
-  timestamp: yup.date().label("Date").required(),
+  timestamp: yup.date().label("Month").required(),
 });
 
 export type CreateStockPrice = yup.InferType<typeof createStockPriceSchema>;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
@@ -15,14 +16,14 @@ import {
   getAssetValuesForUserMonth,
 } from "~/server/utils/db";
 import * as yup from "yup";
+import { toMonthTimestamp, toNextMonthTimestamp } from "~/utils/date";
 
 export const netWorthAssetRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createNetWorthAssetSchema)
     .mutation(async ({ input, ctx }) => {
       const result = await ctx.db.$transaction(async (tx) => {
-        const date = new Date();
-        date.setUTCHours(0, 0, 0, 0);
+        const date = toMonthTimestamp(new Date());
 
         const tickerId = sanitizeOptionalString(input.tickerId);
 
@@ -304,18 +305,36 @@ export const netWorthAssetRouter = createTRPCRouter({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedQuantity: number = evaluate(input.quantity);
 
+      const timestamp = toMonthTimestamp(input.timestamp);
+      const existingQuantity = await ctx.db.netWorthAssetQuantity.findFirst({
+        where: {
+          netWorthAssetId: input.assetId,
+          timestamp: {
+            gte: timestamp,
+            lt: toNextMonthTimestamp(timestamp),
+          },
+        },
+      });
+      if (existingQuantity) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "A valuation already exists for this month. Edit the existing valuation instead.",
+        });
+      }
+
       const createdQuantity = await ctx.db.netWorthAssetQuantity.create({
         data: {
           quantity: parsedQuantity,
           quantityFormula: input.quantity,
-          timestamp: input.timestamp,
+          timestamp,
           netWorthAsset: { connect: { id: input.assetId } },
         },
       });
 
       appEmitter.emit("netWorthAssetQuantity:updated", {
         userId: ctx.session.user.id,
-        timestamp: input.timestamp,
+        timestamp,
       });
 
       return createdQuantity;
@@ -326,6 +345,20 @@ export const netWorthAssetRouter = createTRPCRouter({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedQuantity: number = evaluate(input.quantity);
 
+      const timestamp = toMonthTimestamp(input.timestamp);
+      const conflictingQuantity = await ctx.db.netWorthAssetQuantity.findFirst({
+        where: {
+          netWorthAssetId: input.assetId,
+          id: { not: input.id },
+          timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+        },
+      });
+      if (conflictingQuantity) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This asset already has a valuation for that month.",
+        });
+      }
       const updatedQuantity = await ctx.db.netWorthAssetQuantity.update({
         where: {
           id: input.id,
@@ -333,14 +366,14 @@ export const netWorthAssetRouter = createTRPCRouter({
         data: {
           quantity: parsedQuantity,
           quantityFormula: input.quantity,
-          timestamp: input.timestamp,
+          timestamp,
           netWorthAsset: { connect: { id: input.assetId } },
         },
       });
 
       appEmitter.emit("netWorthAssetQuantity:updated", {
         userId: ctx.session.user.id,
-        timestamp: input.timestamp,
+        timestamp,
       });
 
       return updatedQuantity;

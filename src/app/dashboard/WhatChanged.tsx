@@ -19,35 +19,10 @@ export function WhatChanged() {
 
   return (
     <section aria-labelledby="what-changed-heading">
-      <div className="mb-2 flex items-end justify-between gap-3">
+      <div className="mb-2">
         <h2 id="what-changed-heading" className="text-sm font-medium">
           What changed
         </h2>
-        {data?.netWorthChange && !data.netWorthChange.eq(0) && (
-          <div className="text-right">
-            <p
-              className={cn(
-                "text-sm font-medium",
-                data.netWorthChange.gt(0)
-                  ? "text-financial-positive"
-                  : "text-financial-negative",
-              )}
-            >
-              <RoundedCurrency
-                value={data.netWorthChange}
-                options={{ signDisplay: "always" }}
-              />
-              <span className="ml-1 font-normal text-muted-foreground">
-                net worth
-              </span>
-            </p>
-            {data.previousNetWorthTimestamp && (
-              <p className="text-[10px] text-muted-foreground">
-                since {format(data.previousNetWorthTimestamp, "d MMM yyyy")}
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       <Card className="grid overflow-hidden shadow-none md:grid-cols-2 md:divide-x">

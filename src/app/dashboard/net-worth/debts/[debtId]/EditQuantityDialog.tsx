@@ -36,7 +36,7 @@ export default function EditQuantityDialog({
 }: EditQuantityDialogProps) {
   const { mutate, isPending } = api.netWorthDebt.updateQuantity.useMutation({
     onSuccess: () => {
-      toast.success("Quantity updated.");
+      toast.success("Monthly valuation updated.");
       onSuccess();
       onOpenChange(false);
     },
@@ -54,7 +54,7 @@ export default function EditQuantityDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit quantity</DialogTitle>
+          <DialogTitle>Edit monthly valuation</DialogTitle>
         </DialogHeader>
         <QuantityForm
           formId="edit-quantity-dialog-form"

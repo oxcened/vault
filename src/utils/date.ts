@@ -22,6 +22,15 @@ export function localTimeToUTCTime({ date }: { date: Date }) {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
 }
 
+/** Returns the canonical UTC timestamp used for a monthly snapshot. */
+export function toMonthTimestamp(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+}
+
+export function toNextMonthTimestamp(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1));
+}
+
 /**
  * Returns a new Date combining the date from `daySource` and the time from `timeSource`.
  * @param daySource - The date from which to extract the year, month, and day.

@@ -1,8 +1,8 @@
 "use client";
 
 import { type Prisma } from "@prisma/client";
-import { format, lastDayOfMonth } from "date-fns";
-import { CalendarIcon, FilterIcon } from "lucide-react";
+import { lastDayOfMonth } from "date-fns";
+import { FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import {
@@ -24,14 +24,8 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { MonthPicker } from "~/components/ui/month-picker";
 import { RoundedCurrency } from "~/components/ui/number";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { cn } from "~/lib/utils";
 import { DECIMAL_ZERO } from "~/utils/number";
 import { getCoreRowModel } from "@tanstack/react-table";
 import { holdingHistoryColumns } from "./config";
@@ -68,7 +62,7 @@ export default function NetWorthHoldingsHistory({
       if (!hideZeroItems) return true;
       return !row.value.eq(DECIMAL_ZERO);
     });
-  }, [data]);
+  }, [data, hideZeroItems]);
 
   const total = filteredData.reduce(
     (prev, curr) => prev.plus(curr.value),
@@ -144,31 +138,12 @@ export default function NetWorthHoldingsHistory({
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      className={cn(
-                        "font-normal",
-                        !date && "text-muted-foreground",
-                      )}
-                    >
-                      {date ? (
-                        format(date, "MMMM yyyy")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-
-                      <CalendarIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <MonthPicker
-                      value={date}
-                      disabled={(date) => date > new Date()}
-                      onChange={(date) => onDateChange(lastDayOfMonth(date))}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <MonthPicker
+                  value={date}
+                  maxMonth={new Date()}
+                  className="w-auto"
+                  onChange={(date) => onDateChange(lastDayOfMonth(date))}
+                />
               </div>
             </div>
 

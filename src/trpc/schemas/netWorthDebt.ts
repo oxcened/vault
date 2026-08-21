@@ -14,7 +14,7 @@ export const createNetWorthDebtSchema = yup.object({
 
 export const createQuantitySchema = yup.object({
   debtId: yup.string().required().label("Debt ID"),
-  timestamp: yup.date().label("Date").required(),
+  timestamp: yup.date().label("Month").required(),
   quantity: yup
     .string()
     .label("Initial quantity/value")
@@ -26,7 +26,7 @@ export type CreateQuantity = yup.InferType<typeof createQuantitySchema>;
 
 export const updateQuantitySchema = yup.object({
   debtId: yup.string().required().label("Debt ID"),
-  timestamp: yup.date().label("Date").required(),
+  timestamp: yup.date().label("Month").required(),
   quantity: yup
     .string()
     .label("Initial quantity/value")

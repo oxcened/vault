@@ -34,6 +34,7 @@ export default function EditStockPriceDialog({
       onSuccess();
       onOpenChange(false);
     },
+    onError: (error) => toast.error(error.message),
   });
 
   const initialData: CreateStockPrice | undefined = stockPrice

@@ -25,7 +25,7 @@ export const updateNetWorthAssetSchema = yup.object({
 
 export const createQuantitySchema = yup.object({
   assetId: yup.string().required().label("Asset ID"),
-  timestamp: yup.date().label("Date").required(),
+  timestamp: yup.date().label("Month").required(),
   quantity: yup
     .string()
     .label("Initial quantity/value")
@@ -37,7 +37,7 @@ export type CreateQuantity = yup.InferType<typeof createQuantitySchema>;
 
 export const updateQuantitySchema = yup.object({
   assetId: yup.string().required().label("Asset ID"),
-  timestamp: yup.date().label("Date").required(),
+  timestamp: yup.date().label("Month").required(),
   quantity: yup
     .string()
     .label("Initial quantity/value")

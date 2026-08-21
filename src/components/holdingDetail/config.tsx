@@ -4,11 +4,9 @@ import { createColumnHelper, Row } from "@tanstack/react-table";
 import { Currency, Number } from "~/components/ui/number";
 import { ValueHistoryRow } from "./holding-detail";
 import { formatDate } from "~/utils/date";
-import { DataSourceBadge } from "./data-source-badge";
-import { DeltaPopup } from "./delta-popup";
-import { ValueChangePopup } from "./value-change-popup";
 import { cn } from "~/lib/utils";
 import { ValuePopup } from "./value-popup";
+import { ValueChangePopup } from "./value-change-popup";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,40 +29,6 @@ export const holdingDetailColumn = [
     },
   }),
   columnHelper.display({
-    header: "Data sources",
-    cell: ({ row, table }) => {
-      const {
-        quantity,
-        stockPrice,
-        fxRate,
-        quantityIsCarried,
-        stockPriceIsCarried,
-        fxRateIsCarried,
-      } = row.original;
-      let previousRow: Row<ValueHistoryRow> | undefined;
-
-      try {
-        previousRow = table.getRow((row.index + 1).toString());
-      } catch (e) {
-        previousRow = undefined;
-      }
-
-      return (
-        <div className="flex gap-1">
-          {quantity && (
-            <DataSourceBadge label="Qty" isCarried={quantityIsCarried} />
-          )}
-          {stockPrice && (
-            <DataSourceBadge label="Stock" isCarried={stockPriceIsCarried} />
-          )}
-          {fxRate && <DataSourceBadge label="FX" isCarried={fxRateIsCarried} />}
-
-          <DeltaPopup row={row.original} previousRow={previousRow?.original} />
-        </div>
-      );
-    },
-  }),
-  columnHelper.display({
     header: "Change",
     cell: ({ row, table }) => {
       let previousRow: Row<ValueHistoryRow> | undefined;
@@ -82,7 +46,7 @@ export const holdingDetailColumn = [
       return (
         <>
           {previousDelta && previousRow ? (
-            <div className="inline-flex w-fit items-center gap-1">
+            <div className="inline-flex w-fit items-center">
               <Currency
                 value={previousDelta}
                 className={cn(
@@ -93,7 +57,6 @@ export const holdingDetailColumn = [
                   signDisplay: "always",
                 }}
               />
-
               <ValueChangePopup
                 row={row.original}
                 previousRow={previousRow.original}
@@ -166,7 +129,7 @@ export const holdingDetailColumn = [
       const { valueInTarget } = row.original;
       return (
         <div className="inline-flex w-fit items-center gap-1">
-          <Currency value={valueInTarget} />
+          <Currency value={valueInTarget} className="font-medium" />
           <ValuePopup row={row.original} />
         </div>
       );

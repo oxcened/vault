@@ -1,23 +1,16 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { CalendarIcon } from "lucide-react";
-import { DateTime } from "luxon";
 import { useForm } from "react-hook-form";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
+import { MonthPicker } from "~/components/ui/month-picker";
 import {
   Select,
   SelectContent,
@@ -25,12 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import {
   type CreateStockPrice,
   createStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
+import { toMonthTimestamp } from "~/utils/date";
 
 export type StockPriceDialogFormProps = {
   initialData?: CreateStockPrice;
@@ -46,7 +39,7 @@ export function StockPriceDialogForm({
   const form = useForm({
     defaultValues: initialData ?? {
       tickerId: "",
-      timestamp: DateTime.now().toUTC().startOf("day").toJSDate(),
+      timestamp: toMonthTimestamp(new Date()),
     },
     resolver: yupResolver(createStockPriceSchema),
   });
@@ -116,39 +109,16 @@ export function StockPriceDialogForm({
           control={form.control}
           name="timestamp"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl className="w-full">
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        field.value.toLocaleDateString()
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    timeZone="UTC"
-                    selected={field.value}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                    defaultMonth={field.value}
-                    onSelect={field.onChange}
-                  />
-                </PopoverContent>
-              </Popover>
+            <FormItem className="flex flex-col">
+              <FormLabel>Month</FormLabel>
+              <FormControl>
+                <MonthPicker
+                  value={field.value}
+                  maxMonth={toMonthTimestamp(new Date())}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>One price per ticker and month.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

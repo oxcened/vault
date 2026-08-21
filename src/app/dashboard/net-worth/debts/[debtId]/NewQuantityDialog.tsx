@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -11,8 +11,6 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { api } from "~/trpc/react";
-import { Switch } from "~/components/ui/switch";
-import { Label } from "~/components/ui/label";
 import { toast } from "sonner";
 import QuantityForm, { type QuantityFormRef } from "./QuantityForm";
 
@@ -27,39 +25,28 @@ export default function NewQuantityDialog({
   onOpenChange,
   onSuccess,
 }: NewQuantityDialogProps) {
-  const [createMore, setCreateMore] = useState(false);
   const formRef = useRef<QuantityFormRef>(null);
   const { mutate, isPending } = api.netWorthDebt.createQuantity.useMutation({
     onSuccess: () => {
-      toast.success("Quantity created.");
-      if (createMore) {
-        formRef.current?.reset();
-      } else {
-        onOpenChange(false);
-      }
+      toast.success("Monthly valuation saved.");
+      onOpenChange(false);
       onSuccess();
     },
+    onError: (error) => toast.error(error.message),
   });
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add quantity</DialogTitle>
+          <DialogTitle>Add monthly valuation</DialogTitle>
         </DialogHeader>
         <QuantityForm
           ref={formRef}
           formId="new-quantity-dialog-form"
           onSubmit={(data) => mutate(data)}
         />
-        <DialogFooter className="gap-2">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="create-more"
-              onCheckedChange={(checked) => setCreateMore(checked)}
-            />
-            <Label htmlFor="create-more">Create more</Label>
-          </div>
+        <DialogFooter>
           <Button
             type="submit"
             disabled={isPending}

@@ -1,8 +1,8 @@
 "use client";
 
-import { CalculatorIcon, CalendarIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { CalculatorIcon } from "lucide-react";
 import { Input } from "~/components/ui/input";
+import { MonthPicker } from "~/components/ui/month-picker";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -14,13 +14,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { Calendar } from "~/components/ui/calendar";
-import { cn } from "~/lib/utils";
 import { forwardRef, useImperativeHandle } from "react";
 import { safeEvaluate } from "~/utils/number";
 import {
@@ -28,7 +21,7 @@ import {
   createQuantitySchema,
 } from "~/trpc/schemas/netWorthAsset";
 import { useParams } from "next/navigation";
-import { DateTime } from "luxon";
+import { toMonthTimestamp } from "~/utils/date";
 
 export type QuantityFormRef = { reset: () => void };
 
@@ -47,7 +40,7 @@ const QuantityForm = forwardRef<QuantityFormRef, QuantityFormProps>(function (
   const form = useForm({
     defaultValues: initialData ?? {
       quantity: "",
-      timestamp: DateTime.now().toUTC().startOf("day").toJSDate(),
+      timestamp: toMonthTimestamp(new Date()),
       assetId: (Array.isArray(assetId) ? assetId[0] : assetId) ?? "",
     },
     resolver: yupResolver(createQuantitySchema),
@@ -70,10 +63,10 @@ const QuantityForm = forwardRef<QuantityFormRef, QuantityFormProps>(function (
             name="quantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Initial quantity/value</FormLabel>
+                <FormLabel>Quantity or value</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Input placeholder="Initial quantity/value" {...field} />
+                    <Input placeholder="Quantity or value" {...field} />
                     <CalculatorIcon className="absolute right-3 top-1/2 size-4 -translate-y-1/2 opacity-50" />
                   </div>
                 </FormControl>
@@ -92,38 +85,18 @@ const QuantityForm = forwardRef<QuantityFormRef, QuantityFormProps>(function (
             name="timestamp"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          field.value.toLocaleDateString()
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      timeZone="UTC"
-                      selected={field.value}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
-                      defaultMonth={field.value}
-                      onSelect={field.onChange}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormLabel>Month</FormLabel>
+                <FormControl>
+                  <MonthPicker
+                    value={field.value}
+                    maxMonth={toMonthTimestamp(new Date())}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Each month can have one valuation. Edit the existing entry to
+                  change it.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -6,6 +6,8 @@ import {
 } from "~/trpc/schemas/stockPrice";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
+import { TRPCError } from "@trpc/server";
+import { toMonthTimestamp, toNextMonthTimestamp } from "~/utils/date";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -29,11 +31,25 @@ export const stockPriceRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
+      const timestamp = toMonthTimestamp(input.timestamp);
+      const existing = await ctx.db.stockPriceHistory.findFirst({
+        where: {
+          tickerId: input.tickerId,
+          timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+        },
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "A stock price already exists for this month. Edit the existing price instead.",
+        });
+      }
       return ctx.db.stockPriceHistory.create({
         data: {
           tickerId: input.tickerId,
           price: input.price,
-          timestamp: input.timestamp,
+          timestamp,
         },
       });
     }),
@@ -41,9 +57,23 @@ export const stockPriceRouter = createTRPCRouter({
   update: protectedProcedure
     .input(updateStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
+      const timestamp = toMonthTimestamp(input.timestamp);
+      const existing = await ctx.db.stockPriceHistory.findFirst({
+        where: {
+          tickerId: input.tickerId,
+          id: { not: input.id },
+          timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+        },
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A stock price already exists for this month.",
+        });
+      }
       const updated = await ctx.db.stockPriceHistory.update({
         where: { id: input.id },
-        data: { price: input.price, timestamp: input.timestamp },
+        data: { price: input.price, timestamp },
       });
 
       appEmitter.emit("stockPrice:updated", { stockPriceId: updated.id });

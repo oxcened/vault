@@ -15,9 +15,11 @@ import { STORAGE_KEY_HIDDEN_COLUMNS } from "~/constants";
 
 export function DataTableColumns<TData>({
   table,
+  iconOnly = false,
   ...props
 }: {
   table: Table<TData>;
+  iconOnly?: boolean;
 } & ButtonProps) {
   const tableMeta = table.options.meta;
   const tableId =
@@ -53,7 +55,7 @@ export function DataTableColumns<TData>({
       <DropdownMenuTrigger asChild>
         <Button {...props} variant={props.variant ?? "outline"}>
           <Settings2 />
-          Columns
+          <span className={iconOnly ? "sr-only" : undefined}>Columns</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[150px]">

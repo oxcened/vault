@@ -34,6 +34,7 @@ export default function EditExchangeRateDialog({
       onSuccess();
       onOpenChange(false);
     },
+    onError: (error) => toast.error(error.message),
   });
 
   const initialData: CreateExchangeRate | undefined = exchangeRate

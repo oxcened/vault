@@ -1,28 +1,21 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { CalendarIcon } from "lucide-react";
-import { DateTime } from "luxon";
 import { useForm } from "react-hook-form";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { cn } from "~/lib/utils";
+import { MonthPicker } from "~/components/ui/month-picker";
 import {
   type CreateExchangeRate,
   createExchangeRateSchema,
 } from "~/trpc/schemas/exchangeRate";
+import { toMonthTimestamp } from "~/utils/date";
 
 export type ExchangeRateDialogFormProps = {
   initialData?: CreateExchangeRate;
@@ -39,7 +32,7 @@ export function ExchangeRateDialogForm({
     defaultValues: initialData ?? {
       baseCurrency: "",
       quoteCurrency: "",
-      timestamp: DateTime.now().toUTC().startOf("day").toJSDate(),
+      timestamp: toMonthTimestamp(new Date()),
     },
     resolver: yupResolver(createExchangeRateSchema),
   });
@@ -103,39 +96,18 @@ export function ExchangeRateDialogForm({
           control={form.control}
           name="timestamp"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl className="w-full">
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        field.value.toLocaleDateString()
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    timeZone="UTC"
-                    selected={field.value}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                    defaultMonth={field.value}
-                    onSelect={field.onChange}
-                  />
-                </PopoverContent>
-              </Popover>
+            <FormItem className="flex flex-col">
+              <FormLabel>Month</FormLabel>
+              <FormControl>
+                <MonthPicker
+                  value={field.value}
+                  maxMonth={toMonthTimestamp(new Date())}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                One rate per currency pair and month.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

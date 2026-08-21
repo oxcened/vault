@@ -45,11 +45,13 @@ export const dashboardRouter = createTRPCRouter({
     return ctx.db.$transaction(async (transaction) => {
       const userId = ctx.session.user.id;
       const now = new Date();
+      const currentMonthStart = startOfMonth(now);
+      const currentMonthEnd = endOfMonth(now);
 
       const netWorthHistory = await ctx.db.netWorth.findMany({
         where: {
           createdById: userId,
-          timestamp: { lte: now },
+          timestamp: { lte: currentMonthEnd },
         },
         orderBy: { timestamp: "desc" },
         take: 6,
@@ -127,8 +129,6 @@ export const dashboardRouter = createTRPCRouter({
             .toSorted((a, b) => b.change.abs().minus(a.change.abs()).toNumber())
             .slice(0, 3)
         : [];
-      const currentMonthStart = startOfMonth(now);
-      const currentMonthEnd = endOfMonth(now);
       const currentCashFlow = await ctx.db.cashFlow.findFirst({
         where: {
           createdById: userId,
