@@ -55,11 +55,15 @@ export type TransactionFormProps = {
   initialData?: CreateTransaction;
   isEditing?: boolean;
   formId?: string;
+  hideTimestamp?: boolean;
   onSubmit: (data: CreateTransaction) => void;
 };
 
 const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
-  function ({ initialData, isEditing = false, formId, onSubmit }, ref) {
+  function (
+    { initialData, isEditing = false, formId, hideTimestamp = false, onSubmit },
+    ref,
+  ) {
     const [showMoreOptions, setShowMoreOptions] = useState(isEditing);
     const [categorySuggestionSource, setCategorySuggestionSource] = useState<
       string | null
@@ -136,7 +140,8 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
     const optionSummary = [
       watchType.toLocaleLowerCase(),
       watchCurrency.toUpperCase(),
-      isToday ? "today" : watchTimestamp?.toLocaleDateString(),
+      !hideTimestamp &&
+        (isToday ? "today" : watchTimestamp?.toLocaleDateString()),
     ]
       .filter(Boolean)
       .join(" · ");
@@ -357,55 +362,59 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="timestamp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl className="w-full">
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value ? (
-                              field.value.toLocaleDateString()
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          initialFocus
-                          mode="single"
-                          selected={field.value}
-                          disabled={(date) => date > new Date()}
-                          defaultMonth={field.value}
-                          onSelect={(date) =>
-                            date &&
-                            field.onChange(mergeDateAndTime(date, field.value))
-                          }
-                        />
-                        <div className="border-t border-border p-3">
-                          <TimePicker
-                            date={field.value}
-                            setDate={field.onChange}
+              {!hideTimestamp && (
+                <FormField
+                  control={form.control}
+                  name="timestamp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl className="w-full">
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              {field.value ? (
+                                field.value.toLocaleDateString()
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            initialFocus
+                            mode="single"
+                            selected={field.value}
+                            disabled={(date) => date > new Date()}
+                            defaultMonth={field.value}
+                            onSelect={(date) =>
+                              date &&
+                              field.onChange(
+                                mergeDateAndTime(date, field.value),
+                              )
+                            }
                           />
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          <div className="border-t border-border p-3">
+                            <TimePicker
+                              date={field.value}
+                              setDate={field.onChange}
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </>
           )}
         </form>

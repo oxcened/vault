@@ -1,7 +1,7 @@
 "use client";
 
 import type { TransactionStatus, TransactionType } from "@prisma/client";
-import { Check, Loader2, Pencil } from "lucide-react";
+import { Check, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { TransactionIcon } from "~/components/transactionTable/transaction-icon";
@@ -25,7 +25,16 @@ import {
 import { Currency } from "~/components/ui/number";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
+import type { CreateTransaction } from "~/trpc/schemas/transaction";
 import TransactionForm, { type TransactionFormRef } from "./TransactionForm";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { useConfirmDelete } from "~/components/confirm-delete-modal";
 
 export type TransactionTemplateDialogProps = {
   isOpen: boolean;
@@ -40,6 +49,7 @@ type QuickAddSelection = {
   currency: string;
   description: string;
   key: string;
+  presetId?: string;
   type: TransactionType;
 };
 
@@ -64,8 +74,11 @@ export default function TransactionTemplateDialog({
       enabled: isOpen,
     });
   const formRef = useRef<TransactionFormRef>(null);
+  const utils = api.useUtils();
+  const { confirm, modal: confirmDeleteModal } = useConfirmDelete();
   const [selection, setSelection] = useState<QuickAddSelection>();
   const [isEditing, setEditing] = useState(false);
+  const [isEditingPreset, setEditingPreset] = useState(false);
 
   const savedOptions = templates.map((template) => ({
     amount: template.amount.toNumber(),
@@ -74,6 +87,7 @@ export default function TransactionTemplateDialog({
     currency: template.currency,
     description: template.description,
     key: `preset:${template.id}`,
+    presetId: template.id,
     type: template.type,
   }));
   const savedSignatures = new Set(savedOptions.map(getOptionSignature));
@@ -109,6 +123,7 @@ export default function TransactionTemplateDialog({
     if (!open) {
       setSelection(undefined);
       setEditing(false);
+      setEditingPreset(false);
     }
     onOpenChange(open);
   };
@@ -121,6 +136,34 @@ export default function TransactionTemplateDialog({
         onSuccess();
       },
     });
+
+  const updatePreset = api.transactionTemplate.update.useMutation({
+    onSuccess: () => {
+      toast.success("Preset updated.");
+      setSelection(undefined);
+      setEditingPreset(false);
+      void utils.transactionTemplate.getAll.invalidate();
+    },
+  });
+  const deletePreset = api.transactionTemplate.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Preset deleted.");
+      setSelection(undefined);
+      void utils.transactionTemplate.getAll.invalidate();
+    },
+  });
+
+  const handlePresetUpdate = (data: CreateTransaction) => {
+    if (!selection?.presetId) return;
+    updatePreset.mutate({
+      id: selection.presetId,
+      amount: data.amount,
+      categoryId: data.categoryId,
+      currency: data.currency,
+      description: data.description,
+      type: data.type,
+    });
+  };
 
   const renderOption = (option: QuickAddSelection) => {
     const displayAmount =
@@ -183,20 +226,30 @@ export default function TransactionTemplateDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit details" : "Quick add"}</DialogTitle>
+          <DialogTitle>
+            {isEditingPreset
+              ? "Edit preset"
+              : isEditing
+                ? "Edit details"
+                : "Quick add"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "Adjust this transaction before recording it."
-              : "Confirm the transaction before recording it."}
+            {isEditingPreset
+              ? "Update the values saved in this preset."
+              : isEditing
+                ? "Adjust this transaction before recording it."
+                : "Confirm the transaction before recording it."}
           </DialogDescription>
         </DialogHeader>
 
-        {isEditing && initialData ? (
+        {(isEditing || isEditingPreset) && initialData ? (
           <TransactionForm
             ref={formRef}
             formId="transaction-template-dialog-form"
             initialData={initialData}
-            onSubmit={create}
+            isEditing
+            hideTimestamp={isEditingPreset}
+            onSubmit={isEditingPreset ? handlePresetUpdate : create}
           />
         ) : (
           <div className="flex items-center gap-3 rounded-xl border bg-muted/20 p-4">
@@ -232,13 +285,43 @@ export default function TransactionTemplateDialog({
             type="button"
             variant="outline"
             onClick={() => {
-              if (isEditing) setEditing(false);
+              if (isEditingPreset) setEditingPreset(false);
+              else if (isEditing) setEditing(false);
               else setSelection(undefined);
             }}
           >
             Back
           </Button>
-          {!isEditing && (
+          {!isEditing && !isEditingPreset && selection.presetId && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" size="icon" variant="outline">
+                  <MoreHorizontal />
+                  <span className="sr-only">Preset actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setEditingPreset(true)}>
+                  <Pencil /> Edit preset
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={() =>
+                    confirm({
+                      itemType: "preset",
+                      itemName: selection.description,
+                      onConfirm: () =>
+                        deletePreset.mutate({ id: selection.presetId! }),
+                    })
+                  }
+                >
+                  <Trash2 /> Delete preset
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {!isEditing && !isEditingPreset && (
             <Button
               type="button"
               variant="outline"
@@ -248,17 +331,28 @@ export default function TransactionTemplateDialog({
             </Button>
           )}
           <Button
-            type={isEditing ? "submit" : "button"}
-            disabled={isCreating}
-            form={isEditing ? "transaction-template-dialog-form" : undefined}
+            type={isEditing || isEditingPreset ? "submit" : "button"}
+            disabled={isCreating || updatePreset.isPending}
+            form={
+              isEditing || isEditingPreset
+                ? "transaction-template-dialog-form"
+                : undefined
+            }
             onClick={
-              isEditing || !initialData ? undefined : () => create(initialData)
+              isEditing || isEditingPreset || !initialData
+                ? undefined
+                : () => create(initialData)
             }
           >
-            {isCreating ? <Loader2 className="animate-spin" /> : <Check />}
-            Record
+            {isCreating || updatePreset.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Check />
+            )}
+            {isEditingPreset ? "Save preset" : "Record"}
           </Button>
         </DialogFooter>
+        {confirmDeleteModal}
       </DialogContent>
     </Dialog>
   );

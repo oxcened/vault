@@ -1,7 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { updateTransactionSchema } from "~/trpc/schemas/transaction";
-import { appEmitter } from "~/server/eventBus";
 
 export const transactionTemplateRouter = createTRPCRouter({
   getFrequent: protectedProcedure.query(async ({ ctx }) => {
@@ -73,9 +72,10 @@ export const transactionTemplateRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({ transactionId: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const transaction = await ctx.db.transaction.findUniqueOrThrow({
+      const transaction = await ctx.db.transaction.findFirstOrThrow({
         where: {
           id: input.transactionId,
+          createdById: ctx.session.user.id,
         },
       });
 
@@ -95,7 +95,7 @@ export const transactionTemplateRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const deleted = await ctx.db.transactionTemplate.delete({
-        where: { id: input.id },
+        where: { id: input.id, createdById: ctx.session.user.id },
       });
 
       return deleted;
@@ -104,16 +104,10 @@ export const transactionTemplateRouter = createTRPCRouter({
   update: protectedProcedure
     .input(updateTransactionSchema)
     .mutation(async ({ input, ctx }) => {
-      const updated = await ctx.db.transaction.update({
-        where: { id: input.id },
-        data: input,
+      const { id, amount, categoryId, currency, description, type } = input;
+      return ctx.db.transactionTemplate.update({
+        where: { id, createdById: ctx.session.user.id },
+        data: { amount, categoryId, currency, description, type },
       });
-
-      appEmitter.emit("transaction:updated", {
-        userId: ctx.session.user.id,
-        timestamp: updated.timestamp,
-      });
-
-      return updated;
     }),
 });
