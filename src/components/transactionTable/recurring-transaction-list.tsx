@@ -73,7 +73,7 @@ export function RecurringTransactionList() {
   };
   const post = api.recurringTransaction.post.useMutation({
     onSuccess: () => {
-      toast.success("Transaction posted.");
+      toast.success("Transaction recorded.");
       refresh();
       void utils.transaction.getAll.invalidate();
       void utils.cashFlow.getMonthlyCashFlow.invalidate();

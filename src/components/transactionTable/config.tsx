@@ -67,8 +67,9 @@ export function TransactionActions({
   const utils = api.useUtils();
   const { mutate: saveTemplate } = api.transactionTemplate.create.useMutation({
     onSuccess: () => {
-      toast.success("Transaction template created.");
+      toast.success("Preset saved.");
       void utils.transactionTemplate.getAll.invalidate();
+      void utils.transactionTemplate.getFrequent.invalidate();
     },
   });
   const { mutate: deleteTransaction } = api.transaction.delete.useMutation({
@@ -135,7 +136,7 @@ export function TransactionActions({
         <DropdownMenuItem
           onClick={() => saveTemplate({ transactionId: transaction.id })}
         >
-          Save to quick add
+          Save as preset
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setScheduleDialogOpen(true)}>
           Make recurring

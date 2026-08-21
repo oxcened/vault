@@ -56,7 +56,7 @@ export function RecurringTransactionDialog({
           <DialogDescription>
             {scheduleId
               ? "Changes apply to future occurrences."
-              : "Set it once, then post each occurrence when it happens."}
+              : "Set it once, then record each occurrence when it happens."}
           </DialogDescription>
         </DialogHeader>
         <RecurringTransactionForm
