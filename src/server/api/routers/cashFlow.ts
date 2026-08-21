@@ -91,21 +91,23 @@ export const cashFlowRouter = createTRPCRouter({
       where: {
         createdById: ctx.session.user.id,
         timestamp: {
-          lte: new Date(),
+          lte: endOfMonth(new Date()),
         },
       },
       orderBy: {
         timestamp: "desc",
       },
-      take: 12, // a year
     });
 
     const latestCashFlow = cashFlowByMonth[0];
     const previousCashFlow = cashFlowByMonth[1];
 
-    const cashFlowTrend = getPercentageDiff(
-      latestCashFlow?.netFlow,
-      previousCashFlow?.netFlow,
+    const cashFlowTrend =
+      previousCashFlow && !previousCashFlow.netFlow.eq(0)
+        ? getPercentageDiff(latestCashFlow?.netFlow, previousCashFlow.netFlow)
+        : undefined;
+    const cashFlowChange = latestCashFlow?.netFlow.minus(
+      previousCashFlow?.netFlow ?? latestCashFlow.netFlow,
     );
 
     cashFlowByMonth.reverse();
@@ -120,6 +122,8 @@ export const cashFlowRouter = createTRPCRouter({
       cashFlowByMonth,
       latestCashFlow,
       cashFlowTrend,
+      cashFlowChange,
+      previousCashFlow,
     };
   }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
