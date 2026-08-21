@@ -21,6 +21,7 @@ import {
   ShoppingBasket,
   TrendingUp,
   Utensils,
+  Wrench,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 
@@ -64,6 +65,13 @@ const categoryIcons: Array<{
   {
     keywords: ["travel", "holiday", "holidays", "vacation"],
     config: { icon: Plane, className: "bg-cyan-500/10 text-cyan-500" },
+  },
+  {
+    keywords: ["tools & subscriptions", "tools and subscriptions"],
+    config: {
+      icon: Wrench,
+      className: "bg-indigo-500/10 text-indigo-500",
+    },
   },
   {
     keywords: ["entertainment", "cinema", "movie", "subscription"],
