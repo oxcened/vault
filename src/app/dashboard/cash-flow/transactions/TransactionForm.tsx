@@ -18,6 +18,7 @@ import { APP_CURRENCY } from "~/constants";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -59,6 +60,9 @@ export type TransactionFormProps = {
 const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
   function ({ initialData, formId, onSubmit }, ref) {
     const [showMoreOptions, setShowMoreOptions] = useState(!!initialData);
+    const [categorySuggestionSource, setCategorySuggestionSource] = useState<
+      string | null
+    >(null);
     const categoryWasManuallySelected = useRef(false);
     const automaticallySelectedCategory = useRef<string | undefined>(undefined);
     const form = useForm({
@@ -110,18 +114,20 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
 
       if (categorySuggestion) {
         automaticallySelectedCategory.current = categorySuggestion.categoryId;
+        setCategorySuggestionSource(debouncedDescription);
         form.setValue("categoryId", categorySuggestion.categoryId, {
           shouldDirty: false,
           shouldValidate: false,
         });
       } else if (automaticallySelectedCategory.current) {
         automaticallySelectedCategory.current = undefined;
+        setCategorySuggestionSource(null);
         form.setValue("categoryId", "", {
           shouldDirty: false,
           shouldValidate: false,
         });
       }
-    }, [categorySuggestion, form, initialData]);
+    }, [categorySuggestion, debouncedDescription, form, initialData]);
 
     const isToday =
       watchTimestamp?.toDateString() === new Date().toDateString();
@@ -148,7 +154,9 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
       reset: () => {
         categoryWasManuallySelected.current = false;
         automaticallySelectedCategory.current = undefined;
+        setCategorySuggestionSource(null);
         form.reset();
+        form.setFocus("amount");
       },
     }));
 
@@ -201,6 +209,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
 
                       automaticallySelectedCategory.current =
                         suggestion.categoryId;
+                      setCategorySuggestionSource(suggestion.description);
                       form.setValue("categoryId", suggestion.categoryId, {
                         shouldDirty: false,
                         shouldValidate: false,
@@ -226,6 +235,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                   onValueChange={(value) => {
                     categoryWasManuallySelected.current = true;
                     automaticallySelectedCategory.current = undefined;
+                    setCategorySuggestionSource(null);
                     field.onChange(value);
                   }}
                 >
@@ -242,6 +252,12 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                     ))}
                   </SelectContent>
                 </Select>
+
+                {categorySuggestionSource && (
+                  <FormDescription>
+                    Suggested from “{categorySuggestionSource}” history
+                  </FormDescription>
+                )}
 
                 <FormMessage />
               </FormItem>
@@ -275,7 +291,19 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        categoryWasManuallySelected.current = false;
+                        automaticallySelectedCategory.current = undefined;
+                        setCategorySuggestionSource(null);
+                        form.setValue("categoryId", "", {
+                          shouldDirty: true,
+                          shouldValidate: false,
+                        });
+                        field.onChange(value);
+                      }}
+                    >
                       <FormControl>
                         <SelectTrigger className="capitalize">
                           <SelectValue placeholder="Select a type" />
