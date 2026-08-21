@@ -106,6 +106,7 @@ export const dashboardRouter = createTRPCRouter({
             ...assetValues.map((asset) => ({
               id: asset.assetId,
               name: asset.assetName,
+              category: asset.categoryName,
               kind: "asset" as const,
               change: asset.valueInTarget.minus(
                 previousAssetsById.get(asset.assetId)?.valueInTarget ?? 0,
@@ -114,6 +115,7 @@ export const dashboardRouter = createTRPCRouter({
             ...currentDebtValues.map((debt) => ({
               id: debt.debtId,
               name: debt.debtName,
+              category: debt.categoryName,
               kind: "debt" as const,
               change: (
                 previousDebtsById.get(debt.debtId)?.valueInTarget ??

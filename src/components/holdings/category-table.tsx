@@ -1,10 +1,10 @@
-import { NetWorthCategory } from "@prisma/client";
-import { Holding } from "./net-worth-holdings";
-import Decimal from "decimal.js";
+import type { NetWorthCategory } from "@prisma/client";
+import type { Holding } from "./net-worth-holdings";
+import type Decimal from "decimal.js";
 import {
   getCoreRowModel,
   getSortedRowModel,
-  SortingState,
+  type SortingState,
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { useTable } from "~/hooks/useTable";
@@ -15,6 +15,7 @@ import { RoundedCurrency } from "../ui/number";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { DataTable } from "../ui/data-table";
 import { useRouter } from "next/navigation";
+import { HoldingMobileList } from "./holding-mobile-list";
 
 export function CategoryTable<T extends Holding>({
   holdings,
@@ -25,6 +26,7 @@ export function CategoryTable<T extends Holding>({
   onArchiveHolding,
   onPoolToEnvelopesHolding,
   getHoldingDetailUrl,
+  type,
 }: {
   holdings: T[];
   category: NetWorthCategory;
@@ -34,6 +36,7 @@ export function CategoryTable<T extends Holding>({
   onArchiveHolding: (holding: T) => void;
   onPoolToEnvelopesHolding?: (holding: T) => void;
   getHoldingDetailUrl: (holding: T) => string;
+  type: "asset" | "debt";
 }) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([
@@ -45,7 +48,7 @@ export function CategoryTable<T extends Holding>({
 
   const table = useTable({
     data: holdings,
-    columns: holdingsColumns({ isStock: category.isStock }),
+    columns: holdingsColumns({ isStock: category.isStock, type }),
     getCoreRowModel: getCoreRowModel(),
     meta: {
       id: `holdings_${category.id}`,
@@ -89,16 +92,34 @@ export function CategoryTable<T extends Holding>({
           <p className="text-sm text-muted-foreground">{category.name}</p>
           <RoundedCurrency value={total} className="text-sm font-medium" />
         </div>
-        {isOpen && <DataTableColumns table={table} variant="ghost" size="sm" />}
+        {isOpen && (
+          <DataTableColumns
+            table={table}
+            variant="ghost"
+            size="sm"
+            className="hidden md:inline-flex"
+          />
+        )}
       </div>
 
       {isOpen && (
-        <DataTable
-          table={table}
-          onRowClick={(holding) =>
-            router.push(getHoldingDetailUrl(holding as T))
-          }
-        />
+        <>
+          <HoldingMobileList
+            holdings={holdings}
+            type={type}
+            onHoldingClick={(holding) =>
+              router.push(getHoldingDetailUrl(holding))
+            }
+          />
+          <div className="hidden md:block">
+            <DataTable
+              table={table}
+              onRowClick={(holding) =>
+                router.push(getHoldingDetailUrl(holding as T))
+              }
+            />
+          </div>
+        </>
       )}
     </div>
   );

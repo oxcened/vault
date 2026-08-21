@@ -1,6 +1,5 @@
 "use client";
 
-import { Landmark, WalletCards } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { RoundedCurrency } from "~/components/ui/number";
@@ -9,6 +8,7 @@ import { Card } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { type Prisma } from "@prisma/client";
+import { HoldingIcon } from "~/components/holdings/holding-icon";
 
 export function WhatChanged() {
   const { data } = api.dashboard.getSummary.useQuery();
@@ -66,23 +66,13 @@ export function WhatChanged() {
             </div>
             <div className="divide-y">
               {holdingChanges.map((item) => {
-                const Icon = item.kind === "asset" ? WalletCards : Landmark;
                 return (
                   <Link
                     key={`${item.kind}-${item.id}`}
                     href={`/dashboard/net-worth/${item.kind === "asset" ? "assets" : "debts"}/${item.id}`}
                     className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
                   >
-                    <span
-                      className={cn(
-                        "flex size-9 shrink-0 items-center justify-center rounded-full",
-                        item.kind === "asset"
-                          ? "bg-blue-500/10 text-blue-500"
-                          : "bg-rose-500/10 text-rose-500",
-                      )}
-                    >
-                      <Icon className="size-4" />
-                    </span>
+                    <HoldingIcon category={item.category} type={item.kind} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">
                         {item.name}

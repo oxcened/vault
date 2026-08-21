@@ -190,6 +190,7 @@ export default function NetWorthHoldings<T extends Holding>({
                     onEditHolding={onEditHolding}
                     onPoolToEnvelopesHolding={onPoolToEnvelopesHolding}
                     getHoldingDetailUrl={getHoldingDetailUrl}
+                    type={type}
                   />
                 );
               })}

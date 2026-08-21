@@ -17,19 +17,32 @@ import { ArchiveIcon, HelpCircleIcon, MoreHorizontalIcon } from "lucide-react";
 import type { Holding } from "./net-worth-holdings";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { HoldingIcon } from "./holding-icon";
 
 const columnHelper = createColumnHelper<Holding>();
 
-export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
+export const holdingsColumns = ({
+  isStock = false,
+  type,
+}: {
+  isStock?: boolean;
+  type: "asset" | "debt";
+}) => [
   columnHelper.accessor("name", {
     header: "Name",
     cell: ({ getValue, row }) => {
       return (
-        <div className="flex items-center gap-2 font-medium">
-          {getValue()}
-          {row.original.archivedAt && (
-            <ArchiveIcon className="size-4 text-muted-foreground" />
-          )}
+        <div className="flex items-center gap-3 font-medium">
+          <HoldingIcon
+            category={row.original.categoryName ?? "Other"}
+            type={type}
+          />
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="truncate">{getValue()}</span>
+            {row.original.archivedAt && (
+              <ArchiveIcon className="size-4 shrink-0 text-muted-foreground" />
+            )}
+          </div>
         </div>
       );
     },
