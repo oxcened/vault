@@ -2,9 +2,9 @@
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as yup from "yup";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -16,7 +16,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -30,72 +29,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Switch } from "~/components/ui/switch";
 import { api } from "~/trpc/react";
-import { updateNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 
-type EditAssetDialogProps = {
-  asset?: {
+const editDebtSchema = yup.object({
+  id: yup.string().required(),
+  name: yup.string().label("Name").required(),
+  categoryId: yup.string().label("Category").required(),
+  currency: yup.string().label("Currency").required(),
+});
+
+type EditDebtDialogProps = {
+  debt?: {
     id: string;
     name: string;
-    categoryId: string | null;
+    categoryId: string;
     currency: string;
-    tickerId?: string | null;
-    isLiquid?: boolean | null;
-  };
+  } | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 };
 
-export default function EditAssetDialog({
-  asset,
+export default function EditDebtDialog({
+  debt,
   isOpen,
   onOpenChange,
   onSuccess,
-}: EditAssetDialogProps) {
+}: EditDebtDialogProps) {
   const form = useForm({
-    resolver: yupResolver(updateNetWorthAssetSchema),
+    resolver: yupResolver(editDebtSchema),
     defaultValues: {
-      id: asset?.id ?? "",
-      name: asset?.name ?? "",
-      categoryId: asset?.categoryId ?? "",
-      currency: asset?.currency ?? "",
-      tickerId: asset?.tickerId ?? "",
-      isLiquid: asset?.isLiquid ?? false,
+      id: debt?.id ?? "",
+      name: debt?.name ?? "",
+      categoryId: debt?.categoryId ?? "",
+      currency: debt?.currency ?? "",
     },
   });
-
-  const { mutate, isPending } = api.netWorthAsset.update.useMutation({
+  const { mutate, isPending } = api.netWorthDebt.update.useMutation({
     onSuccess: () => {
-      toast.success("Asset updated.");
+      toast.success("Debt updated.");
       onOpenChange(false);
       onSuccess();
     },
   });
-
   const { data: categories = [], isPending: isFetchingCategories } =
     api.netWorthCategory.getByType.useQuery(
-      { type: ["ASSET", "BOTH"] },
+      { type: ["DEBT", "BOTH"] },
       { enabled: isOpen },
     );
 
-  const categoryId = form.watch("categoryId");
-  const isStock =
-    categories.find((category) => category.id === categoryId)?.isStock ?? false;
-
-  const { data: stockTickers = [], isPending: isFetchingStockTickers } =
-    api.stockTicker.getAll.useQuery(undefined, {
-      enabled: isOpen && isStock,
-    });
-
-  useEffect(() => {
-    if (categories.length > 0 && !isStock) {
-      form.setValue("tickerId", "");
-    }
-  }, [categories.length, form, isStock]);
-
-  if (!asset) return null;
+  if (!debt) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -106,9 +89,8 @@ export default function EditAssetDialog({
             onSubmit={form.handleSubmit((values) => mutate(values))}
           >
             <DialogHeader>
-              <DialogTitle>Edit asset</DialogTitle>
+              <DialogTitle>Edit debt</DialogTitle>
             </DialogHeader>
-
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -123,7 +105,6 @@ export default function EditAssetDialog({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="categoryId"
@@ -152,39 +133,6 @@ export default function EditAssetDialog({
                   </FormItem>
                 )}
               />
-
-              {isStock && (
-                <FormField
-                  control={form.control}
-                  name="tickerId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Stock ticker</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        disabled={isFetchingStockTickers}
-                      >
-                        <FormControl>
-                          <SelectTrigger isLoading={isFetchingStockTickers}>
-                            <SelectValue placeholder="Select a stock ticker" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {stockTickers.map((ticker) => (
-                            <SelectItem key={ticker.id} value={ticker.id}>
-                              {ticker.ticker} – {ticker.name} ({ticker.exchange}
-                              )
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
               <FormField
                 control={form.control}
                 name="currency"
@@ -198,29 +146,7 @@ export default function EditAssetDialog({
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="isLiquid"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-3 md:col-span-2">
-                    <div>
-                      <FormLabel>Liquid holding</FormLabel>
-                      <FormDescription>
-                        Can be readily used to cover your expenses.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
             </div>
-
             <DialogFooter>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="animate-spin" />}

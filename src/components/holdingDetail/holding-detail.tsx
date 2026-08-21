@@ -16,7 +16,7 @@ import {
 } from "~/components/ui/number";
 import type Decimal from "decimal.js";
 import { Button } from "../ui/button";
-import { ArchiveIcon, PlusIcon } from "lucide-react";
+import { ArchiveIcon, PencilIcon, PlusIcon } from "lucide-react";
 import { getCoreRowModel } from "@tanstack/react-table";
 import { holdingDetailColumn } from "./config";
 import { DataTable } from "../ui/data-table";
@@ -55,6 +55,7 @@ export function HoldingDetail({
   onQuantityEdit,
   onQuantityDelete,
   onNewHolding,
+  onEditHolding,
 }: {
   holdingName?: string;
   isPending: boolean;
@@ -72,6 +73,7 @@ export function HoldingDetail({
   onQuantityEdit: (args: { id: string }) => void;
   onQuantityDelete: (args: { timestamp: Date }) => void;
   onNewHolding: () => void;
+  onEditHolding: () => void;
 }) {
   const table = useTable({
     data: valueHistory,
@@ -145,6 +147,11 @@ export function HoldingDetail({
 
               <div className="flex flex-wrap gap-2 [&>*]:flex-1">
                 <DataTableColumns table={table} />
+
+                <Button variant="outline" onClick={onEditHolding}>
+                  <PencilIcon />
+                  Edit
+                </Button>
 
                 <Button variant="default" onClick={onNewHolding}>
                   <PlusIcon />

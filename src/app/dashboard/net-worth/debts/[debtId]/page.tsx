@@ -7,6 +7,7 @@ import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
 import NewQuantityDialog from "./NewQuantityDialog";
 import { useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
+import EditDebtDialog from "../EditDebtDialog";
 
 export default function DebtDetailPage() {
   const { debtId } = useParams();
@@ -45,6 +46,7 @@ export default function DebtDetailPage() {
   const [editingQuantity, setEditingQuantity] =
     useState<(typeof quantitiesData)[number]>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [isEditDebtOpen, setEditDebtOpen] = useState(false);
 
   function handleQuantityEdit({ id }: { id: string }) {
     const quantity = quantitiesData.find((quantity) => quantity.id === id);
@@ -87,6 +89,24 @@ export default function DebtDetailPage() {
           })
         }
         onNewHolding={() => setNewDialogOpen(true)}
+        onEditHolding={() => setEditDebtOpen(true)}
+      />
+
+      <EditDebtDialog
+        key={`edit-debt-${isEditDebtOpen}`}
+        debt={
+          data?.id && data.name && data.categoryId && data.currency
+            ? {
+                id: data.id,
+                name: data.name,
+                categoryId: data.categoryId,
+                currency: data.currency,
+              }
+            : undefined
+        }
+        isOpen={isEditDebtOpen}
+        onOpenChange={setEditDebtOpen}
+        onSuccess={handleQuantitySuccess}
       />
 
       <NewQuantityDialog

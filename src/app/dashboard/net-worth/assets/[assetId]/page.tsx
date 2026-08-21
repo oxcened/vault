@@ -7,6 +7,7 @@ import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
 import NewQuantityDialog from "./NewQuantityDialog";
 import { useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
+import EditAssetDialog from "../EditAssetDialog";
 
 export default function AssetDetailPage() {
   const { assetId } = useParams();
@@ -45,6 +46,7 @@ export default function AssetDetailPage() {
   const [editingQuantity, setEditingQuantity] =
     useState<(typeof quantitiesData)[number]>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [isEditAssetOpen, setEditAssetOpen] = useState(false);
 
   function handleQuantityEdit({ id }: { id: string }) {
     const quantity = quantitiesData.find((quantity) => quantity.id === id);
@@ -92,6 +94,26 @@ export default function AssetDetailPage() {
           })
         }
         onNewHolding={() => setNewDialogOpen(true)}
+        onEditHolding={() => setEditAssetOpen(true)}
+      />
+
+      <EditAssetDialog
+        key={`edit-asset-${isEditAssetOpen}`}
+        asset={
+          data?.id && data.name && data.categoryId && data.currency
+            ? {
+                id: data.id,
+                name: data.name,
+                categoryId: data.categoryId,
+                currency: data.currency,
+                tickerId: data.tickerId,
+                isLiquid: data.isLiquid,
+              }
+            : undefined
+        }
+        isOpen={isEditAssetOpen}
+        onOpenChange={setEditAssetOpen}
+        onSuccess={handleQuantitySuccess}
       />
 
       <NewQuantityDialog
