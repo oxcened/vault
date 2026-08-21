@@ -10,10 +10,12 @@ export type FormatDateParams = {
 };
 
 export function formatDate({ date, options }: FormatDateParams): string {
-  return new Intl.DateTimeFormat(navigator.language || "en-US", {
-    ...defaultDateOptions,
-    ...options,
-  }).format(date);
+  const locale =
+    typeof navigator === "undefined" ? "en-US" : navigator.language || "en-US";
+
+  return new Intl.DateTimeFormat(locale, options ?? defaultDateOptions).format(
+    date,
+  );
 }
 
 export function localTimeToUTCTime({ date }: { date: Date }) {

@@ -3,7 +3,7 @@ import type {
   TransactionStatus,
   TransactionType,
 } from "@prisma/client";
-import { createColumnHelper, type Row } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { Currency } from "../ui/number";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
@@ -49,7 +49,17 @@ export type TransactionRow = {
 
 const columnHelper = createColumnHelper<TransactionRow>();
 
-function ActionsCell({ row }: { row: Row<TransactionRow> }) {
+export function TransactionActions({
+  transaction,
+  showEdit = true,
+  showTriggerLabel = false,
+  onDeleted,
+}: {
+  transaction: TransactionRow;
+  showEdit?: boolean;
+  showTriggerLabel?: boolean;
+  onDeleted?: () => void;
+}) {
   const utils = api.useUtils();
   const { mutate: saveTemplate } = api.transactionTemplate.create.useMutation({
     onSuccess: () => {
@@ -61,6 +71,7 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
     onSuccess: () => {
       toast.success("Transaction deleted.");
       handleEdited();
+      onDeleted?.();
     },
   });
   const { confirm, modal } = useConfirmDelete();
@@ -70,11 +81,11 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
   const [isOppositeDialogOpen, setOppositeDialogOpen] = useState(false);
 
   const oppositeTransaction: CreateTransaction = {
-    amount: row.original.amount.mul(-1).toNumber(),
-    type: row.original.type,
-    categoryId: row.original.categoryId,
-    currency: row.original.currency,
-    description: row.original.description,
+    amount: transaction.amount.mul(-1).toNumber(),
+    type: transaction.type,
+    categoryId: transaction.categoryId,
+    currency: transaction.currency,
+    description: transaction.description,
     timestamp: new Date(),
     status: "POSTED",
   };
@@ -87,40 +98,46 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
   };
 
   const handleEdit = () => {
-    setEditingTransaction(row.original);
+    setEditingTransaction(transaction);
     setEditDialogOpen(true);
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
+        <Button
+          variant={showTriggerLabel ? "outline" : "ghost"}
+          className={showTriggerLabel ? undefined : "h-8 w-8 p-0"}
+        >
+          {!showTriggerLabel && <span className="sr-only">Open menu</span>}
           <MoreHorizontalIcon />
+          {showTriggerLabel && "More"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
         <DropdownMenuItem
-          onClick={() => saveTemplate({ transactionId: row.original.id })}
+          onClick={() => saveTemplate({ transactionId: transaction.id })}
         >
           Save to quick add
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setOppositeDialogOpen(true)}>
-          {row.original.type === "EXPENSE" && row.original.amount.isPos()
+          {transaction.type === "EXPENSE" && transaction.amount.isPos()
             ? "Add refund"
             : "Add opposite transaction"}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
+        {showEdit && (
+          <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
+        )}
         <DropdownMenuItem
           className="text-red-500"
           onClick={() =>
             confirm({
               itemType: "transaction",
-              itemName: row.original.description,
-              onConfirm: () => deleteTransaction({ id: row.original.id }),
+              itemName: transaction.description,
+              onConfirm: () => deleteTransaction({ id: transaction.id }),
             })
           }
         >
@@ -140,7 +157,7 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
         isOpen={isOppositeDialogOpen}
         initialData={oppositeTransaction}
         title={
-          row.original.type === "EXPENSE" && row.original.amount.isPos()
+          transaction.type === "EXPENSE" && transaction.amount.isPos()
             ? "Add refund"
             : "Add opposite transaction"
         }
@@ -247,7 +264,7 @@ const columnsByKey = {
   }),
   actions: columnHelper.display({
     id: "actions",
-    cell: ({ row }) => <ActionsCell row={row} />,
+    cell: ({ row }) => <TransactionActions transaction={row.original} />,
     enableSorting: false,
   }),
 } as const;

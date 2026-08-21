@@ -1,6 +1,9 @@
 "use client";
 
-import { type TransactionRow } from "~/components/transactionTable/config";
+import {
+  TransactionActions,
+  type TransactionRow,
+} from "~/components/transactionTable/config";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -141,7 +144,13 @@ export function TransactionDetailDialog({
           </dl>
         </div>
 
-        <DialogFooter className="gap-2 border-t bg-muted/20 px-6 py-4">
+        <DialogFooter className="flex-row justify-end gap-2 border-t bg-muted/20 px-6 py-4">
+          <TransactionActions
+            transaction={transaction}
+            showEdit={false}
+            showTriggerLabel
+            onDeleted={() => onOpenChange(false)}
+          />
           <Button
             onClick={() => {
               onOpenChange(false);

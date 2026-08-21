@@ -1,5 +1,5 @@
 import { DataTable } from "../ui/data-table";
-import { getCoreRowModel, SortingState } from "@tanstack/react-table";
+import { getCoreRowModel, type SortingState } from "@tanstack/react-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { AddTransactionDropdown } from "../add-transaction-dropdown";
 import { DataTablePagination } from "../ui/data-table-pagination";
@@ -15,12 +15,14 @@ import { XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
 import { type TransactionStatus, TransactionType } from "@prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-import { SortField } from "~/server/api/routers/transaction";
+import type { SortField } from "~/server/api/routers/transaction";
 import { TransactionFiltersDialog } from "./transaction-filters-dialog";
 import type { TransactionFilters as DialogTransactionFilters } from "./transaction-filters-form";
 import { type TransactionRow } from "./config";
 import { TransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/TransactionDetailDialog";
 import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
+import { TransactionMobileList } from "./transaction-mobile-list";
+import { Skeleton } from "../ui/skeleton";
 
 type Tab = TransactionStatus | "OVERDUE";
 
@@ -165,7 +167,9 @@ export function TransactionTable() {
             showDateRangeFilter={filters.status === "POSTED"}
           />
 
-          <DataTableColumns table={table} />
+          <div className="hidden md:block">
+            <DataTableColumns table={table} />
+          </div>
 
           <AddTransactionDropdown onSuccess={handleCreated} />
         </div>
@@ -195,9 +199,39 @@ export function TransactionTable() {
       </div>
 
       {isPending ? (
-        <TableSkeleton />
+        <>
+          <div className="overflow-hidden rounded-xl border md:hidden">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3 border-b px-3 py-3 last:border-b-0"
+              >
+                <Skeleton className="size-9 shrink-0 rounded-full" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/3" />
+                </div>
+                <div className="space-y-1.5">
+                  <Skeleton className="ml-auto h-4 w-16" />
+                  <Skeleton className="ml-auto h-3 w-10" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <TableSkeleton className="hidden md:table" />
+        </>
       ) : (
-        <DataTable table={table} onRowClick={setDetailTransaction} />
+        <>
+          <div className="md:hidden">
+            <TransactionMobileList
+              transactions={data?.items ?? []}
+              onTransactionClick={setDetailTransaction}
+            />
+          </div>
+          <div className="hidden md:block">
+            <DataTable table={table} onRowClick={setDetailTransaction} />
+          </div>
+        </>
       )}
       <DataTablePagination table={table} />
 
