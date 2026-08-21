@@ -12,6 +12,7 @@
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:sql": "prisma generate --sql",
     "db:sqlw": "prisma generate --sql --watch",
@@ -106,5 +107,8 @@
   "ct3aMetadata": {
     "initVersion": "7.38.1"
   },
-  "packageManager": "npm@10.9.2"
+  "packageManager": "npm@10.9.2",
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
 }
