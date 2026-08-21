@@ -25,10 +25,12 @@ export function DataTable<TData>({
   table,
   className,
   isDraggable = false,
+  onRowClick,
 }: {
   table: TableType<TData>;
   className?: string;
   isDraggable?: boolean;
+  onRowClick?: (data: TData) => void;
 }) {
   return (
     <div
@@ -68,6 +70,23 @@ export function DataTable<TData>({
                 id={row.id}
                 data-state={row.getIsSelected() && "selected"}
                 isDraggable={isDraggable}
+                className={cn(onRowClick && "cursor-pointer")}
+                tabIndex={onRowClick ? 0 : undefined}
+                aria-label={onRowClick ? "View details" : undefined}
+                onClick={(event) => {
+                  if (!onRowClick || isInteractiveTarget(event.target)) return;
+                  onRowClick(row.original);
+                }}
+                onKeyDown={(event) => {
+                  if (
+                    onRowClick &&
+                    event.target === event.currentTarget &&
+                    (event.key === "Enter" || event.key === " ")
+                  ) {
+                    event.preventDefault();
+                    onRowClick(row.original);
+                  }
+                }}
               >
                 {row.getVisibleCells().map((cell) => {
                   const meta = cell.column.columnDef.meta;
@@ -129,6 +148,15 @@ export function DataTable<TData>({
         </TableFooter>
       </Table>
     </div>
+  );
+}
+
+function isInteractiveTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    !!target.closest(
+      "a, button, input, select, textarea, [role=button], [role=menuitem]",
+    )
   );
 }
 

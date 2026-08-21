@@ -18,6 +18,9 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { SortField } from "~/server/api/routers/transaction";
 import { TransactionFiltersDialog } from "./transaction-filters-dialog";
 import type { TransactionFilters as DialogTransactionFilters } from "./transaction-filters-form";
+import { type TransactionRow } from "./config";
+import { TransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/TransactionDetailDialog";
+import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
 
 type Tab = TransactionStatus | "OVERDUE";
 
@@ -28,6 +31,9 @@ type TransactionFilters = DialogTransactionFilters & {
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [detailTransaction, setDetailTransaction] = useState<TransactionRow>();
+  const [editingTransaction, setEditingTransaction] =
+    useState<TransactionRow>();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const search = useDebouncedCallback((value: string) => {
@@ -188,8 +194,31 @@ export function TransactionTable() {
         </div>
       </div>
 
-      {isPending ? <TableSkeleton /> : <DataTable table={table} />}
+      {isPending ? (
+        <TableSkeleton />
+      ) : (
+        <DataTable table={table} onRowClick={setDetailTransaction} />
+      )}
       <DataTablePagination table={table} />
+
+      <TransactionDetailDialog
+        transaction={detailTransaction}
+        isOpen={!!detailTransaction}
+        onOpenChange={(open) => {
+          if (!open) setDetailTransaction(undefined);
+        }}
+        onEdit={(transaction) => setEditingTransaction(transaction)}
+      />
+
+      <EditTransactionDialog
+        key={`table-edit-transaction-dialog-${editingTransaction?.id ?? "closed"}`}
+        transaction={editingTransaction}
+        isOpen={!!editingTransaction}
+        onOpenChange={(open) => {
+          if (!open) setEditingTransaction(undefined);
+        }}
+        onSuccess={handleCreated}
+      />
     </div>
   );
 }
