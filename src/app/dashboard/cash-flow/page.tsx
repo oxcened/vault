@@ -373,13 +373,13 @@ function CashFlowHistoryList({ data }: { data: Overview["cashFlowByMonth"] }) {
           <div
             key={snapshot.id}
             className={cn(
-              "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b px-4 py-3 last:border-b-0 md:grid-cols-[minmax(9rem,1fr)_1fr_1fr_1fr_1fr]",
+              "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b px-4 py-2 last:border-b-0 md:grid-cols-[minmax(9rem,1fr)_1fr_1fr_1fr_1fr]",
               index === 0 && "bg-emerald-500/[0.04]",
             )}
           >
             <div className="flex min-w-0 items-center gap-2.5">
               <HistoryDot latest={index === 0} accent="emerald" />
-              <span className="font-medium">
+              <span className="text-sm font-medium">
                 {format(snapshot.timestamp, "MMM yyyy")}
               </span>
               {index === 0 && (
@@ -410,6 +410,7 @@ function CashFlowHistoryList({ data }: { data: Overview["cashFlowByMonth"] }) {
               <RoundedCurrency
                 value={snapshot.netFlow}
                 className={cn(
+                  "text-sm",
                   snapshot.netFlow.gt(0) && "text-financial-positive",
                   snapshot.netFlow.lt(0) && "text-financial-negative",
                 )}
