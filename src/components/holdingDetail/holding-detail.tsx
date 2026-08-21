@@ -439,35 +439,37 @@ function ValuationHistoryList({
                   />
                 )}
               </span>
-              {row.quantityId && !row.quantityIsCarried && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-8">
-                      <MoreHorizontalIcon />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => onEdit({ id: row.quantityId! })}
-                    >
-                      Edit valuation
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-red-500"
-                      onClick={() =>
-                        confirm({
-                          itemType: "value",
-                          itemName: format(row.timestamp, "d MMM yyyy"),
-                          onConfirm: () =>
-                            onDelete({ timestamp: row.timestamp }),
-                        })
-                      }
-                    >
-                      Delete valuation
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+              <span className="flex size-8 shrink-0 items-center justify-center">
+                {row.quantityId && !row.quantityIsCarried && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-8">
+                        <MoreHorizontalIcon />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => onEdit({ id: row.quantityId! })}
+                      >
+                        Edit valuation
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-500"
+                        onClick={() =>
+                          confirm({
+                            itemType: "value",
+                            itemName: format(row.timestamp, "d MMM yyyy"),
+                            onConfirm: () =>
+                              onDelete({ timestamp: row.timestamp }),
+                          })
+                        }
+                      >
+                        Delete valuation
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </span>
             </div>
           );
         })}
