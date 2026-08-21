@@ -82,6 +82,8 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
     const watchCurrency = form.watch("currency");
     const watchTimestamp = form.watch("timestamp");
     const watchDescription = form.watch("description");
+    const watchAmount = form.watch("amount");
+    const watchCategoryId = form.watch("categoryId");
     const [debouncedDescription] = useDebounce(watchDescription.trim(), 300);
 
     const { data: categorySuggestion } =
@@ -150,6 +152,11 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
         },
       );
 
+    const selectedCategory = categories.find(
+      (category) => category.id === watchCategoryId,
+    );
+    const isRefund = watchType === "EXPENSE" && Number(watchAmount) < 0;
+
     useImperativeHandle(ref, () => ({
       reset: () => {
         categoryWasManuallySelected.current = false;
@@ -187,6 +194,12 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                     aria-invalid={!!form.formState.errors.amount}
                   />
                 </FormControl>
+                {isRefund && (
+                  <FormDescription>
+                    Refund — this will reduce spending
+                    {selectedCategory ? ` in ${selectedCategory.name}` : ""}.
+                  </FormDescription>
+                )}
                 <FormMessage />
               </FormItem>
             )}

@@ -45,7 +45,7 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
             const fraction = nextValue.split(/[.,]/)[1];
 
             if (
-              /^\d*(?:[.,]\d*)?$/.test(nextValue) &&
+              /^-?\d*(?:[.,]\d*)?$/.test(nextValue) &&
               (fraction?.length ?? 0) <= maxFractionDigits
             ) {
               onValueChange(nextValue.replace(",", "."));
