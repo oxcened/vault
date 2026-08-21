@@ -105,6 +105,8 @@ function SnapshotCard({ data }: { data: Overview }) {
   const debts = latest.totalDebts.abs();
   const total = assets.plus(debts);
   const assetShare = total.eq(0) ? 0 : assets.div(total).times(100).toNumber();
+  const asOfDate =
+    latest.timestamp > new Date() ? new Date() : latest.timestamp;
 
   return (
     <Card className="overflow-hidden border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-500/10 shadow-none">
@@ -117,7 +119,7 @@ function SnapshotCard({ data }: { data: Overview }) {
             <div>
               <h1 className="font-semibold">Net worth</h1>
               <p className="text-xs text-muted-foreground">
-                As of {format(latest.timestamp, "d MMMM yyyy")}
+                As of {format(asOfDate, "d MMMM yyyy")}
               </p>
             </div>
           </div>

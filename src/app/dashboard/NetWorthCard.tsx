@@ -23,6 +23,9 @@ export function NetWorthCard() {
   const debts = data.netWorth?.totalDebts.toNumber() ?? 0;
   const total = Math.abs(assets) + Math.abs(debts);
   const assetShare = total > 0 ? (Math.abs(assets) / total) * 100 : 50;
+  const netWorthDate = data.netWorth?.timestamp;
+  const asOfDate =
+    netWorthDate && netWorthDate > new Date() ? new Date() : netWorthDate;
 
   return (
     <Link href="/dashboard/net-worth" className="group block">
@@ -47,9 +50,9 @@ export function NetWorthCard() {
           <CardTitle className="text-3xl tracking-tight">
             <RoundedCurrency value={data.netWorth?.netValue} />
           </CardTitle>
-          {data.netWorth?.timestamp && (
+          {asOfDate && (
             <p className="mt-1 text-xs text-muted-foreground">
-              As of {format(data.netWorth.timestamp, "d MMM yyyy")}
+              As of {format(asOfDate, "d MMM yyyy")}
             </p>
           )}
 

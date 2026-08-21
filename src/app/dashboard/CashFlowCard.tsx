@@ -35,7 +35,7 @@ export function CashFlowCard() {
               <ArrowDownUp className="size-4" />
             </span>
             <CardDescription className="font-medium text-foreground">
-              This month
+              Cash flow
             </CardDescription>
           </div>
           <div className="flex items-center gap-1.5">
