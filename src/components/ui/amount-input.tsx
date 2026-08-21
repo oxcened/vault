@@ -7,12 +7,24 @@ export type AmountInputProps = Omit<
   "inputMode" | "onChange" | "type" | "value"
 > & {
   currency: string;
+  maxFractionDigits: number;
   value?: number | string | null;
   onValueChange: (value: string) => void;
 };
 
 const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
-  ({ className, currency, onFocus, onValueChange, value, ...props }, ref) => {
+  (
+    {
+      className,
+      currency,
+      maxFractionDigits,
+      onFocus,
+      onValueChange,
+      value,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <div
         className={cn(
@@ -30,8 +42,12 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
           value={value ?? ""}
           onChange={(event) => {
             const nextValue = event.currentTarget.value;
+            const fraction = nextValue.split(/[.,]/)[1];
 
-            if (/^\d*(?:[.,]\d*)?$/.test(nextValue)) {
+            if (
+              /^\d*(?:[.,]\d*)?$/.test(nextValue) &&
+              (fraction?.length ?? 0) <= maxFractionDigits
+            ) {
               onValueChange(nextValue.replace(",", "."));
             }
           }}

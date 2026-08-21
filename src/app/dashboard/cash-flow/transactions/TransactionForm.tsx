@@ -46,6 +46,7 @@ import {
 import { TimePicker } from "~/components/ui/time-picker";
 import { mergeDateAndTime } from "~/utils/date";
 import { useDebounce } from "use-debounce";
+import { getCurrencyFractionDigits } from "~/utils/currency";
 
 export type TransactionFormRef = { reset: () => void };
 
@@ -172,6 +173,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                     onValueChange={field.onChange}
                     value={field.value ?? ""}
                     currency={watchCurrency}
+                    maxFractionDigits={getCurrencyFractionDigits(watchCurrency)}
                     placeholder="0.00"
                     autoFocus={!initialData}
                     aria-invalid={!!form.formState.errors.amount}
