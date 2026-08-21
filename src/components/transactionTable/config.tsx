@@ -264,6 +264,36 @@ const columnsByKey = {
     },
     enableSorting: false,
   }),
+  dashboardDescription: columnHelper.accessor("description", {
+    id: "description",
+    header: "Description",
+    cell: ({ getValue, row }) => {
+      const transaction = row.original;
+
+      return (
+        <div className="flex items-center gap-3">
+          <TransactionIcon
+            category={transaction.category.name}
+            type={transaction.type}
+            isRefund={
+              transaction.type === "EXPENSE" && transaction.amount.isNeg()
+            }
+          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="max-w-40 truncate">{getValue()}</div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{getValue()}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      );
+    },
+    enableSorting: false,
+  }),
   date: columnHelper.accessor("timestamp", {
     header: "Date",
     cell: ({ getValue }) => {
@@ -338,7 +368,7 @@ type ColumnKey = keyof typeof columnsByKey;
 const buildColumns = (keys: ColumnKey[]) => keys.map((k) => columnsByKey[k]);
 
 export const baseTransactionColumns = buildColumns([
-  "description",
+  "dashboardDescription",
   "date",
   "category",
   "amount",
