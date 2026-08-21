@@ -8,7 +8,7 @@ import NetWorthHoldings, {
   type Holding,
 } from "~/components/holdings/net-worth-holdings";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
-import { useRouter } from "next/navigation";
+import EditAssetDialog from "./EditAssetDialog";
 
 export default function AssetsPage() {
   const {
@@ -41,6 +41,7 @@ export default function AssetsPage() {
   const utils = api.useUtils();
 
   const [newDialog, setNewDialog] = useState(false);
+  const [editingAsset, setEditingAsset] = useState<Holding>();
 
   function handleAssetSuccess() {
     void refetch();
@@ -59,10 +60,7 @@ export default function AssetsPage() {
   }));
 
   const { confirm, modal } = useConfirmDelete();
-  const router = useRouter();
-
-  const handleEdit = (holding: Holding) =>
-    router.push(`/dashboard/net-worth/assets/${holding.id}`);
+  const handleEdit = (holding: Holding) => setEditingAsset(holding);
   const handleDelete = (holding: Holding) => {
     confirm({
       itemType: "asset",
@@ -122,6 +120,14 @@ export default function AssetsPage() {
         key={String(newDialog)}
         isOpen={newDialog}
         onOpenChange={setNewDialog}
+        onSuccess={handleAssetSuccess}
+      />
+
+      <EditAssetDialog
+        key={editingAsset?.id}
+        asset={editingAsset}
+        isOpen={!!editingAsset}
+        onOpenChange={(open) => !open && setEditingAsset(undefined)}
         onSuccess={handleAssetSuccess}
       />
 

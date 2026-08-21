@@ -1,7 +1,11 @@
 "use client";
 
-import { Calculator, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { type Holding } from "~/components/holdings/net-worth-holdings";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -10,20 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
-import { api } from "~/trpc/react";
-import { useForm } from "react-hook-form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import { APP_CURRENCY } from "~/constants";
-import { Switch } from "~/components/ui/switch";
-import { Label } from "~/components/ui/label";
-
 import {
   Form,
   FormControl,
@@ -33,82 +23,87 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { createNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
-import { toast } from "sonner";
-import { safeEvaluate } from "~/utils/number";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Switch } from "~/components/ui/switch";
+import { api } from "~/trpc/react";
+import { updateNetWorthAssetSchema } from "~/trpc/schemas/netWorthAsset";
 
-export type NewAssetDialogProps = {
+type EditAssetDialogProps = {
+  asset?: Holding;
   isOpen: boolean;
-  onOpenChange: (newOpen: boolean) => void;
+  onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 };
 
-export default function NewAssetDialog({
+export default function EditAssetDialog({
+  asset,
   isOpen,
   onOpenChange,
   onSuccess,
-}: NewAssetDialogProps) {
-  const [createMore, setCreateMore] = useState(false);
-  const { mutate, isPending } = api.netWorthAsset.create.useMutation({
+}: EditAssetDialogProps) {
+  const form = useForm({
+    resolver: yupResolver(updateNetWorthAssetSchema),
+    defaultValues: {
+      id: asset?.id ?? "",
+      name: asset?.name ?? "",
+      categoryId: asset?.categoryId ?? "",
+      currency: asset?.currency ?? "",
+      tickerId: asset?.tickerId ?? "",
+      isLiquid: asset?.isLiquid ?? false,
+    },
+  });
+
+  const { mutate, isPending } = api.netWorthAsset.update.useMutation({
     onSuccess: () => {
-      toast.success("Asset created.");
-      if (createMore) {
-        form.reset();
-      } else {
-        onOpenChange(false);
-      }
+      toast.success("Asset updated.");
+      onOpenChange(false);
       onSuccess();
     },
   });
-  const form = useForm({
-    defaultValues: {
-      categoryId: "",
-      currency: APP_CURRENCY,
-      name: "",
-      tickerId: "",
-      initialQuantity: "",
-      isLiquid: false,
-    },
-    resolver: yupResolver(createNetWorthAssetSchema),
-  });
-
-  const watchCategory = form.watch("categoryId");
-
-  useEffect(() => {
-    form.resetField("tickerId");
-  }, [watchCategory, form]);
 
   const { data: categories = [], isPending: isFetchingCategories } =
     api.netWorthCategory.getByType.useQuery(
-      {
-        type: ["ASSET", "BOTH"],
-      },
-      {
-        enabled: isOpen,
-      },
+      { type: ["ASSET", "BOTH"] },
+      { enabled: isOpen },
     );
 
+  const categoryId = form.watch("categoryId");
   const isStock =
-    categories.find((c) => c.id === watchCategory)?.isStock ?? false;
+    categories.find((category) => category.id === categoryId)?.isStock ?? false;
 
   const { data: stockTickers = [], isPending: isFetchingStockTickers } =
     api.stockTicker.getAll.useQuery(undefined, {
       enabled: isOpen && isStock,
     });
 
+  useEffect(() => {
+    if (categories.length > 0 && !isStock) {
+      form.setValue("tickerId", "");
+    }
+  }, [categories.length, form, isStock]);
+
+  if (!asset) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit((data) => mutate(data))}
             className="flex flex-col gap-5"
+            onSubmit={form.handleSubmit((values) => mutate(values))}
           >
             <DialogHeader>
-              <DialogTitle>Add asset</DialogTitle>
+              <DialogTitle>Edit asset</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="name"
@@ -116,7 +111,7 @@ export default function NewAssetDialog({
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Name" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,7 +124,6 @@ export default function NewAssetDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
@@ -148,7 +142,6 @@ export default function NewAssetDialog({
                         ))}
                       </SelectContent>
                     </Select>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -161,7 +154,6 @@ export default function NewAssetDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stock ticker</FormLabel>
-
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
@@ -181,7 +173,6 @@ export default function NewAssetDialog({
                           ))}
                         </SelectContent>
                       </Select>
-
                       <FormMessage />
                     </FormItem>
                   )}
@@ -190,40 +181,12 @@ export default function NewAssetDialog({
 
               <FormField
                 control={form.control}
-                name="initialQuantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Initial quantity/value</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="Initial quantity/value"
-                          {...field}
-                        />
-                        <Calculator className="absolute right-3 top-1/2 size-4 -translate-y-1/2 opacity-50" />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      {safeEvaluate(field.value)
-                        ? "Result: " + safeEvaluate(field.value)
-                        : "You can enter values as a formula, e.g. 1000 + 500."}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Currency</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Currency (e.g., USD, EUR, BTC)"
-                        {...field}
-                      />
+                      <Input placeholder="EUR" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -251,17 +214,11 @@ export default function NewAssetDialog({
                 )}
               />
             </div>
-            <DialogFooter className="gap-2">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="airplane-mode"
-                  onCheckedChange={(checked) => setCreateMore(checked)}
-                />
-                <Label htmlFor="airplane-mode">Create more</Label>
-              </div>
+
+            <DialogFooter>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="animate-spin" />}
-                Save
+                Save changes
               </Button>
             </DialogFooter>
           </form>

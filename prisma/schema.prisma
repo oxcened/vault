@@ -111,6 +111,7 @@ model NetWorthAsset {
   createdById     String
   archivedAt      DateTime?
   poolInEnvelopes Boolean                 @default(false)
+  isLiquid        Boolean                 @default(false)
   createdBy       User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
   ticker          StockTicker?            @relation(fields: [tickerId], references: [id])
   quantities      NetWorthAssetQuantity[]

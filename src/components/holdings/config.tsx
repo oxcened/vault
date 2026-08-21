@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
 import { ArchiveIcon, HelpCircleIcon, MoreHorizontalIcon } from "lucide-react";
-import { Holding } from "./net-worth-holdings";
+import type { Holding } from "./net-worth-holdings";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
@@ -105,6 +105,11 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
       return <Badge variant="secondary">{getValue()}</Badge>;
     },
   }),
+  columnHelper.accessor("isLiquid", {
+    header: "Liquidity",
+    cell: ({ getValue }) =>
+      getValue() ? <Badge variant="secondary">Liquid</Badge> : "–",
+  }),
 
   columnHelper.accessor("archivedAt", {
     header: "Archived",
@@ -186,7 +191,7 @@ export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onEditHolding?.(row.original)}>
-              Details
+              Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {poolInEnvelopes != null && (

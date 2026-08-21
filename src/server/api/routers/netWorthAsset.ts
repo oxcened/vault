@@ -31,6 +31,7 @@ export const netWorthAssetRouter = createTRPCRouter({
           data: {
             name: input.name,
             currency: input.currency,
+            isLiquid: input.isLiquid,
             category: { connect: { id: input.categoryId } },
             ticker: tickerId ? { connect: { id: tickerId } } : undefined,
             createdBy: { connect: { id: ctx.session.user.id } },
@@ -215,18 +216,45 @@ export const netWorthAssetRouter = createTRPCRouter({
         tickerId: yup.string(),
         currency: yup.string(),
         poolInEnvelopes: yup.boolean().optional(),
+        isLiquid: yup.boolean().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { id, categoryId, tickerId, ...data } = input;
-      const updatedAsset = await ctx.db.netWorthAsset.update({
-        where: { id: input.id },
-        data: {
-          ...data,
-          ticker: tickerId ? { connect: { id: tickerId } } : undefined,
-          category: categoryId ? { connect: { id: categoryId } } : undefined,
+      const sanitizedTickerId = sanitizeOptionalString(tickerId);
+      const { updatedAsset, firstQuantity } = await ctx.db.$transaction(
+        async (tx) => {
+          const updatedAsset = await tx.netWorthAsset.update({
+            where: { id, createdById: ctx.session.user.id },
+            data: {
+              ...data,
+              ticker:
+                tickerId === undefined
+                  ? undefined
+                  : sanitizedTickerId
+                    ? { connect: { id: sanitizedTickerId } }
+                    : { disconnect: true },
+              category: categoryId
+                ? { connect: { id: categoryId } }
+                : undefined,
+            },
+          });
+
+          const firstQuantity = await tx.netWorthAssetQuantity.findFirst({
+            where: { netWorthAssetId: id },
+            orderBy: { timestamp: "asc" },
+          });
+
+          return { updatedAsset, firstQuantity };
         },
-      });
+      );
+
+      if (firstQuantity) {
+        appEmitter.emit("netWorthAssetQuantity:updated", {
+          userId: ctx.session.user.id,
+          timestamp: firstQuantity.timestamp,
+        });
+      }
 
       return updatedAsset;
     }),

@@ -77,6 +77,7 @@ export async function getAssetValuesForUserMonth({
     categoryName: string;
     assetArchivedAt: Date | null;
     poolInEnvelopes: boolean;
+    isLiquid: boolean;
   }[]
 > {
   return db.$queryRaw`SELECT * FROM get_asset_values_for_user_month(${userId}::TEXT, ${startDate}::TIMESTAMP, ${APP_CURRENCY}::VARCHAR)`;

@@ -25,7 +25,7 @@ import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
 import { DECIMAL_ZERO } from "~/utils/number";
 import { api } from "~/trpc/react";
-import Decimal from "decimal.js";
+import type Decimal from "decimal.js";
 import { CategoryTable } from "./category-table";
 
 export type Holding = {
@@ -47,6 +47,7 @@ export type Holding = {
   tickerId?: string | null;
   archivedAt: Date | null;
   poolInEnvelopes?: boolean | null;
+  isLiquid?: boolean | null;
 };
 
 export type NetWorthHoldingsProps<T> = {
@@ -66,7 +67,7 @@ export type NetWorthHoldingsProps<T> = {
 export default function NetWorthHoldings<T extends Holding>({
   holdings,
   isFetching,
-  holdingLabel,
+  holdingLabel: _holdingLabel,
   holdingLabelPlural,
   type,
   onNewHolding,

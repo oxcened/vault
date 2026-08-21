@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
+import { getAssetValuesForUserMonth } from "~/server/utils/db";
 
 async function getRecentTransactions({
   db,
@@ -57,6 +58,16 @@ export const dashboardRouter = createTRPCRouter({
       });
 
       const latestNetWorth = netWorthHistory[0];
+      const assetValues = await getAssetValuesForUserMonth({
+        db: transaction,
+        userId,
+        startDate: latestNetWorth?.timestamp ?? now,
+      });
+      const liquidAssets = assetValues.reduce(
+        (total, asset) =>
+          asset.isLiquid ? total.plus(asset.valueInTarget) : total,
+        new Prisma.Decimal(0),
+      );
       const currentMonthStart = startOfMonth(now);
       const currentMonthEnd = endOfMonth(now);
       const currentCashFlow = await ctx.db.cashFlow.findFirst({
@@ -123,6 +134,7 @@ export const dashboardRouter = createTRPCRouter({
 
       return {
         netWorth: latestNetWorth,
+        liquidAssets,
         netWorthHistory: netWorthHistory.toReversed().map((snapshot) => ({
           timestamp: snapshot.timestamp,
           value: snapshot.netValue,
