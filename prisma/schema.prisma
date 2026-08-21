@@ -161,6 +161,7 @@ model StockTicker {
   exchange       String
   name           String
   providerSymbol String?
+  autoUpdate     Boolean             @default(false)
   netWorthAssets NetWorthAsset[]
   prices         StockPriceHistory[]
 

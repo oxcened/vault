@@ -114,6 +114,7 @@ export async function syncMarketData(alphaVantageApiKey?: string) {
     });
   } else {
     const tickers = await db.stockTicker.findMany({
+      where: { autoUpdate: true },
       orderBy: { ticker: "asc" },
     });
     for (const ticker of tickers) {
