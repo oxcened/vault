@@ -88,7 +88,7 @@ const categoryIcons: Array<{
     config: { icon: Heart, className: "bg-pink-500/10 text-pink-500" },
   },
   {
-    keywords: ["gift", "donation", "charity"],
+    keywords: ["gift", "gifts", "donation", "donations", "charity"],
     config: { icon: Gift, className: "bg-rose-500/10 text-rose-500" },
   },
   {
