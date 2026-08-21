@@ -55,8 +55,8 @@ export default function FinancialRunway() {
   }
 
   return (
-    <Card className="flex-1">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="flex-1 bg-muted/10 shadow-none">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-2">
         <CardDescription>Financial runway</CardDescription>
         <TooltipProvider>
           <Tooltip>
@@ -71,10 +71,10 @@ export default function FinancialRunway() {
           </Tooltip>
         </TooltipProvider>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 pt-0">
         <CardTitle
           className={cn(
-            "text-3xl tabular-nums",
+            "text-2xl tabular-nums tracking-tight",
             mode !== "off" && "blur-md",
             mode === "hoverToReveal" && "hover:blur-none",
           )}

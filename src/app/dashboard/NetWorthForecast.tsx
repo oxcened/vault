@@ -31,8 +31,8 @@ export default function NetWorthForecast() {
     return null;
 
   return (
-    <Card className="flex-1">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="flex-1 bg-muted/10 shadow-none">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-2">
         <CardDescription>
           Net worth forecast ({DateTime.now().plus({ year: 1 }).year})
         </CardDescription>
@@ -49,8 +49,8 @@ export default function NetWorthForecast() {
           </Tooltip>
         </TooltipProvider>
       </CardHeader>
-      <CardContent>
-        <CardTitle className="text-3xl">
+      <CardContent className="p-5 pt-0">
+        <CardTitle className="text-2xl tracking-tight">
           <RoundedCurrency value={netWorthForecast} />
         </CardTitle>
       </CardContent>

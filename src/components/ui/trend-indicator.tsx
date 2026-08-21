@@ -6,9 +6,13 @@ import { Badge } from "./badge";
 
 export type TrendIndicatorProps = {
   value?: Prisma.Decimal;
+  label?: string;
 };
 
-export function TrendIndicator({ value }: TrendIndicatorProps) {
+export function TrendIndicator({
+  value,
+  label = "this month",
+}: TrendIndicatorProps) {
   if (!value || value.eq(0)) {
     return null;
   }
@@ -33,7 +37,7 @@ export function TrendIndicator({ value }: TrendIndicatorProps) {
             signDisplay: "always",
           }}
         />{" "}
-        this month
+        {label}
       </p>
     </Badge>
   );

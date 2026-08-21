@@ -1,6 +1,6 @@
-import { getPercentageDiff } from "~/server/utils/financial";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { type PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
+import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 
 async function getRecentTransactions({
   db,
@@ -39,11 +39,15 @@ export const dashboardRouter = createTRPCRouter({
   getSummary: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.$transaction(async (transaction) => {
       const userId = ctx.session.user.id;
+      const now = new Date();
 
       const netWorthHistory = await ctx.db.netWorth.findMany({
-        where: { createdById: userId },
+        where: {
+          createdById: userId,
+          timestamp: { lte: now },
+        },
         orderBy: { timestamp: "desc" },
-        take: 2,
+        take: 6,
         select: {
           netValue: true,
           totalAssets: true,
@@ -53,21 +57,16 @@ export const dashboardRouter = createTRPCRouter({
       });
 
       const latestNetWorth = netWorthHistory[0];
-      const previousNetWorth = netWorthHistory[1];
-
-      const netWorthTrend = getPercentageDiff(
-        latestNetWorth?.netValue,
-        previousNetWorth?.netValue,
-      );
-
-      const cashFlowHistory = await ctx.db.cashFlow.findMany({
+      const currentMonthStart = startOfMonth(now);
+      const currentMonthEnd = endOfMonth(now);
+      const currentCashFlow = await ctx.db.cashFlow.findFirst({
         where: {
-          createdById: ctx.session.user.id,
+          createdById: userId,
+          timestamp: {
+            gte: currentMonthStart,
+            lte: currentMonthEnd,
+          },
         },
-        orderBy: {
-          timestamp: "desc",
-        },
-        take: 2,
         select: {
           expenses: true,
           income: true,
@@ -75,13 +74,11 @@ export const dashboardRouter = createTRPCRouter({
         },
       });
 
-      const latestCashFlow = cashFlowHistory[0];
-      const previousCashFlow = cashFlowHistory[1];
-
-      const cashFlowTrend = getPercentageDiff(
-        latestCashFlow?.netFlow,
-        previousCashFlow?.netFlow,
-      );
+      const cashFlow = currentCashFlow ?? {
+        expenses: new Prisma.Decimal(0),
+        income: new Prisma.Decimal(0),
+        netFlow: new Prisma.Decimal(0),
+      };
 
       const recentTransactions = await getRecentTransactions({
         db: transaction,
@@ -89,23 +86,51 @@ export const dashboardRouter = createTRPCRouter({
       });
 
       const cashFlowAvgLast6Months = await ctx.db.cashFlow.aggregate({
+        where: {
+          createdById: userId,
+          timestamp: {
+            gte: startOfMonth(subMonths(now, 6)),
+            lt: currentMonthStart,
+          },
+        },
         _avg: {
           netFlow: true,
           expenses: true,
           income: true,
         },
-        orderBy: {
-          timestamp: "desc",
-        },
-        take: 6,
       });
+
+      const previousCashFlowHistory = await ctx.db.cashFlow.findMany({
+        where: {
+          createdById: userId,
+          timestamp: { lt: currentMonthStart },
+        },
+        orderBy: { timestamp: "desc" },
+        take: 5,
+        select: {
+          timestamp: true,
+          netFlow: true,
+        },
+      });
+
+      const cashFlowHistory = [
+        ...previousCashFlowHistory.toReversed(),
+        {
+          timestamp: currentMonthStart,
+          netFlow: cashFlow.netFlow,
+        },
+      ];
 
       return {
         netWorth: latestNetWorth,
-        cashFlow: latestCashFlow,
+        netWorthHistory: netWorthHistory.toReversed().map((snapshot) => ({
+          timestamp: snapshot.timestamp,
+          value: snapshot.netValue,
+        })),
+        cashFlow,
+        cashFlowHasActivity: currentCashFlow !== null,
+        cashFlowHistory,
         recentTransactions,
-        netWorthTrend,
-        cashFlowTrend,
         cashFlowAvgLast6Months: cashFlowAvgLast6Months._avg,
       };
     });
