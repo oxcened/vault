@@ -19,6 +19,7 @@ import { RecentTransactionTable } from "~/components/transactionTable/recent-tra
 import { CalendarClock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { WhatChanged } from "./WhatChanged";
 
 export default function OverviewPage() {
   const { data, isPending, refetch } = api.dashboard.getSummary.useQuery();
@@ -125,6 +126,8 @@ export default function OverviewPage() {
                 </Link>
               </section>
             )}
+
+            <WhatChanged />
 
             <RecentTransactionTable
               transactions={transactions?.items}
