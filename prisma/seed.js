@@ -1,7 +1,6 @@
 import {
   NetWorthCategoryType,
   PrismaClient,
-  TransactionCategoryType,
   TransactionStatus,
   TransactionType,
 } from "@prisma/client";
@@ -9,6 +8,7 @@ import {
 const db = new PrismaClient();
 const DEMO = "[Demo]";
 
+/** @param {number} monthsAgo */
 function monthStart(monthsAgo) {
   const now = new Date();
   return new Date(
@@ -56,26 +56,28 @@ async function main() {
     }),
   ]);
 
-  const categorySpecs = [
-    ["Salary", TransactionCategoryType.INCOME],
-    ["Freelance", TransactionCategoryType.INCOME],
-    ["Housing", TransactionCategoryType.EXPENSE],
-    ["Groceries", TransactionCategoryType.EXPENSE],
-    ["Transport", TransactionCategoryType.EXPENSE],
-    ["Entertainment", TransactionCategoryType.EXPENSE],
-  ];
+  const transactionCategoryList = await db.transactionCategory.findMany({
+    orderBy: { createdAt: "asc" },
+  });
+  if (transactionCategoryList.length === 0) {
+    throw new Error(
+      "No transaction categories exist. Apply the database migrations before seeding.",
+    );
+  }
   const transactionCategories = Object.fromEntries(
-    await Promise.all(
-      categorySpecs.map(async ([name, type]) => {
-        const category = await db.transactionCategory.upsert({
-          where: { name },
-          update: { type },
-          create: { name, type },
-        });
-        return [name, category];
-      }),
-    ),
+    transactionCategoryList.map((category) => [category.name, category]),
   );
+
+  /** @param {string} name */
+  const requireTransactionCategory = (name) => {
+    const category = transactionCategories[name];
+    if (!category) {
+      throw new Error(
+        `Required transaction category "${name}" is missing. Apply the database migrations before seeding.`,
+      );
+    }
+    return category;
+  };
 
   const assetCategory = await db.netWorthCategory.upsert({
     where: { name: "Cash & investments" },
@@ -155,38 +157,98 @@ async function main() {
     },
   });
 
-  const transactions = [];
+  /** @type {Record<string, [string, number]>} */
+  const categoryExamples = {
+    Housing: ["Rent", 1150],
+    "Personal Care": ["Haircut", 38],
+    "Groceries & Household": ["Weekly groceries", 92],
+    "Transport & Mobility": ["Public transport pass", 68],
+    "Eating Out & Bars": ["Dinner with friends", 54],
+    "Travel & Holidays": ["Weekend train tickets", 120],
+    Shopping: ["New jacket", 85],
+    "Leisure & Entertainment": ["Cinema tickets", 28],
+    "Gifts & Donations": ["Birthday gift", 45],
+    "Financial Fees & Charges": ["Account fee", 6],
+    "Taxes & Contributions": ["Local tax payment", 210],
+    "Other & Unexpected": ["Unexpected repair", 135],
+    "Salary & Wages": ["Monthly salary", 3400],
+    "Freelance & Side Hustles": ["Freelance project", 475],
+    "Business Income": ["Client payment", 900],
+    "Investments & Dividends": ["Quarterly dividend", 75],
+    "Pension & Retirement Income": ["Pension payment", 1200],
+    "Rental Income": ["Monthly rental income", 850],
+    "Internal Transfer": ["Move to emergency fund", 300],
+    "Interbank Transfer": ["Transfer between banks", 250],
+    "Checking to Savings": ["Monthly savings", 500],
+    "Savings to Checking": ["Top up checking account", 200],
+    "Credit Card Payment": ["Pay credit card balance", 640],
+    "Investment Transfer": ["Fund investment account", 400],
+    "Wire Transfer": ["Wire transfer", 275],
+    "ACH Transfer": ["ACH transfer", 180],
+  };
+
+  const transactions = transactionCategoryList.map((category, index) => {
+    const fallbackAmount =
+      category.type === TransactionType.INCOME
+        ? 500
+        : category.type === TransactionType.TRANSFER
+          ? 250
+          : 50;
+    const [description, amount] = categoryExamples[category.name] ?? [
+      category.name,
+      fallbackAmount,
+    ];
+
+    return {
+      description: `${DEMO} ${description}`,
+      amount,
+      currency: "EUR",
+      type: category.type,
+      status: TransactionStatus.POSTED,
+      categoryId: category.id,
+      createdById: user.id,
+      timestamp: new Date(Date.now() - index * 24 * 60 * 60 * 1000),
+    };
+  });
+
   for (let monthsAgo = 11; monthsAgo >= 0; monthsAgo -= 1) {
     const timestamp = monthStart(monthsAgo);
     const monthVariation = (11 - monthsAgo) * 35;
+    /** @type {Array<[string, number, string, import("@prisma/client").TransactionType, number]>} */
     const rows = [
       [
         "Monthly salary",
         3400 + monthVariation,
-        "Salary",
+        "Salary & Wages",
         TransactionType.INCOME,
         2,
       ],
       [
         "Freelance project",
         350 + (monthsAgo % 3) * 125,
-        "Freelance",
+        "Freelance & Side Hustles",
         TransactionType.INCOME,
         8,
       ],
       ["Rent", 1150, "Housing", TransactionType.EXPENSE, 3],
       [
-        "Groceries",
+        "Groceries & Household",
         420 + (monthsAgo % 4) * 18,
-        "Groceries",
+        "Groceries & Household",
         TransactionType.EXPENSE,
         12,
       ],
-      ["Public transport", 68, "Transport", TransactionType.EXPENSE, 15],
+      [
+        "Public transport",
+        68,
+        "Transport & Mobility",
+        TransactionType.EXPENSE,
+        15,
+      ],
       [
         "Dinner and cinema",
         95 + (monthsAgo % 2) * 25,
-        "Entertainment",
+        "Leisure & Entertainment",
         TransactionType.EXPENSE,
         21,
       ],
@@ -199,7 +261,7 @@ async function main() {
         currency: "EUR",
         type,
         status: TransactionStatus.POSTED,
-        categoryId: transactionCategories[category].id,
+        categoryId: requireTransactionCategory(category).id,
         createdById: user.id,
         timestamp: new Date(
           Date.UTC(timestamp.getUTCFullYear(), timestamp.getUTCMonth(), day),
@@ -292,7 +354,7 @@ async function main() {
       currency: "EUR",
       type: TransactionType.EXPENSE,
       status: TransactionStatus.PLANNED,
-      categoryId: transactionCategories.Entertainment.id,
+      categoryId: requireTransactionCategory("Travel & Holidays").id,
       createdById: user.id,
       timestamp: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     },
@@ -305,7 +367,7 @@ async function main() {
         amount: 80,
         currency: "EUR",
         type: TransactionType.EXPENSE,
-        categoryId: transactionCategories.Groceries.id,
+        categoryId: requireTransactionCategory("Groceries & Household").id,
         createdById: user.id,
       },
       {
@@ -313,7 +375,7 @@ async function main() {
         amount: 500,
         currency: "EUR",
         type: TransactionType.INCOME,
-        categoryId: transactionCategories.Freelance.id,
+        categoryId: requireTransactionCategory("Freelance & Side Hustles").id,
         createdById: user.id,
       },
     ],
@@ -350,14 +412,22 @@ async function main() {
   await db.$executeRaw`SELECT recompute_cash_flow_for_user_from(${user.id}::TEXT, ${historyStart}::DATE, 'EUR'::VARCHAR)`;
 
   console.log(`Seeded demo data for ${user.email ?? user.id}:`);
-  console.log("  73 transactions, 12 months of history, 5 holdings");
+  console.log(
+    `  ${transactions.length + 1} transactions, 12 months of history, 5 holdings`,
+  );
   console.log("  2 stock tickers with monthly prices and EUR exchange rates");
   console.log("  3 envelopes and 2 transaction templates");
 }
 
-main()
-  .catch((error) => {
+async function run() {
+  try {
+    await main();
+  } catch (error) {
     console.error(error);
     process.exitCode = 1;
-  })
-  .finally(async () => db.$disconnect());
+  } finally {
+    await db.$disconnect();
+  }
+}
+
+void run();

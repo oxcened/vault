@@ -3,7 +3,7 @@ import type {
   TransactionStatus,
   TransactionType,
 } from "@prisma/client";
-import { createColumnHelper, Row } from "@tanstack/react-table";
+import { createColumnHelper, type Row } from "@tanstack/react-table";
 import { Currency } from "../ui/number";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/utils/date";
@@ -31,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { TransactionIcon } from "./transaction-icon";
 
 export type TransactionRow = {
   id: string;
@@ -154,18 +155,31 @@ function ActionsCell({ row }: { row: Row<TransactionRow> }) {
 const columnsByKey = {
   description: columnHelper.accessor("description", {
     header: "Description",
-    cell: ({ getValue }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="max-w-40 truncate">{getValue()}</div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{getValue()}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    ),
+    cell: ({ getValue, row }) => {
+      const transaction = row.original;
+
+      return (
+        <div className="flex items-center gap-3">
+          <TransactionIcon
+            category={transaction.category.name}
+            type={transaction.type}
+            isRefund={
+              transaction.type === "EXPENSE" && transaction.amount.isNeg()
+            }
+          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="max-w-40 truncate">{getValue()}</div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{getValue()}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      );
+    },
     enableSorting: false,
   }),
   date: columnHelper.accessor("timestamp", {
