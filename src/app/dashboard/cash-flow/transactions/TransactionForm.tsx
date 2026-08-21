@@ -29,7 +29,7 @@ import {
   type CreateTransaction,
   createTransactionSchema,
 } from "~/trpc/schemas/transaction";
-import { TransactionStatus, TransactionType } from "@prisma/client";
+import { type TransactionStatus, TransactionType } from "@prisma/client";
 import {
   Popover,
   PopoverContent,
@@ -79,7 +79,6 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
     });
 
     const watchType = form.watch("type");
-    const watchStatus = form.watch("status");
     const watchCurrency = form.watch("currency");
     const watchTimestamp = form.watch("timestamp");
     const watchDescription = form.watch("description");
@@ -136,7 +135,6 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
       watchTimestamp?.toDateString() === new Date().toDateString();
     const optionSummary = [
       watchType.toLocaleLowerCase(),
-      watchStatus.toLocaleLowerCase(),
       watchCurrency.toUpperCase(),
       isToday ? "today" : watchTimestamp?.toLocaleDateString(),
     ]
@@ -342,35 +340,6 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
 
               <FormField
                 control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="capitalize">
-                          <SelectValue placeholder="Select a status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.values(TransactionStatus).map((status) => (
-                          <SelectItem
-                            key={status}
-                            value={status}
-                            className="capitalize"
-                          >
-                            {status.toLocaleLowerCase()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
@@ -416,11 +385,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                           initialFocus
                           mode="single"
                           selected={field.value}
-                          disabled={(date) =>
-                            watchStatus === "POSTED"
-                              ? date > new Date()
-                              : date < new Date()
-                          }
+                          disabled={(date) => date > new Date()}
                           defaultMonth={field.value}
                           onSelect={(date) =>
                             date &&

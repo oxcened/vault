@@ -1,6 +1,7 @@
 import {
   NetWorthCategoryType,
   PrismaClient,
+  RecurrenceFrequency,
   TransactionStatus,
   TransactionType,
 } from "@prisma/client";
@@ -40,6 +41,9 @@ async function main() {
 
   await db.$transaction([
     db.transaction.deleteMany({
+      where: { createdById: user.id, description: { startsWith: DEMO } },
+    }),
+    db.recurringTransaction.deleteMany({
       where: { createdById: user.id, description: { startsWith: DEMO } },
     }),
     db.transactionTemplate.deleteMany({
@@ -347,17 +351,58 @@ async function main() {
   }
 
   await db.transaction.createMany({ data: transactions });
-  await db.transaction.create({
-    data: {
-      description: `${DEMO} Summer holiday deposit`,
-      amount: 600,
-      currency: "EUR",
-      type: TransactionType.EXPENSE,
-      status: TransactionStatus.PLANNED,
-      categoryId: requireTransactionCategory("Travel & Holidays").id,
-      createdById: user.id,
-      timestamp: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-    },
+
+  /** @param {number} daysFromToday */
+  const scheduleDate = (daysFromToday) => {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + daysFromToday);
+    return date;
+  };
+  await db.recurringTransaction.createMany({
+    data: [
+      {
+        description: `${DEMO} Rent`,
+        amount: 1150,
+        currency: "EUR",
+        type: TransactionType.EXPENSE,
+        categoryId: requireTransactionCategory("Housing").id,
+        nextDate: scheduleDate(-2),
+        frequency: RecurrenceFrequency.MONTHLY,
+        createdById: user.id,
+      },
+      {
+        description: `${DEMO} Music subscription`,
+        amount: 11,
+        currency: "EUR",
+        type: TransactionType.EXPENSE,
+        categoryId: requireTransactionCategory("Leisure & Entertainment").id,
+        nextDate: scheduleDate(5),
+        frequency: RecurrenceFrequency.MONTHLY,
+        createdById: user.id,
+      },
+      {
+        description: `${DEMO} Salary`,
+        amount: 3750,
+        currency: "EUR",
+        type: TransactionType.INCOME,
+        categoryId: requireTransactionCategory("Salary & Wages").id,
+        nextDate: scheduleDate(10),
+        frequency: RecurrenceFrequency.MONTHLY,
+        createdById: user.id,
+      },
+      {
+        description: `${DEMO} Gym membership`,
+        amount: 35,
+        currency: "EUR",
+        type: TransactionType.EXPENSE,
+        categoryId: requireTransactionCategory("Personal Care").id,
+        nextDate: scheduleDate(14),
+        frequency: RecurrenceFrequency.MONTHLY,
+        isPaused: true,
+        createdById: user.id,
+      },
+    ],
   });
 
   await db.transactionTemplate.createMany({
@@ -413,10 +458,11 @@ async function main() {
 
   console.log(`Seeded demo data for ${user.email ?? user.id}:`);
   console.log(
-    `  ${transactions.length + 1} transactions, 12 months of history, 5 holdings`,
+    `  ${transactions.length} transactions, 12 months of history, 5 holdings`,
   );
   console.log("  2 stock tickers with monthly prices and EUR exchange rates");
   console.log("  3 envelopes and 2 transaction templates");
+  console.log("  4 recurring schedules");
 }
 
 async function run() {

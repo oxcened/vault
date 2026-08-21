@@ -25,6 +25,7 @@ import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTr
 import NewTransactionDialog from "~/app/dashboard/cash-flow/transactions/NewTransactionDialog";
 import { type CreateTransaction } from "~/trpc/schemas/transaction";
 import { useState } from "react";
+import { addMonths } from "date-fns";
 import {
   Tooltip,
   TooltipContent,
@@ -32,6 +33,9 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { TransactionIcon } from "./transaction-icon";
+import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
+import type { RecurringTransactionInput } from "~/trpc/schemas/recurring-transaction";
+import { RecurrenceFrequency } from "@prisma/client";
 
 export type TransactionRow = {
   id: string;
@@ -79,6 +83,7 @@ export function TransactionActions({
     useState<TransactionRow>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [isOppositeDialogOpen, setOppositeDialogOpen] = useState(false);
+  const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
 
   const oppositeTransaction: CreateTransaction = {
     amount: transaction.amount.mul(-1).toNumber(),
@@ -88,6 +93,16 @@ export function TransactionActions({
     description: transaction.description,
     timestamp: new Date(),
     status: "POSTED",
+  };
+  const recurringTransaction: RecurringTransactionInput = {
+    amount: transaction.amount.toNumber(),
+    type: transaction.type,
+    categoryId: transaction.categoryId,
+    currency: transaction.currency,
+    description: transaction.description,
+    nextDate: addMonths(new Date(), 1),
+    frequency: RecurrenceFrequency.MONTHLY,
+    interval: 1,
   };
 
   const handleEdited = () => {
@@ -121,6 +136,9 @@ export function TransactionActions({
           onClick={() => saveTemplate({ transactionId: transaction.id })}
         >
           Save to quick add
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setScheduleDialogOpen(true)}>
+          Make recurring
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setOppositeDialogOpen(true)}>
           {transaction.type === "EXPENSE" && transaction.amount.isPos()
@@ -163,6 +181,15 @@ export function TransactionActions({
         }
         onOpenChange={setOppositeDialogOpen}
         onSuccess={handleEdited}
+      />
+      <RecurringTransactionDialog
+        key={`transaction-schedule-dialog-${transaction.id}-${isScheduleDialogOpen}`}
+        isOpen={isScheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
+        initialData={recurringTransaction}
+        onSuccess={() => {
+          void utils.recurringTransaction.getAll.invalidate();
+        }}
       />
     </DropdownMenu>
   );

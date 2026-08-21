@@ -13,7 +13,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
 import { XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
-import { type TransactionStatus, TransactionType } from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import type { SortField } from "~/server/api/routers/transaction";
 import { TransactionFiltersDialog } from "./transaction-filters-dialog";
@@ -23,12 +23,9 @@ import { TransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/
 import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
 import { TransactionMobileList } from "./transaction-mobile-list";
 import { Skeleton } from "../ui/skeleton";
+import { RecurringTransactionList } from "./recurring-transaction-list";
 
-type Tab = TransactionStatus | "OVERDUE";
-
-type TransactionFilters = DialogTransactionFilters & {
-  status: Tab;
-};
+type View = "TRANSACTIONS" | "SCHEDULED";
 
 export function TransactionTable() {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
@@ -36,7 +33,14 @@ export function TransactionTable() {
   const [detailTransaction, setDetailTransaction] = useState<TransactionRow>();
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionRow>();
+  const [view, setView] = useState<View>("TRANSACTIONS");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: schedules = [] } = api.recurringTransaction.getAll.useQuery();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const overdueCount = schedules.filter(
+    (schedule) => !schedule.isPaused && schedule.nextDate < today,
+  ).length;
 
   const search = useDebouncedCallback((value: string) => {
     setDebouncedQuery(value);
@@ -49,8 +53,7 @@ export function TransactionTable() {
     setPagination((state) => ({ ...state, pageIndex: 0 }));
   };
 
-  const [filters, setFilters] = useState<TransactionFilters>({
-    status: "POSTED",
+  const [filters, setFilters] = useState<DialogTransactionFilters>({
     types: Object.values(TransactionType),
     categories: [],
   });
@@ -71,23 +74,14 @@ export function TransactionTable() {
       includeTotal: true,
       query: debouncedQuery,
       types: filters.types,
-      statuses: [
-        (
-          {
-            POSTED: "POSTED",
-            PLANNED: "PLANNED",
-            OVERDUE: "PLANNED",
-          } as const
-        )[filters.status],
-      ],
-      timestampTo:
-        filters.status === "OVERDUE" ? new Date() : filters.dateRange?.to,
-      timestampFrom:
-        filters.status === "PLANNED" ? new Date() : filters.dateRange?.from,
+      statuses: [TransactionStatus.POSTED],
+      timestampTo: filters.dateRange?.to,
+      timestampFrom: filters.dateRange?.from,
       categoryIds: filters.categories,
     },
     {
       placeholderData: keepPreviousData,
+      enabled: view === "TRANSACTIONS",
       meta: {
         persist: false,
       },
@@ -122,27 +116,11 @@ export function TransactionTable() {
     void utils.cashFlow.getMonthlyCashFlow.invalidate();
     void utils.cashFlow.getAll.invalidate();
     void utils.dashboard.getSummary.invalidate();
-  };
-
-  const handleTabChange = (value: Tab) => {
-    setFilters({ ...filters, status: value });
-    setSorting([
-      {
-        id: "timestamp",
-        desc: value === "POSTED",
-      },
-    ]);
-    setPagination((pagination) => ({
-      ...pagination,
-      pageIndex: 0,
-    }));
+    void utils.recurringTransaction.getAll.invalidate();
   };
 
   const handleFilterDialogSubmit = (newFilters: DialogTransactionFilters) => {
-    setFilters((oldFilters) => ({
-      status: oldFilters.status,
-      ...newFilters,
-    }));
+    setFilters(newFilters);
   };
 
   return (
@@ -150,55 +128,71 @@ export function TransactionTable() {
       <div className="flex flex-col gap-2 md:flex-row">
         <Tabs
           className="mr-auto"
-          value={filters.status}
-          onValueChange={(value) => handleTabChange(value as Tab)}
+          value={view}
+          onValueChange={(value) => setView(value as View)}
         >
           <TabsList>
-            <TabsTrigger value={"POSTED" satisfies Tab}>Past</TabsTrigger>
-            <TabsTrigger value={"PLANNED" satisfies Tab}>Upcoming</TabsTrigger>
-            <TabsTrigger value={"OVERDUE" satisfies Tab}>Overdue</TabsTrigger>
+            <TabsTrigger value={"TRANSACTIONS" satisfies View}>
+              Transactions
+            </TabsTrigger>
+            <TabsTrigger value={"SCHEDULED" satisfies View}>
+              Scheduled
+              {overdueCount > 0 && (
+                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] leading-none text-destructive-foreground">
+                  {overdueCount}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="flex flex-wrap gap-2 [&>*]:flex-1">
-          <TransactionFiltersDialog
-            defaultValues={filters}
-            onSubmit={handleFilterDialogSubmit}
-            showDateRangeFilter={filters.status === "POSTED"}
-          />
+          {view === "TRANSACTIONS" && (
+            <TransactionFiltersDialog
+              defaultValues={filters}
+              onSubmit={handleFilterDialogSubmit}
+              showDateRangeFilter
+            />
+          )}
 
-          <div className="hidden md:block">
-            <DataTableColumns table={table} />
-          </div>
+          {view === "TRANSACTIONS" && (
+            <div className="hidden md:block">
+              <DataTableColumns table={table} />
+            </div>
+          )}
 
           <AddTransactionDropdown onSuccess={handleCreated} />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 md:flex-row">
-        <div className="relative flex-1">
-          <Input
-            ref={inputRef}
-            placeholder="Search transactions..."
-            onChange={(e) => search(e.target.value)}
-          />
+      {view === "TRANSACTIONS" && (
+        <div className="flex flex-col gap-2 md:flex-row">
+          <div className="relative flex-1">
+            <Input
+              ref={inputRef}
+              placeholder="Search transactions..."
+              onChange={(e) => search(e.target.value)}
+            />
 
-          {debouncedQuery && (
-            <Button
-              type="button"
-              className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
-              size="icon"
-              variant="ghost"
-              onClick={handleClear}
-            >
-              <XIcon />
-              <span className="sr-only">Clear search</span>
-            </Button>
-          )}
+            {debouncedQuery && (
+              <Button
+                type="button"
+                className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+                size="icon"
+                variant="ghost"
+                onClick={handleClear}
+              >
+                <XIcon />
+                <span className="sr-only">Clear search</span>
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {isPending ? (
+      {view === "SCHEDULED" ? (
+        <RecurringTransactionList />
+      ) : isPending ? (
         <>
           <div className="overflow-hidden rounded-xl border md:hidden">
             {Array.from({ length: 8 }).map((_, index) => (
@@ -233,7 +227,7 @@ export function TransactionTable() {
           </div>
         </>
       )}
-      <DataTablePagination table={table} />
+      {view === "TRANSACTIONS" && <DataTablePagination table={table} />}
 
       <TransactionDetailDialog
         transaction={detailTransaction}

@@ -4,11 +4,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { ChevronDown, PlusIcon, ZapIcon } from "lucide-react";
+import { CalendarClock, ChevronDown, PlusIcon, ZapIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import NewTransactionDialog from "~/app/dashboard/cash-flow/transactions/NewTransactionDialog";
 import { useState } from "react";
 import TransactionTemplateDialog from "~/app/dashboard/cash-flow/transactions/TransactionTemplateDialog";
+import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
 
 export function AddTransactionDropdown({
   onSuccess,
@@ -17,6 +18,7 @@ export function AddTransactionDropdown({
 }) {
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
   const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
 
   return (
     <>
@@ -38,6 +40,10 @@ export function AddTransactionDropdown({
             <ZapIcon />
             Quick add...
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setScheduleDialogOpen(true)}>
+            <CalendarClock />
+            Add schedule...
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -52,6 +58,13 @@ export function AddTransactionDropdown({
         key={`transaction-template-dialog-${isTemplateDialogOpen}`}
         isOpen={isTemplateDialogOpen}
         onOpenChange={setTemplateDialogOpen}
+        onSuccess={onSuccess}
+      />
+
+      <RecurringTransactionDialog
+        key={`recurring-transaction-dialog-${isScheduleDialogOpen}`}
+        isOpen={isScheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
         onSuccess={onSuccess}
       />
     </>
