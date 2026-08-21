@@ -90,13 +90,13 @@ export function RecurringTransactionList() {
     );
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
   const needsAttention = schedules.filter(
-    (schedule) => !schedule.isPaused && schedule.nextDate < today,
+    (schedule) => !schedule.isPaused && schedule.nextDate <= endOfToday,
   );
   const comingUp = schedules.filter(
-    (schedule) => !schedule.isPaused && schedule.nextDate >= today,
+    (schedule) => !schedule.isPaused && schedule.nextDate > endOfToday,
   );
   const paused = schedules.filter((schedule) => schedule.isPaused);
 

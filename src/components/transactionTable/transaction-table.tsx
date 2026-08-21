@@ -11,7 +11,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
-import { XIcon } from "lucide-react";
+import { CalendarClock, ChevronRight, XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
@@ -36,10 +36,10 @@ export function TransactionTable() {
   const [view, setView] = useState<View>("TRANSACTIONS");
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: schedules = [] } = api.recurringTransaction.getAll.useQuery();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const overdueCount = schedules.filter(
-    (schedule) => !schedule.isPaused && schedule.nextDate < today,
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  const attentionCount = schedules.filter(
+    (schedule) => !schedule.isPaused && schedule.nextDate <= endOfToday,
   ).length;
 
   const search = useDebouncedCallback((value: string) => {
@@ -137,9 +137,9 @@ export function TransactionTable() {
             </TabsTrigger>
             <TabsTrigger value={"SCHEDULED" satisfies View}>
               Scheduled
-              {overdueCount > 0 && (
+              {attentionCount > 0 && (
                 <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] leading-none text-destructive-foreground">
-                  {overdueCount}
+                  {attentionCount}
                 </span>
               )}
             </TabsTrigger>
@@ -164,6 +164,29 @@ export function TransactionTable() {
           <AddTransactionDropdown onSuccess={handleCreated} />
         </div>
       </div>
+
+      {view === "TRANSACTIONS" && attentionCount > 0 && (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-auto justify-start gap-3 border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-left hover:bg-amber-500/10"
+          onClick={() => setView("SCHEDULED")}
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
+            <CalendarClock className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium">
+              {attentionCount} scheduled transaction
+              {attentionCount === 1 ? "" : "s"} need attention
+            </span>
+            <span className="block text-xs font-normal text-muted-foreground">
+              Review and post what happened
+            </span>
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+        </Button>
+      )}
 
       {view === "TRANSACTIONS" && (
         <div className="flex flex-col gap-2 md:flex-row">
