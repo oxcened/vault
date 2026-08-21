@@ -58,12 +58,13 @@ export const recurringTransactionRouter = createTRPCRouter({
     }),
 
   post: protectedProcedure
-    .input(ownedScheduleInput)
+    .input(ownedScheduleInput.extend({ recordNow: z.boolean().default(false) }))
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.$transaction(async (tx) => {
         const schedule = await tx.recurringTransaction.findFirstOrThrow({
           where: { id: input.id, createdById: ctx.session.user.id },
         });
+        const now = new Date();
         const transaction = await tx.transaction.create({
           data: {
             description: schedule.description,
@@ -71,7 +72,10 @@ export const recurringTransactionRouter = createTRPCRouter({
             currency: schedule.currency,
             type: schedule.type,
             categoryId: schedule.categoryId,
-            timestamp: schedule.nextDate,
+            timestamp:
+              input.recordNow || schedule.nextDate > now
+                ? now
+                : schedule.nextDate,
             status: TransactionStatus.POSTED,
             createdById: ctx.session.user.id,
           },

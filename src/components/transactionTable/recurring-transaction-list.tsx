@@ -7,8 +7,8 @@ import type {
 } from "@prisma/client";
 import { differenceInCalendarDays, format } from "date-fns";
 import {
+  CalendarCheck,
   CalendarClock,
-  Check,
   ChevronDown,
   Loader2,
   Pause,
@@ -16,6 +16,7 @@ import {
   Play,
   SkipForward,
   Trash2,
+  Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -112,7 +113,7 @@ export function RecurringTransactionList() {
       <ScheduleSection
         title="Needs attention"
         schedules={needsAttention}
-        onPost={(id) => post.mutate({ id })}
+        onPost={(id, recordNow) => post.mutate({ id, recordNow })}
         postingId={post.isPending ? post.variables?.id : undefined}
         onChanged={refresh}
         urgent
@@ -120,14 +121,14 @@ export function RecurringTransactionList() {
       <ScheduleSection
         title="Coming up"
         schedules={comingUp}
-        onPost={(id) => post.mutate({ id })}
+        onPost={(id, recordNow) => post.mutate({ id, recordNow })}
         postingId={post.isPending ? post.variables?.id : undefined}
         onChanged={refresh}
       />
       <ScheduleSection
         title="Paused"
         schedules={paused}
-        onPost={(id) => post.mutate({ id })}
+        onPost={(id, recordNow) => post.mutate({ id, recordNow })}
         postingId={post.isPending ? post.variables?.id : undefined}
         onChanged={refresh}
       />
@@ -145,7 +146,7 @@ function ScheduleSection({
 }: {
   title: string;
   schedules: RecurringTransactionRow[];
-  onPost: (id: string) => void;
+  onPost: (id: string, recordNow?: boolean) => void;
   postingId?: string;
   onChanged: () => void;
   urgent?: boolean;
@@ -165,7 +166,7 @@ function ScheduleSection({
           <ScheduleRow
             key={schedule.id}
             schedule={schedule}
-            onPost={() => onPost(schedule.id)}
+            onPost={(recordNow) => onPost(schedule.id, recordNow)}
             isPosting={postingId === schedule.id}
             onChanged={onChanged}
           />
@@ -182,7 +183,7 @@ function ScheduleRow({
   onChanged,
 }: {
   schedule: RecurringTransactionRow;
-  onPost: () => void;
+  onPost: (recordNow?: boolean) => void;
   isPosting: boolean;
   onChanged: () => void;
 }) {
@@ -218,6 +219,11 @@ function ScheduleRow({
     schedule.type === "EXPENSE" ? -1 : 1,
   );
   const daysUntil = differenceInCalendarDays(schedule.nextDate, new Date());
+  const canRecord = !schedule.isPaused;
+  const recordLabel =
+    daysUntil < 0
+      ? `Record for ${format(schedule.nextDate, "d MMM")}`
+      : "Record now";
   const dateLabel = schedule.isPaused
     ? `Next ${format(schedule.nextDate, "d MMM")}`
     : daysUntil < 0
@@ -261,34 +267,36 @@ function ScheduleRow({
             )}
           />
           <div className="flex">
-            {!schedule.isPaused && (
+            {canRecord && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     size="icon"
                     className="size-8 rounded-r-none"
-                    onClick={onPost}
+                    onClick={() => onPost()}
                     disabled={isPosting}
                   >
                     {isPosting ? (
                       <Loader2 className="animate-spin" />
+                    ) : daysUntil < 0 ? (
+                      <CalendarCheck />
                     ) : (
-                      <Check />
+                      <Zap />
                     )}
-                    <span className="sr-only">Record now</span>
+                    <span className="sr-only">{recordLabel}</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Record now</TooltipContent>
+                <TooltipContent>{recordLabel}</TooltipContent>
               </Tooltip>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={schedule.isPaused ? "outline" : "default"}
+                  variant={canRecord ? "default" : "outline"}
                   size="icon"
                   className={cn(
                     "size-8 shrink-0",
-                    !schedule.isPaused &&
+                    canRecord &&
                       "rounded-l-none border-l border-primary-foreground/20",
                   )}
                 >
@@ -297,6 +305,11 @@ function ScheduleRow({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {daysUntil < 0 && !schedule.isPaused && (
+                  <DropdownMenuItem onClick={() => onPost(true)}>
+                    <Zap /> Record now
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => setEditing(true)}>
                   <Pencil /> Edit schedule
                 </DropdownMenuItem>
