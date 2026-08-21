@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
+import { RecurringTransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDetailDialog";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -188,6 +189,7 @@ function ScheduleRow({
   onChanged: () => void;
 }) {
   const [isEditing, setEditing] = useState(false);
+  const [isDetailOpen, setDetailOpen] = useState(false);
   const utils = api.useUtils();
   const { confirm, modal } = useConfirmDelete();
   const skip = api.recurringTransaction.skip.useMutation({
@@ -233,122 +235,130 @@ function ScheduleRow({
         : `Next ${format(schedule.nextDate, "d MMM")}`;
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-3 border-b px-3 py-3 last:border-b-0 sm:px-4",
-        schedule.isPaused && "opacity-60",
-      )}
-    >
-      <TransactionIcon category={schedule.category.name} type={schedule.type} />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{schedule.description}</p>
-        <p className="truncate text-xs text-muted-foreground">
-          {dateLabel} · {formatRecurrence(schedule)}
-        </p>
-      </div>
-      <Currency
-        value={displayAmount}
-        options={{ currency: schedule.currency, signDisplay: "always" }}
+    <>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setDetailOpen(true)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setDetailOpen(true);
+          }
+        }}
         className={cn(
-          "hidden shrink-0 text-sm sm:block",
-          displayAmount.isPos() && "text-financial-positive",
-          displayAmount.isNeg() && "text-financial-negative",
+          "flex cursor-pointer items-center gap-3 border-b px-3 py-3 outline-none last:border-b-0 hover:bg-muted/50 focus-visible:bg-muted/50 sm:px-4",
+          schedule.isPaused && "opacity-60",
         )}
-      />
-      <TooltipProvider>
-        <div className="flex shrink-0 flex-col items-end gap-1.5 sm:block">
-          <Currency
-            value={displayAmount}
-            options={{ currency: schedule.currency, signDisplay: "always" }}
-            className={cn(
-              "text-xs tabular-nums sm:hidden",
-              displayAmount.isPos() && "text-financial-positive",
-              displayAmount.isNeg() && "text-financial-negative",
-            )}
-          />
-          <div className="flex">
-            {canRecord && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    className="size-8 rounded-r-none"
-                    onClick={() => onPost()}
-                    disabled={isPosting}
-                  >
-                    {isPosting ? (
-                      <Loader2 className="animate-spin" />
-                    ) : daysUntil < 0 ? (
-                      <CalendarCheck />
-                    ) : (
-                      <Zap />
-                    )}
-                    <span className="sr-only">{recordLabel}</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{recordLabel}</TooltipContent>
-              </Tooltip>
-            )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant={canRecord ? "default" : "outline"}
-                  size="icon"
-                  className={cn(
-                    "size-8 shrink-0",
-                    canRecord &&
-                      "rounded-l-none border-l border-primary-foreground/20",
-                  )}
-                >
-                  <ChevronDown />
-                  <span className="sr-only">Schedule actions</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {daysUntil < 0 && !schedule.isPaused && (
-                  <DropdownMenuItem onClick={() => onPost(true)}>
-                    <Zap /> Record now
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => setEditing(true)}>
-                  <Pencil /> Edit schedule
-                </DropdownMenuItem>
-                {!schedule.isPaused && (
-                  <DropdownMenuItem
-                    onClick={() => skip.mutate({ id: schedule.id })}
-                  >
-                    <SkipForward /> Skip occurrence
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onClick={() =>
-                    setPaused.mutate({
-                      id: schedule.id,
-                      isPaused: !schedule.isPaused,
-                    })
-                  }
-                >
-                  {schedule.isPaused ? <Play /> : <Pause />}
-                  {schedule.isPaused ? "Resume" : "Pause"}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-red-500"
-                  onClick={() =>
-                    confirm({
-                      itemType: "schedule",
-                      itemName: schedule.description,
-                      onConfirm: () => remove.mutate({ id: schedule.id }),
-                    })
-                  }
-                >
-                  <Trash2 /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+      >
+        <TransactionIcon
+          category={schedule.category.name}
+          type={schedule.type}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{schedule.description}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {dateLabel} · {formatRecurrence(schedule)}
+          </p>
         </div>
-      </TooltipProvider>
+        <Currency
+          value={displayAmount}
+          options={{ currency: schedule.currency, signDisplay: "always" }}
+          className={cn(
+            "shrink-0 text-sm",
+            displayAmount.isPos() && "text-financial-positive",
+            displayAmount.isNeg() && "text-financial-negative",
+          )}
+        />
+        <TooltipProvider>
+          <div
+            className="hidden shrink-0 sm:block"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex">
+              {canRecord && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      className="size-8 rounded-r-none"
+                      onClick={() => onPost()}
+                      disabled={isPosting}
+                    >
+                      {isPosting ? (
+                        <Loader2 className="animate-spin" />
+                      ) : daysUntil < 0 ? (
+                        <CalendarCheck />
+                      ) : (
+                        <Zap />
+                      )}
+                      <span className="sr-only">{recordLabel}</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{recordLabel}</TooltipContent>
+                </Tooltip>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant={canRecord ? "default" : "outline"}
+                    size="icon"
+                    className={cn(
+                      "size-8 shrink-0",
+                      canRecord &&
+                        "rounded-l-none border-l border-primary-foreground/20",
+                    )}
+                  >
+                    <ChevronDown />
+                    <span className="sr-only">Schedule actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {daysUntil < 0 && !schedule.isPaused && (
+                    <DropdownMenuItem onClick={() => onPost(true)}>
+                      <Zap /> Record now
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => setEditing(true)}>
+                    <Pencil /> Edit schedule
+                  </DropdownMenuItem>
+                  {!schedule.isPaused && (
+                    <DropdownMenuItem
+                      onClick={() => skip.mutate({ id: schedule.id })}
+                    >
+                      <SkipForward /> Skip occurrence
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
+                    onClick={() =>
+                      setPaused.mutate({
+                        id: schedule.id,
+                        isPaused: !schedule.isPaused,
+                      })
+                    }
+                  >
+                    {schedule.isPaused ? <Play /> : <Pause />}
+                    {schedule.isPaused ? "Resume" : "Pause"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-red-500"
+                    onClick={() =>
+                      confirm({
+                        itemType: "schedule",
+                        itemName: schedule.description,
+                        onConfirm: () => remove.mutate({ id: schedule.id }),
+                      })
+                    }
+                  >
+                    <Trash2 /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </TooltipProvider>
+      </div>
       {modal}
       <RecurringTransactionDialog
         key={`edit-schedule-${schedule.id}-${isEditing}`}
@@ -360,7 +370,40 @@ function ScheduleRow({
         scheduleId={schedule.id}
         initialData={input}
       />
-    </div>
+      <RecurringTransactionDetailDialog
+        schedule={schedule}
+        isOpen={isDetailOpen}
+        onOpenChange={setDetailOpen}
+        onEdit={() => setEditing(true)}
+        onRecord={() => {
+          setDetailOpen(false);
+          onPost();
+        }}
+        onRecordNow={() => {
+          setDetailOpen(false);
+          onPost(true);
+        }}
+        onSkip={() => {
+          setDetailOpen(false);
+          skip.mutate({ id: schedule.id });
+        }}
+        onTogglePaused={() => {
+          setDetailOpen(false);
+          setPaused.mutate({
+            id: schedule.id,
+            isPaused: !schedule.isPaused,
+          });
+        }}
+        onDelete={() =>
+          confirm({
+            itemType: "schedule",
+            itemName: schedule.description,
+            onConfirm: () => remove.mutate({ id: schedule.id }),
+          })
+        }
+        isRecording={isPosting}
+      />
+    </>
   );
 }
 
