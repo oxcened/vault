@@ -7,12 +7,8 @@ import {
 import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
-import {
-  Prisma,
-  TransactionCategoryType,
-  TransactionStatus,
-  TransactionType,
-} from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
+import type { Prisma, TransactionCategoryType } from "@prisma/client";
 import { DECIMAL_ZERO } from "~/utils/number";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
@@ -286,6 +282,37 @@ export const transactionRouter = createTRPCRouter({
       });
 
       return deleted;
+    }),
+
+  deleteMany: protectedProcedure
+    .input(z.object({ ids: z.array(z.string()).min(1).max(100) }))
+    .mutation(async ({ input, ctx }) => {
+      const transactions = await ctx.db.transaction.findMany({
+        where: {
+          id: { in: input.ids },
+          createdById: ctx.session.user.id,
+        },
+        select: { id: true, timestamp: true },
+      });
+
+      await ctx.db.transaction.deleteMany({
+        where: { id: { in: transactions.map(({ id }) => id) } },
+      });
+
+      const affectedMonths = new Map<string, Date>();
+      for (const transaction of transactions) {
+        const timestamp = transaction.timestamp;
+        const key = `${timestamp.getUTCFullYear()}-${timestamp.getUTCMonth()}`;
+        affectedMonths.set(key, timestamp);
+      }
+      for (const timestamp of affectedMonths.values()) {
+        appEmitter.emit("transaction:updated", {
+          userId: ctx.session.user.id,
+          timestamp,
+        });
+      }
+
+      return { count: transactions.length };
     }),
 
   update: protectedProcedure

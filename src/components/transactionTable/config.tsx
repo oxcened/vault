@@ -36,6 +36,7 @@ import { TransactionIcon } from "./transaction-icon";
 import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
 import type { RecurringTransactionInput } from "~/trpc/schemas/recurring-transaction";
 import { RecurrenceFrequency } from "@prisma/client";
+import { Checkbox } from "../ui/checkbox";
 
 export type TransactionRow = {
   id: string;
@@ -199,19 +200,53 @@ export function TransactionActions({
 // Single source of truth for column definitions.
 const columnsByKey = {
   description: columnHelper.accessor("description", {
-    header: "Description",
+    header: ({ table }) => (
+      <div className="flex items-center gap-3">
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(checked) =>
+            table.toggleAllPageRowsSelected(checked === true)
+          }
+          aria-label="Select all transactions on this page"
+        />
+        Description
+      </div>
+    ),
     cell: ({ getValue, row }) => {
       const transaction = row.original;
 
       return (
         <div className="flex items-center gap-3">
-          <TransactionIcon
-            category={transaction.category.name}
-            type={transaction.type}
-            isRefund={
-              transaction.type === "EXPENSE" && transaction.amount.isNeg()
-            }
-          />
+          <div className="group/transaction-select relative size-9 shrink-0">
+            <div
+              className={cn(
+                "transition-opacity group-hover/transaction-select:opacity-0",
+                row.getIsSelected() && "opacity-0",
+              )}
+            >
+              <TransactionIcon
+                category={transaction.category.name}
+                type={transaction.type}
+                isRefund={
+                  transaction.type === "EXPENSE" && transaction.amount.isNeg()
+                }
+              />
+            </div>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(checked) =>
+                row.toggleSelected(checked === true)
+              }
+              className={cn(
+                "absolute inset-0 size-9 rounded-full border-0 bg-muted opacity-0 transition-opacity before:absolute before:left-1/2 before:top-1/2 before:size-4 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-[3px] before:border before:border-muted-foreground focus-visible:opacity-100 group-hover/transaction-select:opacity-100 data-[state=checked]:bg-primary data-[state=checked]:before:border-primary-foreground",
+                row.getIsSelected() && "opacity-100",
+              )}
+              aria-label={`Select ${transaction.description}`}
+            />
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

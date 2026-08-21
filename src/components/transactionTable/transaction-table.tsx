@@ -1,5 +1,9 @@
 import { DataTable } from "../ui/data-table";
-import { getCoreRowModel, type SortingState } from "@tanstack/react-table";
+import {
+  getCoreRowModel,
+  type RowSelectionState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { AddTransactionDropdown } from "../add-transaction-dropdown";
 import { DataTablePagination } from "../ui/data-table-pagination";
@@ -11,7 +15,14 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
-import { CalendarClock, CalendarPlus, ChevronRight, XIcon } from "lucide-react";
+import {
+  CalendarClock,
+  CalendarPlus,
+  ChevronRight,
+  Loader2,
+  Trash2,
+  XIcon,
+} from "lucide-react";
 import { useTable } from "~/hooks/useTable";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
@@ -25,6 +36,8 @@ import { TransactionMobileList } from "./transaction-mobile-list";
 import { Skeleton } from "../ui/skeleton";
 import { RecurringTransactionList } from "./recurring-transaction-list";
 import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
+import { useConfirmDelete } from "../confirm-delete-modal";
+import { toast } from "sonner";
 
 type View = "TRANSACTIONS" | "SCHEDULED";
 
@@ -35,6 +48,7 @@ export function TransactionTable() {
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionRow>();
   const [view, setView] = useState<View>("TRANSACTIONS");
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: schedules = [] } = api.recurringTransaction.getAll.useQuery();
@@ -94,7 +108,10 @@ export function TransactionTable() {
     data: data?.items ?? [],
     columns: transactionColumns,
     getCoreRowModel: getCoreRowModel(),
-    state: { pagination, sorting },
+    state: { pagination, rowSelection, sorting },
+    getRowId: (row) => row.id,
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     manualPagination: true,
     pageCount: data?.totalPages ?? 1,
@@ -112,6 +129,7 @@ export function TransactionTable() {
   });
 
   const utils = api.useUtils();
+  const { confirm, modal: confirmDeleteModal } = useConfirmDelete();
 
   const handleCreated = () => {
     void utils.transaction.getAll.invalidate();
@@ -119,6 +137,27 @@ export function TransactionTable() {
     void utils.cashFlow.getAll.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.recurringTransaction.getAll.invalidate();
+    void utils.transactionTemplate.getFrequent.invalidate();
+  };
+
+  const selectedIds = Object.entries(rowSelection)
+    .filter(([, selected]) => selected)
+    .map(([id]) => id);
+  const deleteMany = api.transaction.deleteMany.useMutation({
+    onSuccess: ({ count }) => {
+      toast.success(`${count} transaction${count === 1 ? "" : "s"} deleted.`);
+      setRowSelection({});
+      handleCreated();
+    },
+  });
+
+  const handleBulkDelete = () => {
+    const count = selectedIds.length;
+    confirm({
+      itemType: count === 1 ? "transaction" : "transactions",
+      itemCount: count,
+      onConfirm: () => deleteMany.mutate({ ids: selectedIds }),
+    });
   };
 
   const handleFilterDialogSubmit = (newFilters: DialogTransactionFilters) => {
@@ -211,6 +250,36 @@ export function TransactionTable() {
         </Button>
       )}
 
+      {view === "TRANSACTIONS" && selectedIds.length > 0 && (
+        <div className="hidden items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 md:flex">
+          <span className="mr-auto text-sm font-medium">
+            {selectedIds.length} selected
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setRowSelection({})}
+          >
+            Clear
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="destructive"
+            disabled={deleteMany.isPending}
+            onClick={handleBulkDelete}
+          >
+            {deleteMany.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Trash2 />
+            )}
+            Delete
+          </Button>
+        </div>
+      )}
+
       {view === "TRANSACTIONS" && (
         <div className="flex flex-col gap-2 md:flex-row">
           <div className="relative flex-1">
@@ -300,6 +369,7 @@ export function TransactionTable() {
         onOpenChange={setScheduleDialogOpen}
         onSuccess={handleCreated}
       />
+      {confirmDeleteModal}
     </div>
   );
 }
