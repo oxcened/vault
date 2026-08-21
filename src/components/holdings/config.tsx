@@ -12,11 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button } from "~/components/ui/button";
 import { ArchiveIcon, HelpCircleIcon, MoreHorizontalIcon } from "lucide-react";
 import { Holding } from "./net-worth-holdings";
 import { Badge } from "../ui/badge";
-import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const columnHelper = createColumnHelper<Holding>();
@@ -24,26 +23,14 @@ const columnHelper = createColumnHelper<Holding>();
 export const holdingsColumns = ({ isStock = false }: { isStock?: boolean }) => [
   columnHelper.accessor("name", {
     header: "Name",
-    cell: ({ getValue, row, table }) => {
-      const tableMeta = table.options.meta;
-
-      const getDetailUrl =
-        tableMeta &&
-        "getHoldingDetailUrl" in tableMeta &&
-        typeof tableMeta.getHoldingDetailUrl === "function"
-          ? (tableMeta.getHoldingDetailUrl as (holding: Holding) => string)
-          : undefined;
-
+    cell: ({ getValue, row }) => {
       return (
-        <Link
-          href={getDetailUrl?.(row.original) ?? ""}
-          className={buttonVariants({
-            variant: "link",
-          })}
-        >
+        <div className="flex items-center gap-2 font-medium">
           {getValue()}
-          {row.original.archivedAt && <ArchiveIcon />}
-        </Link>
+          {row.original.archivedAt && (
+            <ArchiveIcon className="size-4 text-muted-foreground" />
+          )}
+        </div>
       );
     },
   }),

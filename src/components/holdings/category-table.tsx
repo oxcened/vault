@@ -14,6 +14,7 @@ import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { RoundedCurrency } from "../ui/number";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { DataTable } from "../ui/data-table";
+import { useRouter } from "next/navigation";
 
 export function CategoryTable<T extends Holding>({
   holdings,
@@ -34,6 +35,7 @@ export function CategoryTable<T extends Holding>({
   onPoolToEnvelopesHolding?: (holding: T) => void;
   getHoldingDetailUrl: (holding: T) => string;
 }) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "valueInTarget",
@@ -50,7 +52,6 @@ export function CategoryTable<T extends Holding>({
       onEditHolding,
       onDeleteHolding,
       onArchiveHolding,
-      getHoldingDetailUrl,
       onPoolToEnvelopesHolding,
     },
     initialState: {
@@ -92,9 +93,12 @@ export function CategoryTable<T extends Holding>({
       </div>
 
       {isOpen && (
-        <>
-          <DataTable table={table} />
-        </>
+        <DataTable
+          table={table}
+          onRowClick={(holding) =>
+            router.push(getHoldingDetailUrl(holding as T))
+          }
+        />
       )}
     </div>
   );

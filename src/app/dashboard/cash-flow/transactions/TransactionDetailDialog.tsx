@@ -5,7 +5,6 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -67,10 +66,26 @@ export function TransactionDetailDialog({
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">
         <div className="space-y-5 p-6">
           <DialogHeader className="pr-8">
-            <div className="flex items-start gap-3 text-left">
+            <div className="min-w-0 space-y-1.5 text-left">
+              <DialogTitle className="truncate leading-tight">
+                {transaction.description}
+              </DialogTitle>
+              {transaction.status !== "POSTED" && (
+                <Badge variant="secondary" className="capitalize">
+                  {transaction.status.toLowerCase()}
+                </Badge>
+              )}
+            </div>
+            <DialogDescription className="sr-only">
+              Transaction details
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center justify-between gap-4 py-2">
+            <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  "flex size-10 shrink-0 items-center justify-center rounded-full",
+                  "flex size-8 shrink-0 items-center justify-center rounded-full",
                   (isRefund || isIncome) &&
                     "bg-emerald-500/10 text-financial-positive",
                   isExpense && "bg-red-500/10 text-financial-negative",
@@ -78,31 +93,12 @@ export function TransactionDetailDialog({
                     "bg-muted text-muted-foreground",
                 )}
               >
-                <AmountIcon className="size-5" />
+                <AmountIcon className="size-4" />
               </div>
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <DialogTitle className="truncate leading-tight">
-                  {transaction.description}
-                </DialogTitle>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="capitalize">
-                    {isRefund ? "refund" : transaction.type.toLowerCase()}
-                  </Badge>
-                  <Badge variant="secondary" className="capitalize">
-                    {transaction.status.toLowerCase()}
-                  </Badge>
-                </div>
-              </div>
+              <p className="text-sm font-medium text-muted-foreground">
+                {amountLabel}
+              </p>
             </div>
-            <DialogDescription className="sr-only">
-              Transaction details
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="rounded-xl border bg-muted/30 p-4">
-            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {amountLabel}
-            </p>
             <Currency
               value={displayAmount}
               options={{
@@ -110,7 +106,7 @@ export function TransactionDetailDialog({
                 signDisplay: "always",
               }}
               className={cn(
-                "text-3xl font-semibold tracking-tight",
+                "text-2xl font-semibold tracking-tight",
                 displayAmount.isPos() && "text-financial-positive",
                 displayAmount.isNeg() && "text-financial-negative",
               )}
@@ -146,9 +142,6 @@ export function TransactionDetailDialog({
         </div>
 
         <DialogFooter className="gap-2 border-t bg-muted/20 px-6 py-4">
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
           <Button
             onClick={() => {
               onOpenChange(false);
