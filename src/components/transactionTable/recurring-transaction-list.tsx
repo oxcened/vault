@@ -8,8 +8,9 @@ import type {
 import { differenceInCalendarDays, format } from "date-fns";
 import {
   CalendarClock,
+  Check,
+  ChevronDown,
   Loader2,
-  MoreHorizontal,
   Pause,
   Pencil,
   Play,
@@ -31,6 +32,12 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Currency } from "~/components/ui/number";
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import type { RecurringTransactionInput } from "~/trpc/schemas/recurring-transaction";
@@ -207,6 +214,9 @@ function ScheduleRow({
     nextDate: schedule.nextDate,
     type: schedule.type,
   };
+  const displayAmount = schedule.amount.mul(
+    schedule.type === "EXPENSE" ? -1 : 1,
+  );
   const daysUntil = differenceInCalendarDays(schedule.nextDate, new Date());
   const dateLabel = schedule.isPaused
     ? `Next ${format(schedule.nextDate, "d MMM")}`
@@ -231,58 +241,101 @@ function ScheduleRow({
         </p>
       </div>
       <Currency
-        value={schedule.amount.mul(schedule.type === "EXPENSE" ? -1 : 1)}
+        value={displayAmount}
         options={{ currency: schedule.currency, signDisplay: "always" }}
-        className="hidden shrink-0 text-sm font-semibold sm:block"
+        className={cn(
+          "hidden shrink-0 text-sm sm:block",
+          displayAmount.isPos() && "text-financial-positive",
+          displayAmount.isNeg() && "text-financial-negative",
+        )}
       />
-      {!schedule.isPaused && (
-        <Button size="sm" onClick={onPost} disabled={isPosting}>
-          {isPosting && <Loader2 className="animate-spin" />}
-          {isPosting ? "Posting…" : "Post now"}
-        </Button>
-      )}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-8 shrink-0">
-            <MoreHorizontal />
-            <span className="sr-only">Schedule actions</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setEditing(true)}>
-            <Pencil /> Edit schedule
-          </DropdownMenuItem>
-          {!schedule.isPaused && (
-            <DropdownMenuItem onClick={() => skip.mutate({ id: schedule.id })}>
-              <SkipForward /> Skip occurrence
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            onClick={() =>
-              setPaused.mutate({
-                id: schedule.id,
-                isPaused: !schedule.isPaused,
-              })
-            }
-          >
-            {schedule.isPaused ? <Play /> : <Pause />}
-            {schedule.isPaused ? "Resume" : "Pause"}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-red-500"
-            onClick={() =>
-              confirm({
-                itemType: "schedule",
-                itemName: schedule.description,
-                onConfirm: () => remove.mutate({ id: schedule.id }),
-              })
-            }
-          >
-            <Trash2 /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <TooltipProvider>
+        <div className="flex shrink-0 flex-col items-end gap-1.5 sm:block">
+          <Currency
+            value={displayAmount}
+            options={{ currency: schedule.currency, signDisplay: "always" }}
+            className={cn(
+              "text-xs tabular-nums sm:hidden",
+              displayAmount.isPos() && "text-financial-positive",
+              displayAmount.isNeg() && "text-financial-negative",
+            )}
+          />
+          <div className="flex">
+            {!schedule.isPaused && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    className="size-8 rounded-r-none"
+                    onClick={onPost}
+                    disabled={isPosting}
+                  >
+                    {isPosting ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Check />
+                    )}
+                    <span className="sr-only">Record now</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Record now</TooltipContent>
+              </Tooltip>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={schedule.isPaused ? "outline" : "default"}
+                  size="icon"
+                  className={cn(
+                    "size-8 shrink-0",
+                    !schedule.isPaused &&
+                      "rounded-l-none border-l border-primary-foreground/20",
+                  )}
+                >
+                  <ChevronDown />
+                  <span className="sr-only">Schedule actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setEditing(true)}>
+                  <Pencil /> Edit schedule
+                </DropdownMenuItem>
+                {!schedule.isPaused && (
+                  <DropdownMenuItem
+                    onClick={() => skip.mutate({ id: schedule.id })}
+                  >
+                    <SkipForward /> Skip occurrence
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() =>
+                    setPaused.mutate({
+                      id: schedule.id,
+                      isPaused: !schedule.isPaused,
+                    })
+                  }
+                >
+                  {schedule.isPaused ? <Play /> : <Pause />}
+                  {schedule.isPaused ? "Resume" : "Pause"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={() =>
+                    confirm({
+                      itemType: "schedule",
+                      itemName: schedule.description,
+                      onConfirm: () => remove.mutate({ id: schedule.id }),
+                    })
+                  }
+                >
+                  <Trash2 /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </TooltipProvider>
       {modal}
       <RecurringTransactionDialog
         key={`edit-schedule-${schedule.id}-${isEditing}`}

@@ -69,7 +69,7 @@ export function TransactionMobileList({
                   signDisplay: "always",
                 }}
                 className={cn(
-                  "block text-sm font-semibold",
+                  "block text-sm",
                   displayAmount.isPos() && "text-financial-positive",
                   displayAmount.isNeg() && "text-financial-negative",
                 )}

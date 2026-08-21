@@ -192,19 +192,19 @@ export function TransactionTable() {
         <Button
           type="button"
           variant="outline"
-          className="h-auto justify-start gap-3 border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-left hover:bg-amber-500/10"
+          className="h-auto w-full min-w-0 justify-start gap-3 border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-left hover:bg-amber-500/10"
           onClick={() => setView("SCHEDULED")}
         >
           <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
             <CalendarClock className="size-4" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-medium">
+            <span className="block truncate text-sm font-medium">
               {attentionCount} scheduled transaction
-              {attentionCount === 1 ? "" : "s"} need attention
+              {attentionCount === 1 ? " needs" : "s need"} attention
             </span>
             <span className="block text-xs font-normal text-muted-foreground">
-              Review and post what happened
+              Record or skip what&apos;s due
             </span>
           </span>
           <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
