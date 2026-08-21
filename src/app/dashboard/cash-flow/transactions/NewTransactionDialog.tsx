@@ -43,7 +43,14 @@ export default function NewTransactionDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onEscapeKeyDown={(event) => {
+          const activeElement = document.activeElement;
+          if (activeElement?.getAttribute("aria-expanded") === "true") {
+            event.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Add transaction</DialogTitle>
         </DialogHeader>

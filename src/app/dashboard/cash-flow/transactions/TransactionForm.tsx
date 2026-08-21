@@ -3,6 +3,8 @@
 import { CalendarIcon, ChevronDown } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { AmountInput } from "~/components/ui/amount-input";
+import { DescriptionAutocomplete } from "~/components/ui/description-autocomplete";
 import { api } from "~/trpc/react";
 import { useForm } from "react-hook-form";
 import {
@@ -88,6 +90,14 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
         },
       );
 
+    const { data: descriptionSuggestions = [] } =
+      api.transaction.descriptionSuggestions.useQuery(
+        { query: debouncedDescription, type: watchType },
+        {
+          enabled: !initialData && debouncedDescription.length > 0,
+        },
+      );
+
     useEffect(() => {
       if (
         initialData ||
@@ -155,12 +165,16 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
               <FormItem>
                 <FormLabel>Amount</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Amount"
-                    type="number"
-                    step="any"
-                    {...field}
+                  <AmountInput
+                    ref={field.ref}
+                    name={field.name}
+                    onBlur={field.onBlur}
+                    onValueChange={field.onChange}
                     value={field.value ?? ""}
+                    currency={watchCurrency}
+                    placeholder="0.00"
+                    autoFocus={!initialData}
+                    aria-invalid={!!form.formState.errors.amount}
                   />
                 </FormControl>
                 <FormMessage />
@@ -175,7 +189,22 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Description" {...field} />
+                  <DescriptionAutocomplete
+                    {...field}
+                    placeholder="Description"
+                    suggestions={descriptionSuggestions}
+                    onValueChange={field.onChange}
+                    onSuggestionSelect={(suggestion) => {
+                      if (categoryWasManuallySelected.current) return;
+
+                      automaticallySelectedCategory.current =
+                        suggestion.categoryId;
+                      form.setValue("categoryId", suggestion.categoryId, {
+                        shouldDirty: false,
+                        shouldValidate: false,
+                      });
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -21,6 +21,66 @@ const ALLOWED_SORT_ORDERS = ["asc", "desc"] as const;
 type SortOrder = (typeof ALLOWED_SORT_ORDERS)[number];
 
 export const transactionRouter = createTRPCRouter({
+  descriptionSuggestions: protectedProcedure
+    .input(
+      z.object({
+        query: z.string().trim().min(1),
+        type: z.nativeEnum(TransactionType),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const matches = await ctx.db.transaction.findMany({
+        where: {
+          createdById: ctx.session.user.id,
+          description: { contains: input.query, mode: "insensitive" },
+          type: input.type,
+        },
+        orderBy: [{ timestamp: "desc" }, { updatedAt: "desc" }],
+        take: 100,
+        select: {
+          description: true,
+          categoryId: true,
+          category: { select: { name: true } },
+          timestamp: true,
+        },
+      });
+
+      const uniqueMatches = new Map<
+        string,
+        (typeof matches)[number] & { count: number }
+      >();
+
+      for (const match of matches) {
+        const key = match.description.trim().toLocaleLowerCase();
+        const existing = uniqueMatches.get(key);
+        if (existing) existing.count += 1;
+        else uniqueMatches.set(key, { ...match, count: 1 });
+      }
+
+      const normalizedQuery = input.query.toLocaleLowerCase();
+
+      return [...uniqueMatches.values()]
+        .sort((left, right) => {
+          const leftStartsWith = left.description
+            .toLocaleLowerCase()
+            .startsWith(normalizedQuery);
+          const rightStartsWith = right.description
+            .toLocaleLowerCase()
+            .startsWith(normalizedQuery);
+
+          if (leftStartsWith !== rightStartsWith)
+            return leftStartsWith ? -1 : 1;
+          if (left.count !== right.count) return right.count - left.count;
+          return right.timestamp.getTime() - left.timestamp.getTime();
+        })
+        .slice(0, 5)
+        .map((match) => ({
+          description: match.description,
+          categoryId: match.categoryId,
+          categoryName: match.category.name,
+        }));
+    }),
+
   suggestCategory: protectedProcedure
     .input(
       z.object({
