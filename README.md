@@ -95,19 +95,29 @@ Here’s what you need to do to get started quickly:
      ```
      _(Requires Docker to be installed)_
 
-6. **Install dependencies**:
+6. **Configure automatic market data (optional)**:
+
+   - Create an Alpha Vantage API key and set `ALPHA_VANTAGE_API_KEY`.
+   - Set `CRON_SECRET` to a random value of at least 16 characters.
+   - Add both variables to the Production environment in Vercel.
+
+   The production deployment runs `/api/cron/market-data` daily at 23:00 UTC.
+   It updates the current month's ECB exchange rates and Alpha Vantage stock
+   prices. Stock ticker values must use symbols recognized by Alpha Vantage.
+
+7. **Install dependencies**:
 
    ```sh
    npm install
    ```
 
-7. **Apply migrations and generate the Prisma client**:
+8. **Apply migrations and generate the Prisma client**:
 
    ```sh
    npm run db:generate
    ```
 
-8. **Run the app**:
+9. **Run the app**:
    ```sh
    npm run dev
    ```
