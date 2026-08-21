@@ -119,7 +119,7 @@ export async function syncMarketData(alphaVantageApiKey?: string) {
     for (const ticker of tickers) {
       try {
         const quote = await fetchAlphaVantagePrice(
-          ticker.ticker,
+          ticker.providerSymbol ?? ticker.ticker,
           alphaVantageApiKey,
         );
         const record = await db.stockPriceHistory.upsert({

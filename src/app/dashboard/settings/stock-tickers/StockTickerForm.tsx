@@ -9,10 +9,8 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-  CreateStockTicker,
-  createStockTickerSchema,
-} from "~/trpc/schemas/stockTicker";
+import { createStockTickerSchema } from "~/trpc/schemas/stockTicker";
+import type { CreateStockTicker } from "~/trpc/schemas/stockTicker";
 
 export type StockTickerFormProps = {
   initialData?: CreateStockTicker;
@@ -30,6 +28,7 @@ export function StockTickerForm({
       name: "",
       ticker: "",
       exchange: "",
+      providerSymbol: "",
     },
     resolver: yupResolver(createStockTickerSchema),
   });
@@ -77,6 +76,20 @@ export function StockTickerForm({
               <FormLabel>Exchange</FormLabel>
               <FormControl>
                 <Input placeholder="Exchange" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="providerSymbol"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Alpha Vantage symbol</FormLabel>
+              <FormControl>
+                <Input placeholder="VWCE.DEX" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

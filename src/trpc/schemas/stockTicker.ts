@@ -4,6 +4,12 @@ export const createStockTickerSchema = yup.object({
   name: yup.string().label("Name").required(),
   ticker: yup.string().label("Ticker").required(),
   exchange: yup.string().label("Exchange").required(),
+  providerSymbol: yup
+    .string()
+    .trim()
+    .uppercase()
+    .label("Alpha Vantage symbol")
+    .optional(),
 });
 
 export type CreateStockTicker = yup.InferType<typeof createStockTickerSchema>;
