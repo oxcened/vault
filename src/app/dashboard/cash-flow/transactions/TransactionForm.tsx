@@ -281,6 +281,11 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             variant="ghost"
             className="col-span-full justify-start px-0 text-muted-foreground"
             aria-expanded={showMoreOptions}
+            aria-label={
+              showMoreOptions
+                ? "Hide additional options"
+                : "Show additional options"
+            }
             onClick={() => setShowMoreOptions((shown) => !shown)}
           >
             <ChevronDown
@@ -289,10 +294,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                 showMoreOptions && "rotate-180",
               )}
             />
-            {showMoreOptions ? "Fewer options" : "More options"}
-            {!showMoreOptions && (
-              <span className="font-normal capitalize">· {optionSummary}</span>
-            )}
+            <span className="font-normal capitalize">{optionSummary}</span>
           </Button>
 
           {showMoreOptions && (

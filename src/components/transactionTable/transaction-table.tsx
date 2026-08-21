@@ -11,7 +11,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
-import { CalendarClock, ChevronRight, XIcon } from "lucide-react";
+import { CalendarClock, CalendarPlus, ChevronRight, XIcon } from "lucide-react";
 import { useTable } from "~/hooks/useTable";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
@@ -24,6 +24,7 @@ import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTr
 import { TransactionMobileList } from "./transaction-mobile-list";
 import { Skeleton } from "../ui/skeleton";
 import { RecurringTransactionList } from "./recurring-transaction-list";
+import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
 
 type View = "TRANSACTIONS" | "SCHEDULED";
 
@@ -34,6 +35,7 @@ export function TransactionTable() {
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionRow>();
   const [view, setView] = useState<View>("TRANSACTIONS");
+  const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: schedules = [] } = api.recurringTransaction.getAll.useQuery();
   const endOfToday = new Date();
@@ -125,17 +127,23 @@ export function TransactionTable() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-2 md:flex-row">
+      <div className="flex flex-col gap-3 pb-1 md:flex-row md:items-center">
         <Tabs
-          className="mr-auto"
+          className="w-full md:mr-auto md:w-auto"
           value={view}
           onValueChange={(value) => setView(value as View)}
         >
-          <TabsList>
-            <TabsTrigger value={"TRANSACTIONS" satisfies View}>
+          <TabsList className="h-auto w-full justify-start gap-5 rounded-none bg-transparent p-0 md:w-auto">
+            <TabsTrigger
+              value={"TRANSACTIONS" satisfies View}
+              className="flex-1 rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-1 shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none md:flex-none"
+            >
               Transactions
             </TabsTrigger>
-            <TabsTrigger value={"SCHEDULED" satisfies View}>
+            <TabsTrigger
+              value={"SCHEDULED" satisfies View}
+              className="flex-1 rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-1 shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none md:flex-none"
+            >
               Scheduled
               {attentionCount > 0 && (
                 <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] leading-none text-destructive-foreground">
@@ -146,13 +154,15 @@ export function TransactionTable() {
           </TabsList>
         </Tabs>
 
-        <div className="flex flex-wrap gap-2 [&>*]:flex-1">
+        <div className="flex items-center gap-2">
           {view === "TRANSACTIONS" && (
-            <TransactionFiltersDialog
-              defaultValues={filters}
-              onSubmit={handleFilterDialogSubmit}
-              showDateRangeFilter
-            />
+            <div className="flex-1 md:flex-none [&>button]:w-full">
+              <TransactionFiltersDialog
+                defaultValues={filters}
+                onSubmit={handleFilterDialogSubmit}
+                showDateRangeFilter
+              />
+            </div>
           )}
 
           {view === "TRANSACTIONS" && (
@@ -161,7 +171,20 @@ export function TransactionTable() {
             </div>
           )}
 
-          <AddTransactionDropdown onSuccess={handleCreated} />
+          {view === "TRANSACTIONS" ? (
+            <div className="flex-1 md:flex-none [&>button]:w-full">
+              <AddTransactionDropdown onSuccess={handleCreated} />
+            </div>
+          ) : (
+            <Button
+              type="button"
+              className="w-full md:w-auto"
+              onClick={() => setScheduleDialogOpen(true)}
+            >
+              <CalendarPlus />
+              New schedule
+            </Button>
+          )}
         </div>
       </div>
 
@@ -268,6 +291,13 @@ export function TransactionTable() {
         onOpenChange={(open) => {
           if (!open) setEditingTransaction(undefined);
         }}
+        onSuccess={handleCreated}
+      />
+
+      <RecurringTransactionDialog
+        key={`header-schedule-dialog-${isScheduleDialogOpen}`}
+        isOpen={isScheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
         onSuccess={handleCreated}
       />
     </div>

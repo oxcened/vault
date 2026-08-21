@@ -2,7 +2,7 @@
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import { RecurrenceFrequency, TransactionType } from "@prisma/client";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { AmountInput } from "~/components/ui/amount-input";
@@ -76,6 +76,7 @@ export function RecurringTransactionForm({
   const currency = form.watch("currency");
   const interval = form.watch("interval");
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const { data: categories = [], isPending } =
     api.transactionCategory.getByType.useQuery({ type: [type] });
 
@@ -101,6 +102,7 @@ export function RecurringTransactionForm({
                   onValueChange={field.onChange}
                   currency={currency}
                   maxFractionDigits={getCurrencyFractionDigits(currency)}
+                  placeholder="0.00"
                   autoFocus
                 />
               </FormControl>
@@ -197,7 +199,7 @@ export function RecurringTransactionForm({
         />
 
         <div>
-          <FormLabel>Repeats</FormLabel>
+          <FormLabel>Repeats every</FormLabel>
           <div className="mt-2 flex gap-2">
             <FormField
               control={form.control}
@@ -247,54 +249,81 @@ export function RecurringTransactionForm({
           </div>
         </div>
 
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  form.setValue("categoryId", "");
-                  field.onChange(value);
-                }}
-              >
-                <FormControl>
-                  <SelectTrigger className="capitalize">
-                    <SelectValue />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {Object.values(TransactionType).map((transactionType) => (
-                    <SelectItem
-                      key={transactionType}
-                      value={transactionType}
-                      className="capitalize"
-                    >
-                      {transactionType.toLowerCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <Button
+          type="button"
+          variant="ghost"
+          className="col-span-full justify-start px-0 text-muted-foreground"
+          aria-expanded={showMoreOptions}
+          aria-label={
+            showMoreOptions
+              ? "Hide additional options"
+              : "Show additional options"
+          }
+          onClick={() => setShowMoreOptions((shown) => !shown)}
+        >
+          <ChevronDown
+            className={cn(
+              "transition-transform",
+              showMoreOptions && "rotate-180",
+            )}
+          />
+          <span className="font-normal capitalize">
+            {type.toLowerCase()} · {currency.toUpperCase()}
+          </span>
+        </Button>
 
-        <FormField
-          control={form.control}
-          name="currency"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Currency</FormLabel>
-              <FormControl>
-                <Input {...field} maxLength={3} className="uppercase" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {showMoreOptions && (
+          <>
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      form.setValue("categoryId", "");
+                      field.onChange(value);
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="capitalize">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(TransactionType).map((transactionType) => (
+                        <SelectItem
+                          key={transactionType}
+                          value={transactionType}
+                          className="capitalize"
+                        >
+                          {transactionType.toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <FormControl>
+                    <Input {...field} maxLength={3} className="uppercase" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
       </form>
     </Form>
   );
