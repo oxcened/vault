@@ -21,6 +21,33 @@ const ALLOWED_SORT_ORDERS = ["asc", "desc"] as const;
 type SortOrder = (typeof ALLOWED_SORT_ORDERS)[number];
 
 export const transactionRouter = createTRPCRouter({
+  suggestCategory: protectedProcedure
+    .input(
+      z.object({
+        description: z.string().trim().min(1),
+        type: z.nativeEnum(TransactionType),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.transaction.findFirst({
+        where: {
+          createdById: ctx.session.user.id,
+          description: {
+            equals: input.description,
+            mode: "insensitive",
+          },
+          type: input.type,
+        },
+        orderBy: [{ timestamp: "desc" }, { updatedAt: "desc" }],
+        select: {
+          categoryId: true,
+          category: {
+            select: { name: true },
+          },
+        },
+      });
+    }),
+
   getAll: protectedProcedure
     .input(
       yup.object({

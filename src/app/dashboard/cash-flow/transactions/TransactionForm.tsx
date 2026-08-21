@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronDown } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
@@ -34,9 +34,16 @@ import {
 } from "~/components/ui/popover";
 import { Calendar } from "~/components/ui/calendar";
 import { cn } from "~/lib/utils";
-import { forwardRef, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { TimePicker } from "~/components/ui/time-picker";
 import { mergeDateAndTime } from "~/utils/date";
+import { useDebounce } from "use-debounce";
 
 export type TransactionFormRef = { reset: () => void };
 
@@ -48,13 +55,16 @@ export type TransactionFormProps = {
 
 const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
   function ({ initialData, formId, onSubmit }, ref) {
+    const [showMoreOptions, setShowMoreOptions] = useState(!!initialData);
+    const categoryWasManuallySelected = useRef(false);
+    const automaticallySelectedCategory = useRef<string | undefined>(undefined);
     const form = useForm({
       defaultValues: initialData ?? {
         currency: APP_CURRENCY,
         categoryId: "",
         description: "",
         timestamp: new Date(),
-        type: "" as TransactionType,
+        type: "EXPENSE" satisfies TransactionType,
         status: "POSTED" satisfies TransactionStatus,
       },
       resolver: yupResolver(createTransactionSchema),
@@ -62,6 +72,56 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
 
     const watchType = form.watch("type");
     const watchStatus = form.watch("status");
+    const watchCurrency = form.watch("currency");
+    const watchTimestamp = form.watch("timestamp");
+    const watchDescription = form.watch("description");
+    const [debouncedDescription] = useDebounce(watchDescription.trim(), 300);
+
+    const { data: categorySuggestion } =
+      api.transaction.suggestCategory.useQuery(
+        {
+          description: debouncedDescription,
+          type: watchType,
+        },
+        {
+          enabled: !initialData && debouncedDescription.length > 0,
+        },
+      );
+
+    useEffect(() => {
+      if (
+        initialData ||
+        categoryWasManuallySelected.current ||
+        categorySuggestion === undefined
+      ) {
+        return;
+      }
+
+      if (categorySuggestion) {
+        automaticallySelectedCategory.current = categorySuggestion.categoryId;
+        form.setValue("categoryId", categorySuggestion.categoryId, {
+          shouldDirty: false,
+          shouldValidate: false,
+        });
+      } else if (automaticallySelectedCategory.current) {
+        automaticallySelectedCategory.current = undefined;
+        form.setValue("categoryId", "", {
+          shouldDirty: false,
+          shouldValidate: false,
+        });
+      }
+    }, [categorySuggestion, form, initialData]);
+
+    const isToday =
+      watchTimestamp?.toDateString() === new Date().toDateString();
+    const optionSummary = [
+      watchType.toLocaleLowerCase(),
+      watchStatus.toLocaleLowerCase(),
+      watchCurrency.toUpperCase(),
+      isToday ? "today" : watchTimestamp?.toLocaleDateString(),
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
     const { data: categories = [], isPending: isFetchingCategories } =
       api.transactionCategory.getByType.useQuery(
@@ -74,7 +134,11 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
       );
 
     useImperativeHandle(ref, () => ({
-      reset: form.reset,
+      reset: () => {
+        categoryWasManuallySelected.current = false;
+        automaticallySelectedCategory.current = undefined;
+        form.reset();
+      },
     }));
 
     return (
@@ -84,68 +148,6 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
           className="grid grid-cols-1 gap-2 md:grid-cols-2"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type</FormLabel>
-
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger className="capitalize">
-                      <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.values(TransactionType).map((type) => (
-                      <SelectItem
-                        key={type}
-                        value={type}
-                        className="capitalize"
-                      >
-                        {type.toLocaleLowerCase()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger className="capitalize">
-                      <SelectValue placeholder="Select a status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.values(TransactionStatus).map((status) => (
-                      <SelectItem
-                        key={status}
-                        value={status}
-                        className="capitalize"
-                      >
-                        {status.toLocaleLowerCase()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name="amount"
@@ -168,26 +170,9 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
 
           <FormField
             control={form.control}
-            name="currency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Currency</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Currency (e.g., USD, EUR, BTC)"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem className="col-span-full">
+              <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Input placeholder="Description" {...field} />
@@ -201,13 +186,17 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             control={form.control}
             name="categoryId"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-full">
                 <FormLabel>Category</FormLabel>
 
                 <Select
                   value={field.value}
                   disabled={isFetchingCategories}
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    categoryWasManuallySelected.current = true;
+                    automaticallySelectedCategory.current = undefined;
+                    field.onChange(value);
+                  }}
                 >
                   <FormControl>
                     <SelectTrigger isLoading={isFetchingCategories}>
@@ -228,56 +217,157 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="timestamp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl className="w-full">
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          field.value.toLocaleDateString()
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="single"
-                      selected={field.value}
-                      disabled={(date) =>
-                        watchStatus === "POSTED"
-                          ? date > new Date()
-                          : date < new Date()
-                      }
-                      defaultMonth={field.value}
-                      onSelect={(date) =>
-                        date &&
-                        field.onChange(mergeDateAndTime(date, field.value))
-                      }
-                    />
-                    <div className="border-t border-border p-3">
-                      <TimePicker date={field.value} setDate={field.onChange} />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
+          <Button
+            type="button"
+            variant="ghost"
+            className="col-span-full justify-start px-0 text-muted-foreground"
+            aria-expanded={showMoreOptions}
+            onClick={() => setShowMoreOptions((shown) => !shown)}
+          >
+            <ChevronDown
+              className={cn(
+                "transition-transform",
+                showMoreOptions && "rotate-180",
+              )}
+            />
+            {showMoreOptions ? "Fewer options" : "More options"}
+            {!showMoreOptions && (
+              <span className="font-normal capitalize">· {optionSummary}</span>
             )}
-          />
+          </Button>
+
+          {showMoreOptions && (
+            <>
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="capitalize">
+                          <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(TransactionType).map((type) => (
+                          <SelectItem
+                            key={type}
+                            value={type}
+                            className="capitalize"
+                          >
+                            {type.toLocaleLowerCase()}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="capitalize">
+                          <SelectValue placeholder="Select a status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(TransactionStatus).map((status) => (
+                          <SelectItem
+                            key={status}
+                            value={status}
+                            className="capitalize"
+                          >
+                            {status.toLocaleLowerCase()}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Currency (e.g., USD, EUR, BTC)"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="timestamp"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl className="w-full">
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              field.value.toLocaleDateString()
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="single"
+                          selected={field.value}
+                          disabled={(date) =>
+                            watchStatus === "POSTED"
+                              ? date > new Date()
+                              : date < new Date()
+                          }
+                          defaultMonth={field.value}
+                          onSelect={(date) =>
+                            date &&
+                            field.onChange(mergeDateAndTime(date, field.value))
+                          }
+                        />
+                        <div className="border-t border-border p-3">
+                          <TimePicker
+                            date={field.value}
+                            setDate={field.onChange}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
         </form>
       </Form>
     );
