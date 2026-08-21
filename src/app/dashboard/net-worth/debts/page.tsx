@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { lastDayOfMonth } from "date-fns";
 import { api } from "~/trpc/react";
 import NewDebtDialog from "./NewDebtDialog";
 import { toast } from "sonner";
@@ -10,19 +11,22 @@ import NetWorthHoldings, {
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { useRouter } from "next/navigation";
 
-export default function AssetsPage() {
-  const {
-    data = [],
-    refetch,
-    isPending,
-  } = api.netWorthDebt.getAll.useQuery({
-    date: new Date(
+export default function DebtsPage() {
+  const [date, setDate] = useState(
+    new Date(
       Date.UTC(
         new Date().getUTCFullYear(),
         new Date().getUTCMonth(),
         new Date().getUTCDate(),
       ),
     ),
+  );
+  const {
+    data = [],
+    refetch,
+    isPending,
+  } = api.netWorthDebt.getAll.useQuery({
+    date,
   });
 
   const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
@@ -90,6 +94,8 @@ export default function AssetsPage() {
         holdingLabel="Debt"
         holdingLabelPlural="Debts"
         type="debt"
+        date={date}
+        onDateChange={(month) => setDate(lastDayOfMonth(month))}
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={handleEdit}
         onDeleteHolding={handleDelete}

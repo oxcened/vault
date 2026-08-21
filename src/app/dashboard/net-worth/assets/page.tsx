@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { lastDayOfMonth } from "date-fns";
 import { api } from "~/trpc/react";
 import NewAssetDialog from "./NewAssetDialog";
 import { toast } from "sonner";
@@ -11,18 +12,21 @@ import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import EditAssetDialog from "./EditAssetDialog";
 
 export default function AssetsPage() {
-  const {
-    data = [],
-    refetch,
-    isPending,
-  } = api.netWorthAsset.getAll.useQuery({
-    date: new Date(
+  const [date, setDate] = useState(
+    new Date(
       Date.UTC(
         new Date().getUTCFullYear(),
         new Date().getUTCMonth(),
         new Date().getUTCDate(),
       ),
     ),
+  );
+  const {
+    data = [],
+    refetch,
+    isPending,
+  } = api.netWorthAsset.getAll.useQuery({
+    date,
   });
 
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
@@ -87,6 +91,8 @@ export default function AssetsPage() {
         holdingLabel="Asset"
         holdingLabelPlural="Assets"
         type="asset"
+        date={date}
+        onDateChange={(month) => setDate(lastDayOfMonth(month))}
         onNewHolding={() => setNewDialog(true)}
         onEditHolding={handleEdit}
         onDeleteHolding={handleDelete}

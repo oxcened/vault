@@ -28,6 +28,7 @@ import { api } from "~/trpc/react";
 import type Decimal from "decimal.js";
 import { CategoryTable } from "./category-table";
 import { cn } from "~/lib/utils";
+import { MonthPicker } from "~/components/ui/month-picker";
 
 export type Holding = {
   quantityId: string;
@@ -56,6 +57,8 @@ export type NetWorthHoldingsProps<T> = {
   holdingLabel: string;
   holdingLabelPlural: string;
   type: "asset" | "debt";
+  date?: Date;
+  onDateChange?: (date: Date) => void;
   onNewHolding: () => void;
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
@@ -69,6 +72,8 @@ export default function NetWorthHoldings<T extends Holding>({
   holdingLabel,
   holdingLabelPlural,
   type,
+  date,
+  onDateChange,
   onNewHolding,
   onEditHolding,
   onDeleteHolding,
@@ -170,6 +175,14 @@ export default function NetWorthHoldings<T extends Holding>({
                 </div>
 
                 <div className="flex gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">
+                  {date && onDateChange && (
+                    <MonthPicker
+                      value={date}
+                      maxMonth={new Date()}
+                      className="w-auto"
+                      onChange={onDateChange}
+                    />
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline">

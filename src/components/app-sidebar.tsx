@@ -72,14 +72,6 @@ const navigation = {
       icon: ChartNoAxesCombined,
       items: [
         {
-          title: "Assets",
-          url: "/dashboard/performance/assets-history",
-        },
-        {
-          title: "Debts",
-          url: "/dashboard/performance/debts-history",
-        },
-        {
           title: "Transaction categories",
           url: "/dashboard/performance/transaction-categories-history",
         },
