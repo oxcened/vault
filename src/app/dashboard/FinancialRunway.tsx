@@ -98,21 +98,7 @@ export default function FinancialRunway() {
           {formattedRunwayDuration}
         </CardTitle>
 
-        <div className="mt-5">
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-amber-500"
-              style={{ width: `${runwayProgress}%` }}
-            />
-          </div>
-          <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
-            <span>Now</span>
-            <span>12 months</span>
-            <span>24+ months</span>
-          </div>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-5 grid grid-cols-2 gap-2">
           <div className="rounded-lg bg-background/60 p-3 ring-1 ring-inset ring-border/70">
             <p className="text-xs text-muted-foreground">Liquid assets</p>
             <p className="mt-1 text-sm font-medium">
@@ -124,6 +110,20 @@ export default function FinancialRunway() {
             <p className="mt-1 text-sm font-medium">
               <RoundedCurrency value={averageMonthlyExpenses} />
             </p>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-amber-500"
+              style={{ width: `${runwayProgress}%` }}
+            />
+          </div>
+          <div className="mt-1.5 flex justify-between text-[10px] text-muted-foreground">
+            <span>Now</span>
+            <span>12 months</span>
+            <span>24+ months</span>
           </div>
         </div>
 
