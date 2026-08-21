@@ -202,16 +202,18 @@ const columnsByKey = {
   description: columnHelper.accessor("description", {
     header: ({ table }) => (
       <div className="flex items-center gap-3">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(checked) =>
-            table.toggleAllPageRowsSelected(checked === true)
-          }
-          aria-label="Select all transactions on this page"
-        />
+        <span className="flex size-9 shrink-0 items-center justify-center">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(checked) =>
+              table.toggleAllPageRowsSelected(checked === true)
+            }
+            aria-label="Select all transactions on this page"
+          />
+        </span>
         Description
       </div>
     ),
