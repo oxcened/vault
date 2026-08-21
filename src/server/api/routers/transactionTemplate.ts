@@ -4,6 +4,49 @@ import { updateTransactionSchema } from "~/trpc/schemas/transaction";
 import { appEmitter } from "~/server/eventBus";
 
 export const transactionTemplateRouter = createTRPCRouter({
+  getFrequent: protectedProcedure.query(async ({ ctx }) => {
+    const transactions = await ctx.db.transaction.findMany({
+      where: {
+        createdById: ctx.session.user.id,
+        status: "POSTED",
+      },
+      orderBy: [{ timestamp: "desc" }, { updatedAt: "desc" }],
+      take: 200,
+      select: {
+        id: true,
+        amount: true,
+        currency: true,
+        description: true,
+        type: true,
+        categoryId: true,
+        category: { select: { name: true } },
+      },
+    });
+
+    const frequent = new Map<
+      string,
+      (typeof transactions)[number] & { count: number }
+    >();
+
+    for (const transaction of transactions) {
+      const key = [
+        transaction.description.trim().toLocaleLowerCase(),
+        transaction.amount.toString(),
+        transaction.currency,
+        transaction.type,
+        transaction.categoryId,
+      ].join("|");
+      const existing = frequent.get(key);
+      if (existing) existing.count += 1;
+      else frequent.set(key, { ...transaction, count: 1 });
+    }
+
+    return [...frequent.values()]
+      .filter(({ count }) => count >= 2)
+      .sort((left, right) => right.count - left.count)
+      .slice(0, 6);
+  }),
+
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.transactionTemplate.findMany({
       where: {

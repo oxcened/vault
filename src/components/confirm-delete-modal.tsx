@@ -15,6 +15,7 @@ import { buttonVariants } from "./ui/button";
 type UseConfirmDeleteProps = {
   itemType: string;
   itemName?: string;
+  itemCount?: number;
   onConfirm: () => void;
 };
 
@@ -33,6 +34,7 @@ export function useConfirmDelete() {
       onOpenChange={setOpen}
       itemType={config.itemType}
       itemName={config.itemName}
+      itemCount={config.itemCount}
       onConfirm={() => {
         config.onConfirm();
         setOpen(false);
@@ -48,6 +50,7 @@ type ConfirmDeleteModalProps = {
   onOpenChange: (open: boolean) => void;
   itemType: string;
   itemName?: string;
+  itemCount?: number;
   onConfirm: () => void;
 };
 
@@ -56,6 +59,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   onOpenChange,
   itemType,
   itemName,
+  itemCount,
   onConfirm,
 }) => {
   return (
@@ -63,11 +67,17 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Delete {itemName ? `"${itemName}"` : `this ${itemType}`}?
+            Delete{" "}
+            {itemCount
+              ? `${itemCount} ${itemType}`
+              : itemName
+                ? `"${itemName}"`
+                : `this ${itemType}`}
+            ?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This {itemType} will be permanently removed. This action cannot be
-            undone.
+            {itemCount && itemCount > 1 ? "These" : "This"} {itemType} will be
+            permanently removed. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -81,7 +91,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
               variant: "destructive",
             })}
           >
-            Delete {itemType}
+            Delete {itemCount ? `${itemCount} ${itemType}` : itemType}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

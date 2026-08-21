@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -11,63 +11,91 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { api } from "~/trpc/react";
-import { Switch } from "~/components/ui/switch";
-import { Label } from "~/components/ui/label";
 import { toast } from "sonner";
 import TransactionForm, { type TransactionFormRef } from "./TransactionForm";
+import { type CreateTransaction } from "~/trpc/schemas/transaction";
 
 export type NewTransactionDialogProps = {
   isOpen: boolean;
   onOpenChange: (newOpen: boolean) => void;
   onSuccess: () => void;
+  initialData?: CreateTransaction;
+  title?: string;
 };
 
 export default function NewTransactionDialog({
   isOpen,
   onOpenChange,
   onSuccess,
+  initialData,
+  title = "Add transaction",
 }: NewTransactionDialogProps) {
-  const [createMore, setCreateMore] = useState(false);
+  const createMoreRef = useRef(false);
   const formRef = useRef<TransactionFormRef>(null);
   const { mutate, isPending } = api.transaction.create.useMutation({
     onSuccess: () => {
       toast.success("Transaction created.");
-      if (createMore) {
+      if (createMoreRef.current) {
         formRef.current?.reset();
       } else {
         onOpenChange(false);
       }
+      createMoreRef.current = false;
       onSuccess();
     },
   });
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onEscapeKeyDown={(event) => {
+          const activeElement = document.activeElement;
+          if (activeElement?.getAttribute("aria-expanded") === "true") {
+            event.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>Add transaction</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <TransactionForm
           ref={formRef}
           formId="new-transaction-dialog-form"
+          initialData={initialData}
           onSubmit={mutate}
         />
         <DialogFooter className="gap-2">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="airplane-mode"
-              onCheckedChange={(checked) => setCreateMore(checked)}
-            />
-            <Label htmlFor="airplane-mode">Create more</Label>
-          </div>
           <Button
             type="submit"
             disabled={isPending}
             form="new-transaction-dialog-form"
+            className="sm:order-2"
+            onClick={() => {
+              createMoreRef.current = false;
+            }}
           >
-            {isPending && <Loader2 className="animate-spin" />}
+            {isPending && !createMoreRef.current && (
+              <Loader2 className="animate-spin" />
+            )}
             Save
           </Button>
+          {!initialData && (
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={isPending}
+              form="new-transaction-dialog-form"
+              className="sm:order-1"
+              onClick={() => {
+                createMoreRef.current = true;
+              }}
+            >
+              {isPending && createMoreRef.current && (
+                <Loader2 className="animate-spin" />
+              )}
+              Save and add another
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

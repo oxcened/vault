@@ -1,4 +1,5 @@
-import { useReactTable, TableOptions } from "@tanstack/react-table";
+import { useReactTable, type TableOptions } from "@tanstack/react-table";
+import { useEffect } from "react";
 import { STORAGE_KEY_HIDDEN_COLUMNS } from "~/constants";
 
 export function useTable<TData>({
@@ -15,23 +16,31 @@ export function useTable<TData>({
     : undefined;
   const { columnVisibility, ...initialStateRest } = initialState;
 
-  function getStorageColumnVisibility() {
-    if (!storageKey) return {};
-    return JSON.parse(localStorage.getItem(storageKey) ?? "{}") as Record<
-      string,
-      boolean
-    >;
-  }
-
-  return useReactTable({
+  const table = useReactTable({
     initialState: {
-      columnVisibility: {
-        ...columnVisibility,
-        ...getStorageColumnVisibility(),
-      },
+      columnVisibility,
       ...initialStateRest,
     },
     enableSorting: false,
     ...options,
   });
+
+  useEffect(() => {
+    if (!storageKey) return;
+
+    try {
+      const storedVisibility = JSON.parse(
+        window.localStorage.getItem(storageKey) ?? "{}",
+      ) as Record<string, boolean>;
+
+      table.setColumnVisibility((currentVisibility) => ({
+        ...currentVisibility,
+        ...storedVisibility,
+      }));
+    } catch {
+      // Ignore unavailable storage and malformed saved preferences.
+    }
+  }, [storageKey, table]);
+
+  return table;
 }

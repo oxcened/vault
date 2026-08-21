@@ -2,294 +2,323 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["typedSql"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["typedSql"]
 }
 
 datasource db {
-    provider  = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url       = env("DATABASE_URL")
-    directUrl = env("DATABASE_DIRECT_URL")
+  provider  = "postgresql"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_DIRECT_URL")
 }
 
 // Necessary for Next auth
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String?
-    access_token             String?
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String?
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token_expires_in Int?
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id                  String                @id @default(cuid())
-    name                String?
-    email               String?               @unique
-    emailVerified       DateTime?
-    image               String?
-    accounts            Account[]
-    sessions            Session[]
-    netWorths           NetWorth[]
-    assets              NetWorthAsset[]
-    debts               NetWorthDebt[]
-    transactions        Transaction[]
-    cashFlows           CashFlow[]
-    TransactionTemplate TransactionTemplate[]
-    Envelope            Envelope[]
+  id                    String                 @id @default(cuid())
+  name                  String?
+  email                 String?                @unique
+  emailVerified         DateTime?
+  image                 String?
+  accounts              Account[]
+  sessions              Session[]
+  netWorths             NetWorth[]
+  assets                NetWorthAsset[]
+  debts                 NetWorthDebt[]
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  cashFlows             CashFlow[]
+  TransactionTemplate   TransactionTemplate[]
+  Envelope              Envelope[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 model NetWorth {
-    id          String   @id @default(cuid())
-    totalAssets Decimal  @db.Decimal(38, 18)
-    totalDebts  Decimal  @db.Decimal(38, 18)
-    netValue    Decimal  @db.Decimal(38, 18)
-    timestamp   DateTime
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    createdById String
-    createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  totalAssets Decimal  @db.Decimal(38, 18)
+  totalDebts  Decimal  @db.Decimal(38, 18)
+  netValue    Decimal  @db.Decimal(38, 18)
+  timestamp   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
-    @@unique([timestamp, createdById])
-    @@index([timestamp, createdById])
+  @@unique([timestamp, createdById])
+  @@index([timestamp, createdById])
 }
 
 enum NetWorthCategoryType {
-    ASSET
-    DEBT
-    BOTH
+  ASSET
+  DEBT
+  BOTH
 }
 
 model NetWorthCategory {
-    id      String               @id @default(cuid())
-    name    String               @unique
-    type    NetWorthCategoryType
-    isStock Boolean              @default(false)
-    assets  NetWorthAsset[]
-    debts   NetWorthDebt[]
+  id      String               @id @default(cuid())
+  name    String               @unique
+  type    NetWorthCategoryType
+  isStock Boolean              @default(false)
+  assets  NetWorthAsset[]
+  debts   NetWorthDebt[]
 }
 
 model NetWorthAsset {
-    id              String                  @id @default(cuid())
-    name            String
-    categoryId      String
-    tickerId        String?
-    currency        String
-    createdAt       DateTime                @default(now())
-    updatedAt       DateTime                @updatedAt
-    createdById     String
-    archivedAt      DateTime?
-    poolInEnvelopes Boolean                 @default(false)
-    createdBy       User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    ticker          StockTicker?            @relation(fields: [tickerId], references: [id])
-    quantities      NetWorthAssetQuantity[]
-    category        NetWorthCategory        @relation(fields: [categoryId], references: [id])
+  id              String                  @id @default(cuid())
+  name            String
+  categoryId      String
+  tickerId        String?
+  currency        String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  createdById     String
+  archivedAt      DateTime?
+  poolInEnvelopes Boolean                 @default(false)
+  createdBy       User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  ticker          StockTicker?            @relation(fields: [tickerId], references: [id])
+  quantities      NetWorthAssetQuantity[]
+  category        NetWorthCategory        @relation(fields: [categoryId], references: [id])
 }
 
 model NetWorthAssetQuantity {
-    id              String        @id @default(cuid())
-    quantity        Decimal       @db.Decimal(38, 18)
-    quantityFormula String?
-    timestamp       DateTime
-    netWorthAssetId String
-    netWorthAsset   NetWorthAsset @relation(fields: [netWorthAssetId], references: [id], onDelete: Cascade)
+  id              String        @id @default(cuid())
+  quantity        Decimal       @db.Decimal(38, 18)
+  quantityFormula String?
+  timestamp       DateTime
+  netWorthAssetId String
+  netWorthAsset   NetWorthAsset @relation(fields: [netWorthAssetId], references: [id], onDelete: Cascade)
 
-    @@unique([netWorthAssetId, timestamp])
-    @@index([netWorthAssetId, timestamp])
+  @@unique([netWorthAssetId, timestamp])
+  @@index([netWorthAssetId, timestamp])
 }
 
 model NetWorthDebt {
-    id          String                 @id @default(cuid())
-    name        String
-    categoryId  String
-    currency    String
-    createdAt   DateTime               @default(now())
-    updatedAt   DateTime               @updatedAt
-    createdById String
-    archivedAt  DateTime?
-    createdBy   User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    quantities  NetWorthDebtQuantity[]
-    category    NetWorthCategory       @relation(fields: [categoryId], references: [id])
+  id          String                 @id @default(cuid())
+  name        String
+  categoryId  String
+  currency    String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  createdById String
+  archivedAt  DateTime?
+  createdBy   User                   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  quantities  NetWorthDebtQuantity[]
+  category    NetWorthCategory       @relation(fields: [categoryId], references: [id])
 }
 
 model NetWorthDebtQuantity {
-    id              String       @id @default(cuid())
-    quantity        Decimal      @db.Decimal(38, 18)
-    quantityFormula String?
-    timestamp       DateTime
-    netWorthDebtId  String
-    netWorthDebt    NetWorthDebt @relation(fields: [netWorthDebtId], references: [id], onDelete: Cascade)
+  id              String       @id @default(cuid())
+  quantity        Decimal      @db.Decimal(38, 18)
+  quantityFormula String?
+  timestamp       DateTime
+  netWorthDebtId  String
+  netWorthDebt    NetWorthDebt @relation(fields: [netWorthDebtId], references: [id], onDelete: Cascade)
 
-    @@unique([netWorthDebtId, timestamp])
-    @@index([netWorthDebtId, timestamp])
+  @@unique([netWorthDebtId, timestamp])
+  @@index([netWorthDebtId, timestamp])
 }
 
 model StockTicker {
-    id             String              @id @default(cuid())
-    ticker         String
-    exchange       String
-    name           String
-    netWorthAssets NetWorthAsset[]
-    prices         StockPriceHistory[]
+  id             String              @id @default(cuid())
+  ticker         String
+  exchange       String
+  name           String
+  netWorthAssets NetWorthAsset[]
+  prices         StockPriceHistory[]
 
-    @@unique([ticker, exchange], name: "ticker_exchange")
+  @@unique([ticker, exchange], name: "ticker_exchange")
 }
 
 model StockPriceHistory {
-    id        String      @id @default(cuid())
-    tickerId  String
-    price     Decimal     @db.Decimal(38, 18)
-    timestamp DateTime
-    ticker    StockTicker @relation(fields: [tickerId], references: [id])
+  id        String      @id @default(cuid())
+  tickerId  String
+  price     Decimal     @db.Decimal(38, 18)
+  timestamp DateTime
+  ticker    StockTicker @relation(fields: [tickerId], references: [id])
 
-    @@unique([tickerId, timestamp], name: "ticker_timestamp")
-    @@index([tickerId, timestamp])
+  @@unique([tickerId, timestamp], name: "ticker_timestamp")
+  @@index([tickerId, timestamp])
 }
 
 model ExchangeRate {
-    id            String   @id @default(cuid())
-    baseCurrency  String
-    quoteCurrency String
-    rate          Decimal  @db.Decimal(38, 18)
-    timestamp     DateTime
+  id            String   @id @default(cuid())
+  baseCurrency  String
+  quoteCurrency String
+  rate          Decimal  @db.Decimal(38, 18)
+  timestamp     DateTime
 
-    @@unique([baseCurrency, quoteCurrency, timestamp], name: "base_quote_timestamp")
-    @@index([baseCurrency, quoteCurrency, timestamp])
+  @@unique([baseCurrency, quoteCurrency, timestamp], name: "base_quote_timestamp")
+  @@index([baseCurrency, quoteCurrency, timestamp])
 }
 
 model Transaction {
-    id          String              @id @default(cuid())
-    description String
-    amount      Decimal             @db.Decimal(38, 18)
-    currency    String
-    type        TransactionType
-    categoryId  String
-    timestamp   DateTime
-    createdAt   DateTime            @default(now())
-    updatedAt   DateTime            @updatedAt
-    createdById String
-    status      TransactionStatus   @default(POSTED)
-    createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    category    TransactionCategory @relation(fields: [categoryId], references: [id])
+  id          String              @id @default(cuid())
+  description String
+  amount      Decimal             @db.Decimal(38, 18)
+  currency    String
+  type        TransactionType
+  categoryId  String
+  timestamp   DateTime
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  createdById String
+  status      TransactionStatus   @default(POSTED)
+  createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  category    TransactionCategory @relation(fields: [categoryId], references: [id])
 }
 
 enum TransactionCategoryType {
-    INCOME
-    EXPENSE
-    TRANSFER
+  INCOME
+  EXPENSE
+  TRANSFER
 }
 
 model TransactionCategory {
-    id                  String                  @id @default(cuid())
-    name                String                  @unique
-    type                TransactionCategoryType
-    transactions        Transaction[]
-    createdAt           DateTime                @default(now())
-    updatedAt           DateTime                @updatedAt
-    TransactionTemplate TransactionTemplate[]
+  id                    String                  @id @default(cuid())
+  name                  String                  @unique
+  type                  TransactionCategoryType
+  transactions          Transaction[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  TransactionTemplate   TransactionTemplate[]
+  recurringTransactions RecurringTransaction[]
+}
+
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model RecurringTransaction {
+  id          String              @id @default(cuid())
+  description String
+  amount      Decimal             @db.Decimal(38, 18)
+  currency    String
+  type        TransactionType
+  categoryId  String
+  nextDate    DateTime
+  frequency   RecurrenceFrequency
+  interval    Int                 @default(1)
+  isPaused    Boolean             @default(false)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  createdById String
+  createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  category    TransactionCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([createdById, nextDate])
 }
 
 enum TransactionType {
-    INCOME
-    EXPENSE
-    TRANSFER
+  INCOME
+  EXPENSE
+  TRANSFER
 }
 
 enum TransactionStatus {
-    POSTED
-    PLANNED
+  POSTED
+  PLANNED
 }
 
 model CashFlow {
-    id          String   @id @default(cuid())
-    timestamp   DateTime
-    income      Decimal  @db.Decimal(38, 18)
-    expenses    Decimal  @db.Decimal(38, 18)
-    netFlow     Decimal  @db.Decimal(38, 18)
-    createdById String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  timestamp   DateTime
+  income      Decimal  @db.Decimal(38, 18)
+  expenses    Decimal  @db.Decimal(38, 18)
+  netFlow     Decimal  @db.Decimal(38, 18)
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
-    @@unique([timestamp, createdById])
-    @@index([timestamp, createdById])
+  @@unique([timestamp, createdById])
+  @@index([timestamp, createdById])
 }
 
 model DerivedDataDependency {
-    id String @id @default(cuid())
+  id String @id @default(cuid())
 
-    targetType String
-    targetKey  String
+  targetType String
+  targetKey  String
 
-    dependencyType String
-    dependencyKey  String
+  dependencyType String
+  dependencyKey  String
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([targetType, targetKey])
-    @@index([dependencyType, dependencyKey])
+  @@index([targetType, targetKey])
+  @@index([dependencyType, dependencyKey])
 }
 
 model TransactionTemplate {
-    id          String              @id @default(cuid())
-    description String
-    amount      Decimal             @db.Decimal(38, 18)
-    currency    String
-    type        TransactionType
-    categoryId  String
-    createdAt   DateTime            @default(now())
-    updatedAt   DateTime            @updatedAt
-    createdById String
-    createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
-    category    TransactionCategory @relation(fields: [categoryId], references: [id])
+  id          String              @id @default(cuid())
+  description String
+  amount      Decimal             @db.Decimal(38, 18)
+  currency    String
+  type        TransactionType
+  categoryId  String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  createdById String
+  createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  category    TransactionCategory @relation(fields: [categoryId], references: [id])
 }
 
 model UserWhitelist {
-    id        String   @id @default(cuid())
-    email     String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Envelope {
-    id          String   @id @default(cuid())
-    name        String
-    target      Decimal?  @db.Decimal(38, 18)
-    amount      Decimal  @db.Decimal(38, 18)
-    priority    Int
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    createdById String
-    createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  name        String
+  target      Decimal? @db.Decimal(38, 18)
+  amount      Decimal  @db.Decimal(38, 18)
+  priority    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
 }

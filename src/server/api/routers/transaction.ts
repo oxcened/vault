@@ -7,12 +7,8 @@ import {
 import { APP_CURRENCY } from "~/constants";
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
-import {
-  Prisma,
-  TransactionCategoryType,
-  TransactionStatus,
-  TransactionType,
-} from "@prisma/client";
+import { TransactionStatus, TransactionType } from "@prisma/client";
+import type { Prisma, TransactionCategoryType } from "@prisma/client";
 import { DECIMAL_ZERO } from "~/utils/number";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
@@ -21,6 +17,93 @@ const ALLOWED_SORT_ORDERS = ["asc", "desc"] as const;
 type SortOrder = (typeof ALLOWED_SORT_ORDERS)[number];
 
 export const transactionRouter = createTRPCRouter({
+  descriptionSuggestions: protectedProcedure
+    .input(
+      z.object({
+        query: z.string().trim().min(1),
+        type: z.nativeEnum(TransactionType),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const matches = await ctx.db.transaction.findMany({
+        where: {
+          createdById: ctx.session.user.id,
+          description: { contains: input.query, mode: "insensitive" },
+          type: input.type,
+        },
+        orderBy: [{ timestamp: "desc" }, { updatedAt: "desc" }],
+        take: 100,
+        select: {
+          description: true,
+          categoryId: true,
+          category: { select: { name: true } },
+          timestamp: true,
+        },
+      });
+
+      const uniqueMatches = new Map<
+        string,
+        (typeof matches)[number] & { count: number }
+      >();
+
+      for (const match of matches) {
+        const key = match.description.trim().toLocaleLowerCase();
+        const existing = uniqueMatches.get(key);
+        if (existing) existing.count += 1;
+        else uniqueMatches.set(key, { ...match, count: 1 });
+      }
+
+      const normalizedQuery = input.query.toLocaleLowerCase();
+
+      return [...uniqueMatches.values()]
+        .sort((left, right) => {
+          const leftStartsWith = left.description
+            .toLocaleLowerCase()
+            .startsWith(normalizedQuery);
+          const rightStartsWith = right.description
+            .toLocaleLowerCase()
+            .startsWith(normalizedQuery);
+
+          if (leftStartsWith !== rightStartsWith)
+            return leftStartsWith ? -1 : 1;
+          if (left.count !== right.count) return right.count - left.count;
+          return right.timestamp.getTime() - left.timestamp.getTime();
+        })
+        .slice(0, 5)
+        .map((match) => ({
+          description: match.description,
+          categoryId: match.categoryId,
+          categoryName: match.category.name,
+        }));
+    }),
+
+  suggestCategory: protectedProcedure
+    .input(
+      z.object({
+        description: z.string().trim().min(1),
+        type: z.nativeEnum(TransactionType),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.transaction.findFirst({
+        where: {
+          createdById: ctx.session.user.id,
+          description: {
+            equals: input.description,
+            mode: "insensitive",
+          },
+          type: input.type,
+        },
+        orderBy: [{ timestamp: "desc" }, { updatedAt: "desc" }],
+        select: {
+          categoryId: true,
+          category: {
+            select: { name: true },
+          },
+        },
+      });
+    }),
+
   getAll: protectedProcedure
     .input(
       yup.object({
@@ -199,6 +282,37 @@ export const transactionRouter = createTRPCRouter({
       });
 
       return deleted;
+    }),
+
+  deleteMany: protectedProcedure
+    .input(z.object({ ids: z.array(z.string()).min(1).max(100) }))
+    .mutation(async ({ input, ctx }) => {
+      const transactions = await ctx.db.transaction.findMany({
+        where: {
+          id: { in: input.ids },
+          createdById: ctx.session.user.id,
+        },
+        select: { id: true, timestamp: true },
+      });
+
+      await ctx.db.transaction.deleteMany({
+        where: { id: { in: transactions.map(({ id }) => id) } },
+      });
+
+      const affectedMonths = new Map<string, Date>();
+      for (const transaction of transactions) {
+        const timestamp = transaction.timestamp;
+        const key = `${timestamp.getUTCFullYear()}-${timestamp.getUTCMonth()}`;
+        affectedMonths.set(key, timestamp);
+      }
+      for (const timestamp of affectedMonths.values()) {
+        appEmitter.emit("transaction:updated", {
+          userId: ctx.session.user.id,
+          timestamp,
+        });
+      }
+
+      return { count: transactions.length };
     }),
 
   update: protectedProcedure
