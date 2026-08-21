@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { type Prisma } from "@prisma/client";
-import { ArrowRight, ArrowUpDown } from "lucide-react";
+import { ArrowRight, ArrowUpDown, ChartNoAxesColumn, List } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Breadcrumb,
@@ -26,7 +26,12 @@ import { Percentage, RoundedCurrency } from "~/components/ui/number";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { Skeleton } from "~/components/ui/skeleton";
-import { TransactionIcon } from "~/components/transactionTable/transaction-icon";
+import { HistoryDot } from "~/components/ui/history-dot";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import {
+  getTransactionAccent,
+  TransactionIcon,
+} from "~/components/transactionTable/transaction-icon";
 import { APP_CURRENCY } from "~/constants";
 import { cn } from "~/lib/utils";
 import { api, type RouterOutputs } from "~/trpc/react";
@@ -34,6 +39,7 @@ import { formatNumber } from "~/utils/number";
 
 type Overview = RouterOutputs["cashFlow"]["getMonthlyCashFlow"];
 type Range = "6M" | "1Y" | "ALL";
+type HistoryView = "CHART" | "LIST";
 type CategoryType = "INCOME" | "EXPENSE";
 
 const chartConfig = {
@@ -209,11 +215,13 @@ function MetricLink({
 
 function HistoryCard({ data }: { data: Overview }) {
   const [range, setRange] = useState<Range>("1Y");
+  const [view, setView] = useState<HistoryView>("CHART");
   const [showIncome, setShowIncome] = useState(false);
   const [showExpenses, setShowExpenses] = useState(false);
   const count =
     range === "6M" ? 6 : range === "1Y" ? 12 : data.cashFlowByMonth.length;
-  const chartData = data.cashFlowByMonth.slice(-count).map((item) => ({
+  const visibleHistory = data.cashFlowByMonth.slice(-count);
+  const chartData = visibleHistory.map((item) => ({
     month: format(item.timestamp, "MMM yy"),
     cashFlow: item.netFlow.toNumber(),
     income: item.income.toNumber(),
@@ -221,102 +229,202 @@ function HistoryCard({ data }: { data: Overview }) {
   }));
 
   return (
-    <Card className="shadow-none">
-      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
-        <div>
-          <CardTitle>Cash flow history</CardTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
-            See how much you kept each month.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={showIncome ? "secondary" : "outline"}
-            size="sm"
-            onClick={() => setShowIncome((value) => !value)}
-          >
-            Income
-          </Button>
-          <Button
-            variant={showExpenses ? "secondary" : "outline"}
-            size="sm"
-            onClick={() => setShowExpenses((value) => !value)}
-          >
-            Expenses
-          </Button>
-          <div className="flex rounded-md border p-0.5">
-            {(["6M", "1Y", "ALL"] as const).map((option) => (
-              <Button
-                key={option}
-                variant={range === option ? "secondary" : "ghost"}
-                size="sm"
-                className="h-7 px-2.5"
-                onClick={() => setRange(option)}
-              >
-                {option}
-              </Button>
-            ))}
+    <Tabs value={view} onValueChange={(value) => setView(value as HistoryView)}>
+      <Card className="shadow-none">
+        <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+          <div>
+            <CardTitle>Cash flow history</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              See how much you kept each month.
+            </p>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[17rem] w-full">
-          <LineChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={24}
+          <div className="flex flex-wrap gap-2">
+            {view === "CHART" && (
+              <>
+                <Button
+                  variant={showIncome ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowIncome((value) => !value)}
+                >
+                  Income
+                </Button>
+                <Button
+                  variant={showExpenses ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowExpenses((value) => !value)}
+                >
+                  Expenses
+                </Button>
+              </>
+            )}
+            <div className="flex rounded-md border p-0.5">
+              {(["6M", "1Y", "ALL"] as const).map((option) => (
+                <Button
+                  key={option}
+                  variant={range === option ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 px-2.5"
+                  onClick={() => setRange(option)}
+                >
+                  {option}
+                </Button>
+              ))}
+            </div>
+            <TabsList className="h-8">
+              <TabsTrigger value="CHART" className="h-7 gap-1.5 px-2.5">
+                <ChartNoAxesColumn className="size-3.5" />
+                Chart
+              </TabsTrigger>
+              <TabsTrigger value="LIST" className="h-7 gap-1.5 px-2.5">
+                <List className="size-3.5" />
+                List
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <TabsContent value="CHART" className="mt-0">
+            <ChartContainer config={chartConfig} className="h-[17rem] w-full">
+              <LineChart accessibilityLayer data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={24}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={68}
+                  tickFormatter={(value: number) =>
+                    formatNumber({
+                      value,
+                      options: {
+                        style: "currency",
+                        currency: APP_CURRENCY,
+                        maximumFractionDigits: 0,
+                        notation: "compact",
+                      },
+                    })
+                  }
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent />}
+                />
+                <Line
+                  dataKey="cashFlow"
+                  type="linear"
+                  stroke="var(--color-cashFlow)"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                {showIncome && (
+                  <Line
+                    dataKey="income"
+                    type="linear"
+                    stroke="var(--color-income)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+                {showExpenses && (
+                  <Line
+                    dataKey="expenses"
+                    type="linear"
+                    stroke="var(--color-expenses)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+              </LineChart>
+            </ChartContainer>
+          </TabsContent>
+          <TabsContent value="LIST" className="mt-0">
+            <CashFlowHistoryList data={[...visibleHistory].reverse()} />
+          </TabsContent>
+        </CardContent>
+      </Card>
+    </Tabs>
+  );
+}
+
+function CashFlowHistoryList({ data }: { data: Overview["cashFlowByMonth"] }) {
+  return (
+    <div className="overflow-hidden rounded-lg border">
+      {data.map((snapshot, index) => {
+        const savingRate = snapshot.income.eq(0)
+          ? undefined
+          : snapshot.netFlow.div(snapshot.income);
+
+        return (
+          <div
+            key={snapshot.id}
+            className={cn(
+              "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b px-4 py-3 last:border-b-0 md:grid-cols-[minmax(9rem,1fr)_1fr_1fr_1fr_1fr]",
+              index === 0 && "bg-emerald-500/[0.04]",
+            )}
+          >
+            <div className="flex min-w-0 items-center gap-2.5">
+              <HistoryDot latest={index === 0} accent="emerald" />
+              <span className="font-medium">
+                {format(snapshot.timestamp, "MMM yyyy")}
+              </span>
+              {index === 0 && (
+                <span className="rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
+                  Latest
+                </span>
+              )}
+            </div>
+            <CashFlowHistoryMetric
+              label="Income"
+              value={<RoundedCurrency value={snapshot.income} />}
             />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              width={68}
-              tickFormatter={(value: number) =>
-                formatNumber({
-                  value,
-                  options: {
-                    style: "currency",
-                    currency: APP_CURRENCY,
-                    maximumFractionDigits: 0,
-                    notation: "compact",
-                  },
-                })
+            <CashFlowHistoryMetric
+              label="Expenses"
+              value={<RoundedCurrency value={snapshot.expenses} />}
+            />
+            <CashFlowHistoryMetric
+              label="Saving rate"
+              value={
+                savingRate ? (
+                  <Percentage value={savingRate} />
+                ) : (
+                  <span className="text-muted-foreground">–</span>
+                )
               }
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Line
-              dataKey="cashFlow"
-              type="linear"
-              stroke="var(--color-cashFlow)"
-              strokeWidth={3}
-              dot={false}
-            />
-            {showIncome && (
-              <Line
-                dataKey="income"
-                type="linear"
-                stroke="var(--color-income)"
-                strokeWidth={2}
-                dot={false}
+            <div className="text-right">
+              <RoundedCurrency
+                value={snapshot.netFlow}
+                className={cn(
+                  snapshot.netFlow.gt(0) && "text-financial-positive",
+                  snapshot.netFlow.lt(0) && "text-financial-negative",
+                )}
               />
-            )}
-            {showExpenses && (
-              <Line
-                dataKey="expenses"
-                type="linear"
-                stroke="var(--color-expenses)"
-                strokeWidth={2}
-                dot={false}
-              />
-            )}
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function CashFlowHistoryMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="hidden md:block">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <div className="mt-0.5 text-sm">{value}</div>
+    </div>
   );
 }
 
@@ -354,46 +462,47 @@ function CategoryCard({ data }: { data: Overview }) {
       </CardHeader>
       <CardContent>
         {items.length ? (
-          <div className="grid gap-x-8 gap-y-5 md:grid-cols-2">
+          <div className="grid gap-2 md:grid-cols-2">
             {items.map((item) => {
-              const percentage =
-                total === 0 ? 0 : item[amountKey].toNumber() / total;
+              const percentage = Math.min(
+                100,
+                total === 0 ? 0 : (item[amountKey].toNumber() / total) * 100,
+              );
+              const accent = getTransactionAccent({
+                category: item.category,
+                type,
+              });
               return (
                 <Link
                   key={item.category}
                   href="/dashboard/cash-flow/transactions"
-                  className="group flex items-center gap-3 rounded-lg transition-colors"
+                  className="group relative overflow-hidden rounded-xl border bg-muted/15 transition-colors hover:bg-muted/25"
                 >
-                  <TransactionIcon category={item.category} type={type} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="truncate font-medium">
-                        {item.category}
-                      </span>
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 transition-[width] duration-500"
+                    style={{
+                      width: `${percentage}%`,
+                      background: `linear-gradient(90deg, color-mix(in srgb, ${accent} 18%, transparent), color-mix(in srgb, ${accent} 9%, transparent))`,
+                    }}
+                  />
+                  <div className="relative flex items-center gap-3 px-3 py-2.5">
+                    <TransactionIcon category={item.category} type={type} />
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                      {item.category}
+                    </span>
+                    <div className="flex shrink-0 items-baseline gap-2">
                       <RoundedCurrency
                         value={item[amountKey]}
                         className={cn(
-                          "shrink-0",
+                          "text-sm",
                           type === "INCOME"
                             ? "text-financial-positive"
                             : "text-financial-negative",
                         )}
                       />
-                    </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={cn(
-                            "h-full rounded-full",
-                            type === "INCOME"
-                              ? "bg-emerald-500"
-                              : "bg-rose-500",
-                          )}
-                          style={{ width: `${percentage * 100}%` }}
-                        />
-                      </div>
                       <Percentage
-                        value={percentage}
+                        value={percentage / 100}
                         className="w-9 text-right text-[11px] text-muted-foreground"
                       />
                     </div>

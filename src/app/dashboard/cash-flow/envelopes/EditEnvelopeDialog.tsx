@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Envelope } from "@prisma/client";
 import { EnvelopeForm } from "./EnvelopeForm";
 import { CreateEnvelope } from "~/trpc/schemas/envelope";
+import { normalizeReserveIcon } from "~/components/reserves/reserve-icon";
 
 export type EditEnvelopeDialogProps = {
   envelope?: Envelope;
@@ -30,7 +31,7 @@ export default function EditEnvelopeDialog({
 }: EditEnvelopeDialogProps) {
   const { mutate, isPending } = api.envelope.update.useMutation({
     onSuccess: () => {
-      toast.success("Envelope updated.");
+      toast.success("Reserve updated.");
       onSuccess();
       onOpenChange(false);
     },
@@ -39,6 +40,7 @@ export default function EditEnvelopeDialog({
   const initialData: CreateEnvelope | undefined = envelope
     ? {
         ...envelope,
+        icon: normalizeReserveIcon(envelope.icon),
         target: envelope.target?.toNumber(),
         amount: envelope.amount.toNumber(),
       }
@@ -48,7 +50,7 @@ export default function EditEnvelopeDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit envelope</DialogTitle>
+          <DialogTitle>Edit reserve</DialogTitle>
         </DialogHeader>
         <EnvelopeForm
           formId="edit-envelope-dialog-form"

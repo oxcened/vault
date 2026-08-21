@@ -1,0 +1,2 @@
+ALTER TABLE "Envelope"
+ADD COLUMN "icon" TEXT NOT NULL DEFAULT 'shield';

@@ -8,13 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -25,7 +19,6 @@ import { APP_CURRENCY } from "~/constants";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { formatNumber } from "~/utils/number";
-import { Timeframe } from "./page";
 
 type ChartDataItem = {
   id: string;
@@ -50,13 +43,7 @@ const netWorthChartConfig: ChartConfig = {
   },
 };
 
-export function Chart({
-  data,
-  selectedTimeframe,
-}: {
-  data: ChartDataItem[];
-  selectedTimeframe?: Timeframe;
-}) {
+export function Chart({ data }: { data: ChartDataItem[] }) {
   const chartData = data.map((nw) => ({
     month: formatDate({
       date: nw.timestamp,
@@ -73,13 +60,7 @@ export function Chart({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Net worth history</CardTitle>
-        {selectedTimeframe && (
-          <CardDescription>{selectedTimeframe.label}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 pt-5 sm:px-6">
         <ChartContainer
           config={netWorthChartConfig}
           className="h-[15rem] w-full"

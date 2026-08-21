@@ -1,18 +1,20 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   ArrowLeftRight,
-  Frame,
-  Globe,
+  ChartNoAxesCombined,
+  CreditCard,
+  Database,
   LayoutDashboard,
-  LineChart,
-  Map,
-  PieChart,
-  Settings2Icon,
+  ReceiptText,
   SettingsIcon,
+  TrendingUp,
   Vault,
   Wallet,
+  WalletCards,
 } from "lucide-react";
 
 import { NavMain } from "~/components/nav-main";
@@ -25,85 +27,67 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "~/components/ui/sidebar";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
 
-const data = {
-  navMain: [
+const navigation = {
+  primary: [
     {
       title: "Overview",
       url: "/dashboard",
       icon: LayoutDashboard,
     },
     {
+      title: "Cash flow",
+      url: "/dashboard/cash-flow",
+      icon: ArrowLeftRight,
+    },
+    {
+      title: "Transactions",
+      url: "/dashboard/cash-flow/transactions",
+      icon: ReceiptText,
+    },
+    {
+      title: "Reserves",
+      url: "/dashboard/cash-flow/envelopes",
+      icon: WalletCards,
+    },
+    {
       title: "Net worth",
-      url: "#",
+      url: "/dashboard/net-worth",
       icon: Wallet,
+    },
+    {
+      title: "Assets",
+      url: "/dashboard/net-worth/assets",
+      icon: TrendingUp,
+    },
+    {
+      title: "Debts",
+      url: "/dashboard/net-worth/debts",
+      icon: CreditCard,
+    },
+  ],
+  collections: [
+    {
+      title: "Insights",
+      icon: ChartNoAxesCombined,
       items: [
-        {
-          title: "Overview",
-          url: "/dashboard/net-worth",
-        },
         {
           title: "Assets",
-          url: "/dashboard/net-worth/assets",
-        },
-        {
-          title: "Debts",
-          url: "/dashboard/net-worth/debts",
-        },
-      ],
-    },
-    {
-      title: "Cash flow",
-      url: "#",
-      icon: ArrowLeftRight,
-      items: [
-        {
-          title: "Overview",
-          url: "/dashboard/cash-flow",
-        },
-        {
-          title: "Transactions",
-          url: "/dashboard/cash-flow/transactions",
-        },
-        {
-          title: "Envelopes",
-          url: "/dashboard/cash-flow/envelopes",
-        },
-      ],
-    },
-    {
-      title: "Performance & History",
-      url: "#",
-      icon: LineChart,
-      items: [
-        {
-          title: "Net worth history",
-          url: "/dashboard/performance/net-worth-history",
-        },
-        {
-          title: "Assets history",
           url: "/dashboard/performance/assets-history",
         },
         {
-          title: "Debts history",
+          title: "Debts",
           url: "/dashboard/performance/debts-history",
         },
         {
-          title: "Cash flow history",
-          url: "/dashboard/performance/cash-flow-history",
-        },
-        {
-          title: "Transaction categories history",
+          title: "Transaction categories",
           url: "/dashboard/performance/transaction-categories-history",
         },
       ],
     },
     {
       title: "Market data",
-      url: "#",
-      icon: Globe,
+      icon: Database,
       items: [
         {
           title: "Exchange rates",
@@ -117,11 +101,10 @@ const data = {
     },
     {
       title: "Settings",
-      url: "#",
       icon: SettingsIcon,
       items: [
         {
-          title: "Transaction templates",
+          title: "Transaction presets",
           url: "/dashboard/settings/transaction-templates",
         },
         {
@@ -151,28 +134,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <Link href="/dashboard">
-          <SidebarMenuButton
-            asChild
-            size="lg"
-            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-          >
-            <div>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <Vault className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Vault</span>
-              </div>
+      <SidebarHeader className="border-b border-sidebar-border p-3">
+        <SidebarMenuButton asChild size="lg" className="h-11">
+          <Link href="/dashboard">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+              <Vault className="size-4" />
             </div>
-          </SidebarMenuButton>
-        </Link>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">Vault</span>
+              <span className="truncate text-xs text-muted-foreground">
+                Personal finance
+              </span>
+            </div>
+          </Link>
+        </SidebarMenuButton>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
+      <SidebarContent className="py-2">
+        <NavMain
+          primaryItems={navigation.primary}
+          collections={navigation.collections}
+        />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border p-3">
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />

@@ -107,7 +107,7 @@ async function main() {
     data: {
       name: `${DEMO} Checking account`,
       currency: "EUR",
-      poolInEnvelopes: true,
+      isLiquid: true,
       categoryId: assetCategory.id,
       createdById: user.id,
     },

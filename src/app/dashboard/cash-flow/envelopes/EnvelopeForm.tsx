@@ -10,6 +10,12 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import {
+  normalizeReserveIcon,
+  reserveIconOptions,
+} from "~/components/reserves/reserve-icon";
+import { DEFAULT_RESERVE_ICON } from "~/constants/reserve-icons";
+import { cn } from "~/lib/utils";
 import { CreateEnvelope, createEnvelopeSchema } from "~/trpc/schemas/envelope";
 
 export type EnvelopeFormProps = {
@@ -26,6 +32,7 @@ export function EnvelopeForm({
   const form = useForm({
     defaultValues: initialData ?? {
       name: "",
+      icon: DEFAULT_RESERVE_ICON,
       priority: 0,
     },
     resolver: yupResolver(createEnvelopeSchema),
@@ -36,16 +43,51 @@ export function EnvelopeForm({
       <form
         id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-1 gap-2 md:grid-cols-2"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
       >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="md:col-span-2">
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Name" {...field} />
+                <Input placeholder="e.g. Taxes" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="icon"
+          render={({ field }) => (
+            <FormItem className="md:col-span-2">
+              <FormLabel>Icon</FormLabel>
+              <FormControl>
+                <div className="flex flex-wrap gap-2">
+                  {reserveIconOptions.map(({ name, label, icon: Icon }) => {
+                    const selected = normalizeReserveIcon(field.value) === name;
+                    return (
+                      <button
+                        key={name}
+                        type="button"
+                        aria-label={label}
+                        aria-pressed={selected}
+                        title={label}
+                        onClick={() => field.onChange(name)}
+                        className={cn(
+                          "flex size-10 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground",
+                          selected &&
+                            "border-primary/50 bg-primary/10 text-primary ring-1 ring-primary/20",
+                        )}
+                      >
+                        <Icon className="size-4" />
+                      </button>
+                    );
+                  })}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -57,10 +99,10 @@ export function EnvelopeForm({
           name="target"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Target</FormLabel>
+              <FormLabel>Target amount</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Target"
+                  placeholder="Optional"
                   type="number"
                   step="any"
                   {...field}
@@ -68,7 +110,7 @@ export function EnvelopeForm({
                 />
               </FormControl>
               <FormDescription>
-                Leave empty for a flexible envelope
+                Optional. Leave empty for a flexible reserve.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -80,10 +122,10 @@ export function EnvelopeForm({
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amount</FormLabel>
+              <FormLabel>Reserved amount</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Amount"
+                  placeholder="0.00"
                   type="number"
                   step="any"
                   {...field}

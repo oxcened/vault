@@ -76,7 +76,6 @@ export async function getAssetValuesForUserMonth({
     categoryId: string;
     categoryName: string;
     assetArchivedAt: Date | null;
-    poolInEnvelopes: boolean;
     isLiquid: boolean;
   }[]
 > {

@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { type Prisma } from "@prisma/client";
-import { ArrowRight, Landmark, WalletCards } from "lucide-react";
+import {
+  ArrowRight,
+  ChartNoAxesColumn,
+  Landmark,
+  List,
+  WalletCards,
+} from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Breadcrumb,
@@ -22,11 +28,16 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "~/components/ui/chart";
-import { HoldingIcon } from "~/components/holdings/holding-icon";
+import {
+  getHoldingAccent,
+  HoldingIcon,
+} from "~/components/holdings/holding-icon";
 import { Percentage, RoundedCurrency } from "~/components/ui/number";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { Skeleton } from "~/components/ui/skeleton";
+import { HistoryDot } from "~/components/ui/history-dot";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { APP_CURRENCY } from "~/constants";
@@ -34,6 +45,7 @@ import { formatNumber } from "~/utils/number";
 
 type Overview = RouterOutputs["netWorthOverview"]["get"];
 type Range = "6M" | "1Y" | "ALL";
+type HistoryView = "CHART" | "LIST";
 type AllocationType = "asset" | "debt";
 
 const chartConfig = {
@@ -191,11 +203,13 @@ function SnapshotLink({
 
 function HistoryCard({ data }: { data: Overview }) {
   const [range, setRange] = useState<Range>("1Y");
+  const [view, setView] = useState<HistoryView>("CHART");
   const [showAssets, setShowAssets] = useState(false);
   const [showDebts, setShowDebts] = useState(false);
   const count =
     range === "6M" ? 6 : range === "1Y" ? 12 : data.netWorthHistory.length;
-  const chartData = data.netWorthHistory.slice(-count).map((item) => ({
+  const visibleHistory = data.netWorthHistory.slice(-count);
+  const chartData = visibleHistory.map((item) => ({
     month: format(item.timestamp, "MMM yy"),
     netWorth: item.netValue.toNumber(),
     totalAssets: item.totalAssets.toNumber(),
@@ -203,102 +217,211 @@ function HistoryCard({ data }: { data: Overview }) {
   }));
 
   return (
-    <Card className="shadow-none">
-      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
-        <div>
-          <CardTitle>Net worth history</CardTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Track the direction, without losing the underlying totals.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={showAssets ? "secondary" : "outline"}
-            size="sm"
-            onClick={() => setShowAssets((value) => !value)}
-          >
-            Assets
-          </Button>
-          <Button
-            variant={showDebts ? "secondary" : "outline"}
-            size="sm"
-            onClick={() => setShowDebts((value) => !value)}
-          >
-            Debts
-          </Button>
-          <div className="flex rounded-md border p-0.5">
-            {(["6M", "1Y", "ALL"] as const).map((option) => (
-              <Button
-                key={option}
-                variant={range === option ? "secondary" : "ghost"}
-                size="sm"
-                className="h-7 px-2.5"
-                onClick={() => setRange(option)}
-              >
-                {option}
-              </Button>
-            ))}
+    <Tabs value={view} onValueChange={(value) => setView(value as HistoryView)}>
+      <Card className="shadow-none">
+        <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+          <div>
+            <CardTitle>Net worth history</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Track the direction, without losing the underlying totals.
+            </p>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[17rem] w-full">
-          <LineChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={24}
+          <div className="flex flex-wrap gap-2">
+            {view === "CHART" && (
+              <>
+                <Button
+                  variant={showAssets ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowAssets((value) => !value)}
+                >
+                  Assets
+                </Button>
+                <Button
+                  variant={showDebts ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowDebts((value) => !value)}
+                >
+                  Debts
+                </Button>
+              </>
+            )}
+            <div className="flex rounded-md border p-0.5">
+              {(["6M", "1Y", "ALL"] as const).map((option) => (
+                <Button
+                  key={option}
+                  variant={range === option ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 px-2.5"
+                  onClick={() => setRange(option)}
+                >
+                  {option}
+                </Button>
+              ))}
+            </div>
+            <TabsList className="h-8">
+              <TabsTrigger value="CHART" className="h-7 gap-1.5 px-2.5">
+                <ChartNoAxesColumn className="size-3.5" />
+                Chart
+              </TabsTrigger>
+              <TabsTrigger value="LIST" className="h-7 gap-1.5 px-2.5">
+                <List className="size-3.5" />
+                List
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <TabsContent value="CHART" className="mt-0">
+            <ChartContainer config={chartConfig} className="h-[17rem] w-full">
+              <LineChart accessibilityLayer data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={24}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={68}
+                  tickFormatter={(value: number) =>
+                    formatNumber({
+                      value,
+                      options: {
+                        style: "currency",
+                        currency: APP_CURRENCY,
+                        maximumFractionDigits: 0,
+                        notation: "compact",
+                      },
+                    })
+                  }
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent />}
+                />
+                <Line
+                  dataKey="netWorth"
+                  type="linear"
+                  stroke="var(--color-netWorth)"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                {showAssets && (
+                  <Line
+                    dataKey="totalAssets"
+                    type="linear"
+                    stroke="var(--color-totalAssets)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+                {showDebts && (
+                  <Line
+                    dataKey="totalDebts"
+                    type="linear"
+                    stroke="var(--color-totalDebts)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+              </LineChart>
+            </ChartContainer>
+          </TabsContent>
+          <TabsContent value="LIST" className="mt-0">
+            <HistoryList data={[...visibleHistory].reverse()} />
+          </TabsContent>
+        </CardContent>
+      </Card>
+    </Tabs>
+  );
+}
+
+function HistoryList({ data }: { data: Overview["netWorthHistory"] }) {
+  return (
+    <div className="overflow-hidden rounded-lg border">
+      {data.map((snapshot, index) => {
+        const previous = data[index + 1];
+        const change = previous
+          ? snapshot.netValue.minus(previous.netValue)
+          : undefined;
+
+        return (
+          <div
+            key={snapshot.id}
+            className={cn(
+              "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b px-4 py-3 last:border-b-0 md:grid-cols-[minmax(9rem,1fr)_1fr_1fr_1fr_1fr]",
+              index === 0 && "bg-blue-500/[0.04]",
+            )}
+          >
+            <div className="flex min-w-0 items-center gap-2.5">
+              <HistoryDot latest={index === 0} accent="blue" />
+              <span className="font-medium">
+                {format(snapshot.timestamp, "MMM yyyy")}
+              </span>
+              {index === 0 && (
+                <span className="rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
+                  Latest
+                </span>
+              )}
+            </div>
+            <HistoryMetric
+              label="Assets"
+              value={<RoundedCurrency value={snapshot.totalAssets} />}
             />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              width={68}
-              tickFormatter={(value: number) =>
-                formatNumber({
-                  value,
-                  options: {
-                    style: "currency",
-                    currency: APP_CURRENCY,
-                    maximumFractionDigits: 0,
-                    notation: "compact",
-                  },
-                })
+            <HistoryMetric
+              label="Debts"
+              value={<RoundedCurrency value={snapshot.totalDebts} />}
+            />
+            <HistoryMetric
+              label="Change"
+              value={
+                change ? (
+                  <RoundedCurrency
+                    value={change}
+                    options={{ signDisplay: "always" }}
+                    className={cn(
+                      change.gte(0)
+                        ? "text-financial-positive"
+                        : "text-financial-negative",
+                    )}
+                  />
+                ) : (
+                  <span className="text-muted-foreground">Starting value</span>
+                )
               }
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Line
-              dataKey="netWorth"
-              type="linear"
-              stroke="var(--color-netWorth)"
-              strokeWidth={3}
-              dot={false}
-            />
-            {showAssets && (
-              <Line
-                dataKey="totalAssets"
-                type="linear"
-                stroke="var(--color-totalAssets)"
-                strokeWidth={2}
-                dot={false}
-              />
-            )}
-            {showDebts && (
-              <Line
-                dataKey="totalDebts"
-                type="linear"
-                stroke="var(--color-totalDebts)"
-                strokeWidth={2}
-                dot={false}
-              />
-            )}
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+            <div className="text-right">
+              <RoundedCurrency value={snapshot.netValue} />
+              {change && (
+                <RoundedCurrency
+                  value={change}
+                  options={{ signDisplay: "always" }}
+                  className={cn(
+                    "block text-xs md:hidden",
+                    change.gte(0)
+                      ? "text-financial-positive"
+                      : "text-financial-negative",
+                  )}
+                />
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function HistoryMetric({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="hidden md:block">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <div className="mt-0.5 text-sm">{value}</div>
+    </div>
   );
 }
 
@@ -330,33 +453,34 @@ function AllocationCard({ data }: { data: Overview }) {
       </CardHeader>
       <CardContent>
         {items.length ? (
-          <div className="space-y-4">
-            {items.map((item) => (
-              <div key={item.category}>
-                <div className="flex items-center gap-3">
-                  <HoldingIcon category={item.category} type={type} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="truncate font-medium">
-                        {item.category}
-                      </span>
-                      <RoundedCurrency
-                        value={item.value}
-                        className="shrink-0"
-                      />
-                    </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={cn(
-                            "h-full rounded-full",
-                            type === "asset" ? "bg-blue-500" : "bg-rose-500",
-                          )}
-                          style={{
-                            width: `${Math.min(100, item.percentage.times(100).toNumber())}%`,
-                          }}
-                        />
-                      </div>
+          <div className="space-y-2">
+            {items.map((item) => {
+              const percentage = Math.min(
+                100,
+                item.percentage.times(100).toNumber(),
+              );
+              const accent = getHoldingAccent(item.category, type);
+
+              return (
+                <div
+                  key={item.category}
+                  className="relative overflow-hidden rounded-xl border bg-muted/15"
+                >
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 transition-[width] duration-500"
+                    style={{
+                      width: `${percentage}%`,
+                      background: `linear-gradient(90deg, color-mix(in srgb, ${accent} 18%, transparent), color-mix(in srgb, ${accent} 9%, transparent))`,
+                    }}
+                  />
+                  <div className="relative flex items-center gap-3 px-3 py-2.5">
+                    <HoldingIcon category={item.category} type={type} />
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                      {item.category}
+                    </span>
+                    <div className="flex shrink-0 items-baseline gap-2">
+                      <RoundedCurrency value={item.value} className="text-sm" />
                       <Percentage
                         value={item.percentage}
                         className="w-9 text-right text-[11px] text-muted-foreground"
@@ -364,8 +488,8 @@ function AllocationCard({ data }: { data: Overview }) {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">

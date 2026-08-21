@@ -42,6 +42,7 @@ import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { HoldingIcon } from "~/components/holdings/holding-icon";
+import { HistoryDot } from "~/components/ui/history-dot";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { APP_CURRENCY } from "~/constants";
 import { cn } from "~/lib/utils";
@@ -227,15 +228,15 @@ export function HoldingDetail({
                     </div>
                   )}
                 </div>
-                {(isCategoryStock || quantity) && (
+                {isCategoryStock && (
                   <div className="mt-5 flex flex-wrap gap-3 border-t pt-4 text-sm">
                     {quantity && (
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="gap-1">
                         <RoundedNumber value={quantity} />
-                        &nbsp;{isCategoryStock ? "shares" : "units"}
+                        <span>shares</span>
                       </Badge>
                     )}
-                    {isCategoryStock && latestStockPrice && (
+                    {latestStockPrice && (
                       <span className="text-muted-foreground">
                         {tickerName ?? ticker} ·{" "}
                         <Currency
@@ -366,17 +367,14 @@ function ValuationHistoryList({
             <div
               key={row.timestamp.toISOString()}
               className={cn(
-                "group relative flex items-center gap-3 border-b px-3 py-2.5 last:border-b-0 sm:px-4 sm:py-3",
+                "group relative flex items-center gap-3 border-b px-3 py-2 last:border-b-0 sm:px-4",
                 index === 0 && "bg-muted/25",
               )}
             >
-              <span
-                className={cn(
-                  "hidden size-2 shrink-0 rounded-full sm:block",
-                  index === 0
-                    ? "bg-blue-500 ring-4 ring-blue-500/10"
-                    : "bg-border",
-                )}
+              <HistoryDot
+                latest={index === 0}
+                accent="blue"
+                className="hidden sm:block"
               />
               <button
                 type="button"

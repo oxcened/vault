@@ -110,7 +110,6 @@ model NetWorthAsset {
   updatedAt       DateTime                @updatedAt
   createdById     String
   archivedAt      DateTime?
-  poolInEnvelopes Boolean                 @default(false)
   isLiquid        Boolean                 @default(false)
   createdBy       User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
   ticker          StockTicker?            @relation(fields: [tickerId], references: [id])
@@ -315,6 +314,7 @@ model UserWhitelist {
 model Envelope {
   id          String   @id @default(cuid())
   name        String
+  icon        String   @default("shield")
   target      Decimal? @db.Decimal(38, 18)
   amount      Decimal  @db.Decimal(38, 18)
   priority    Int

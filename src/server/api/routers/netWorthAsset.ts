@@ -216,7 +216,6 @@ export const netWorthAssetRouter = createTRPCRouter({
         archivedAt: yup.date().nullable(),
         tickerId: yup.string(),
         currency: yup.string(),
-        poolInEnvelopes: yup.boolean().optional(),
         isLiquid: yup.boolean().optional(),
       }),
     )

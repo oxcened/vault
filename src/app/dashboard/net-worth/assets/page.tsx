@@ -79,25 +79,6 @@ export default function AssetsPage() {
       },
     );
   };
-  const handlePoolToEnvelopes = (holding: Holding) => {
-    const newValue = !holding.poolInEnvelopes;
-
-    patchAsset(
-      {
-        id: holding.id,
-        poolInEnvelopes: newValue,
-      },
-      {
-        onSuccess: () =>
-          toast.success(
-            newValue
-              ? "Asset included in envelope pool."
-              : "Asset not included in envelope pool.",
-          ),
-      },
-    );
-  };
-
   return (
     <>
       <NetWorthHoldings
@@ -110,7 +91,6 @@ export default function AssetsPage() {
         onEditHolding={handleEdit}
         onDeleteHolding={handleDelete}
         onArchiveHolding={handleArchive}
-        onPoolToEnvelopesHolding={handlePoolToEnvelopes}
         getHoldingDetailUrl={(holding) =>
           `/dashboard/net-worth/assets/${holding.id}`
         }

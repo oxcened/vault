@@ -24,7 +24,7 @@ export default function NewEnvelopeDialog({
 }) {
   const { mutate, isPending } = api.envelope.create.useMutation({
     onSuccess: () => {
-      toast.success("Envelope created.");
+      toast.success("Reserve created.");
       onOpenChange(false);
       onSuccess();
     },
@@ -34,7 +34,7 @@ export default function NewEnvelopeDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add envelope</DialogTitle>
+          <DialogTitle>Add reserve</DialogTitle>
         </DialogHeader>
         <EnvelopeForm formId="new-envelope-dialog-form" onSubmit={mutate} />
         <DialogFooter>

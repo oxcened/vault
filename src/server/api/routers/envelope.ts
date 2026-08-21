@@ -17,9 +17,13 @@ export const envelopeRouter = createTRPCRouter({
       userId: ctx.session.user.id,
     });
 
-    const poolAmount = assets
-      .filter((asset) => asset.poolInEnvelopes)
-      .reduce((prev, curr) => prev.plus(curr.valueInTarget), DECIMAL_ZERO);
+    const eligibleAssets = assets.filter(
+      (asset) => asset.isLiquid && !asset.assetArchivedAt,
+    );
+    const poolAmount = eligibleAssets.reduce(
+      (prev, curr) => prev.plus(curr.valueInTarget),
+      DECIMAL_ZERO,
+    );
 
     const envelopes = await ctx.db.envelope.findMany({
       orderBy: { priority: "asc" },
@@ -37,6 +41,11 @@ export const envelopeRouter = createTRPCRouter({
       envelopes,
       pool: poolAmount,
       remaining,
+      accounts: eligibleAssets.map((asset) => ({
+        id: asset.assetId,
+        name: asset.assetName,
+        value: asset.valueInTarget,
+      })),
     };
   }),
   delete: protectedProcedure
