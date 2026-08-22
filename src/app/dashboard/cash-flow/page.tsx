@@ -441,21 +441,22 @@ function CategoryCard({
 
   return (
     <Card className="shadow-none">
-      <CardHeader className="flex-row items-center justify-between space-y-0">
+      <CardHeader className="gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <CardTitle>By category</CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            {format(date, "MMMM yyyy")}
+            <RoundedCurrency value={total} /> total{" "}
+            {type === "INCOME" ? "income" : "expenses"}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
           <MonthPicker
             value={date}
             maxMonth={new Date()}
-            className="h-8 w-auto"
+            className="col-span-2 h-8 w-full sm:w-auto"
             onChange={onDateChange}
           />
-          <div className="flex rounded-md border p-0.5">
+          <div className="col-span-2 grid grid-cols-2 rounded-md border p-0.5 sm:flex">
             {(["EXPENSE", "INCOME"] as const).map((option) => (
               <Button
                 key={option}
