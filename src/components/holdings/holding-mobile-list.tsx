@@ -1,5 +1,6 @@
 import {
   ArchiveIcon,
+  ChevronDown,
   Droplets,
   MoreHorizontalIcon,
   Pencil,
@@ -124,16 +125,16 @@ export function HoldingMobileList<T extends Holding>({
               </span>
             </button>
 
-            <button
-              type="button"
-              className="shrink-0 text-right"
-              onClick={() => onHoldingClick(holding)}
-            >
-              <RoundedCurrency
-                value={holding.valueInTarget}
-                className="block text-sm"
-              />
-              {!archivedView && (
+            {!archivedView && (
+              <button
+                type="button"
+                className="shrink-0 text-right"
+                onClick={() => onHoldingClick(holding)}
+              >
+                <RoundedCurrency
+                  value={holding.valueInTarget}
+                  className="block text-sm"
+                />
                 <span className="mt-0.5 hidden text-xs text-muted-foreground md:block">
                   Updated{" "}
                   {formatDate({
@@ -141,41 +142,57 @@ export function HoldingMobileList<T extends Holding>({
                     options: { month: "short", day: "numeric" },
                   })}
                 </span>
-              )}
-            </button>
+              </button>
+            )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8 shrink-0">
-                  <MoreHorizontalIcon />
-                  <span className="sr-only">Holding actions</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {archivedView && (
-                  <DropdownMenuItem onClick={() => onArchiveHolding(holding)}>
-                    <RotateCcw /> Restore
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => onEditHolding(holding)}>
-                  <Pencil /> Edit
-                </DropdownMenuItem>
-                {!archivedView && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => onArchiveHolding(holding)}>
-                      {hasBalance ? "Change to zero and archive" : "Archive"}
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => onDeleteHolding(holding)}
+            <div className="flex shrink-0">
+              {archivedView && (
+                <Button
+                  size="sm"
+                  className="h-8 rounded-r-none px-3"
+                  onClick={() => onArchiveHolding(holding)}
                 >
-                  <Trash2 /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <RotateCcw /> Restore
+                </Button>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant={archivedView ? "default" : "ghost"}
+                    size="icon"
+                    className={
+                      archivedView
+                        ? "size-8 rounded-l-none border-l border-primary-foreground/20"
+                        : "size-8"
+                    }
+                  >
+                    {archivedView ? <ChevronDown /> : <MoreHorizontalIcon />}
+                    <span className="sr-only">Holding actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEditHolding(holding)}>
+                    <Pencil /> Edit
+                  </DropdownMenuItem>
+                  {!archivedView && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => onArchiveHolding(holding)}
+                      >
+                        {hasBalance ? "Change to zero and archive" : "Archive"}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => onDeleteHolding(holding)}
+                  >
+                    <Trash2 /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         );
       })}
