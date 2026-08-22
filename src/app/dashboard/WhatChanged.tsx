@@ -75,7 +75,7 @@ export function WhatChanged() {
               {cashFlowChanges.map((item) => (
                 <Link
                   key={item.id}
-                  href="/dashboard/transactions"
+                  href={`/dashboard/transactions?type=${item.type}&month=${format(new Date(), "yyyy-MM")}&categoryId=${item.id}`}
                   className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
                 >
                   <TransactionIcon category={item.name} type={item.type} />

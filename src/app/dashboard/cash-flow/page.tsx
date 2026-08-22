@@ -501,8 +501,8 @@ function CategoryCard({
               });
               return (
                 <Link
-                  key={item.category}
-                  href="/dashboard/transactions"
+                  key={item.categoryId}
+                  href={`/dashboard/transactions?type=${type}&month=${format(date, "yyyy-MM")}&categoryId=${item.categoryId}`}
                   className="group relative overflow-hidden rounded-xl border bg-muted/15 transition-colors hover:bg-muted/25"
                 >
                   <div

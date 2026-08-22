@@ -85,10 +85,11 @@ export function TransactionTable() {
     const month = requestedMonth
       ? parse(requestedMonth, "yyyy-MM", new Date())
       : undefined;
+    const requestedCategoryId = searchParams.get("categoryId");
 
     return {
       types,
-      categories: [],
+      categories: requestedCategoryId ? [requestedCategoryId] : [],
       dateRange:
         month && isValid(month)
           ? { from: startOfMonth(month), to: endOfMonth(month) }

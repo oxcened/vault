@@ -36,6 +36,7 @@ async function getCashFlowByCategory({
       type: true,
       category: {
         select: {
+          id: true,
           name: true,
         },
       },
@@ -45,6 +46,7 @@ async function getCashFlowByCategory({
   const cashFlowByCategory: Record<
     string,
     {
+      categoryId: string;
       category: string;
       expenses: Prisma.Decimal;
       income: Prisma.Decimal;
@@ -53,10 +55,12 @@ async function getCashFlowByCategory({
   > = {};
 
   for (const transaction of transactions) {
+    const categoryId = transaction.category.id;
     const categoryName = transaction.category.name;
 
-    if (!cashFlowByCategory[categoryName]) {
-      cashFlowByCategory[categoryName] = {
+    if (!cashFlowByCategory[categoryId]) {
+      cashFlowByCategory[categoryId] = {
+        categoryId,
         category: categoryName,
         expenses: DECIMAL_ZERO,
         income: DECIMAL_ZERO,
@@ -65,17 +69,17 @@ async function getCashFlowByCategory({
     }
 
     if (transaction.type === "EXPENSE") {
-      cashFlowByCategory[categoryName].expenses = cashFlowByCategory[
-        categoryName
+      cashFlowByCategory[categoryId].expenses = cashFlowByCategory[
+        categoryId
       ].expenses.plus(transaction.amount);
     } else if (transaction.type === "INCOME") {
-      cashFlowByCategory[categoryName].income = cashFlowByCategory[
-        categoryName
+      cashFlowByCategory[categoryId].income = cashFlowByCategory[
+        categoryId
       ].income.plus(transaction.amount);
     }
 
-    cashFlowByCategory[categoryName].netFlow = cashFlowByCategory[
-      categoryName
+    cashFlowByCategory[categoryId].netFlow = cashFlowByCategory[
+      categoryId
     ].netFlow.plus(
       transaction.amount.mul(
         new Prisma.Decimal(transaction.type === "EXPENSE" ? -1 : 1),
