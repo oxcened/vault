@@ -492,7 +492,7 @@ function UpdateRow({
   children: ReactNode;
 }) {
   return (
-    <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_10rem_minmax(14rem,18rem)] sm:items-center sm:px-5">
+    <div className="grid gap-3 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_10rem_minmax(14rem,18rem)] sm:items-center sm:px-5">
       <div className="min-w-0">
         <p className="font-medium">{title}</p>
         <p className="truncate text-xs text-muted-foreground">{description}</p>
@@ -516,11 +516,10 @@ function UpdateRow({
         )}
       </div>
       <div className="min-w-0">
-        <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          Closing value
-        </p>
-        {children}
-        <div className="mt-1.5 flex min-h-7 items-center justify-end">
+        <div className="mb-1.5 flex min-h-5 items-center justify-between gap-2">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Closing value
+          </p>
           {confirmed && canConfirm ? (
             <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-500">
               <Check className="size-3.5" /> Ready
@@ -530,7 +529,7 @@ function UpdateRow({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs"
+              className="h-5 px-1.5 text-xs"
               disabled={!canConfirm}
               onClick={onConfirm}
             >
@@ -542,6 +541,7 @@ function UpdateRow({
             </span>
           )}
         </div>
+        {children}
       </div>
     </div>
   );
