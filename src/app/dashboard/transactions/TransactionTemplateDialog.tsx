@@ -1,7 +1,7 @@
 "use client";
 
 import type { TransactionStatus, TransactionType } from "@prisma/client";
-import { Check, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Check, ChevronDown, Loader2, Pencil, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { TransactionIcon } from "~/components/transactionTable/transaction-icon";
@@ -280,7 +280,7 @@ export default function TransactionTemplateDialog({
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:justify-between sm:space-x-0">
           <Button
             type="button"
             variant="outline"
@@ -292,65 +292,75 @@ export default function TransactionTemplateDialog({
           >
             Back
           </Button>
-          {!isEditing && !isEditingPreset && selection.presetId && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button type="button" size="icon" variant="outline">
-                  <MoreHorizontal />
-                  <span className="sr-only">Preset actions</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setEditingPreset(true)}>
-                  <Pencil /> Edit preset
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-red-500"
-                  onClick={() =>
-                    confirm({
-                      itemType: "preset",
-                      itemName: selection.description,
-                      onConfirm: () =>
-                        deletePreset.mutate({ id: selection.presetId! }),
-                    })
-                  }
+          <div className="flex justify-end gap-2">
+            {!isEditing && !isEditingPreset && (
+              <div className="flex">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={selection.presetId ? "rounded-r-none" : undefined}
+                  onClick={() => setEditing(true)}
                 >
-                  <Trash2 /> Delete preset
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-          {!isEditing && !isEditingPreset && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setEditing(true)}
-            >
-              <Pencil /> Edit details
-            </Button>
-          )}
-          <Button
-            type={isEditing || isEditingPreset ? "submit" : "button"}
-            disabled={isCreating || updatePreset.isPending}
-            form={
-              isEditing || isEditingPreset
-                ? "transaction-template-dialog-form"
-                : undefined
-            }
-            onClick={
-              isEditing || isEditingPreset || !initialData
-                ? undefined
-                : () => create(initialData)
-            }
-          >
-            {isCreating || updatePreset.isPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Check />
+                  <Pencil /> Edit details
+                </Button>
+                {selection.presetId && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="rounded-l-none border-l-0"
+                      >
+                        <ChevronDown />
+                        <span className="sr-only">Preset actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setEditingPreset(true)}>
+                        <Pencil /> Edit preset
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-red-500"
+                        onClick={() =>
+                          confirm({
+                            itemType: "preset",
+                            itemName: selection.description,
+                            onConfirm: () =>
+                              deletePreset.mutate({ id: selection.presetId! }),
+                          })
+                        }
+                      >
+                        <Trash2 /> Delete preset
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
             )}
-            {isEditingPreset ? "Save preset" : "Record"}
-          </Button>
+            <Button
+              type={isEditing || isEditingPreset ? "submit" : "button"}
+              disabled={isCreating || updatePreset.isPending}
+              form={
+                isEditing || isEditingPreset
+                  ? "transaction-template-dialog-form"
+                  : undefined
+              }
+              onClick={
+                isEditing || isEditingPreset || !initialData
+                  ? undefined
+                  : () => create(initialData)
+              }
+            >
+              {isCreating || updatePreset.isPending ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Check />
+              )}
+              {isEditingPreset ? "Save preset" : "Record"}
+            </Button>
+          </div>
         </DialogFooter>
         {confirmDeleteModal}
       </DialogContent>
