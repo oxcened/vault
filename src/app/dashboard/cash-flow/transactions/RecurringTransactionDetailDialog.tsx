@@ -34,6 +34,10 @@ import {
   Tag,
   Trash2,
   Zap,
+  RotateCcw,
+  ArrowUpRight,
+  ArrowDownLeft,
+  ArrowRightLeft,
 } from "lucide-react";
 import { differenceInCalendarDays, format } from "date-fns";
 
@@ -86,6 +90,16 @@ export function RecurringTransactionDetailDialog({
   const displayAmount = schedule.amount.mul(
     schedule.type === "EXPENSE" ? -1 : 1,
   );
+   const isRefund = schedule.type === "EXPENSE" && schedule.amount.isNeg();
+  const isExpense = schedule.type === "EXPENSE" && !isRefund;
+  const isIncome = schedule.type === "INCOME";
+  const AmountIcon = isRefund
+    ? RotateCcw
+    : isExpense
+      ? ArrowUpRight
+      : isIncome
+        ? ArrowDownLeft
+        : ArrowRightLeft;
   const amountLabel =
     schedule.type === "EXPENSE"
       ? "Money out"
@@ -116,14 +130,27 @@ export function RecurringTransactionDetailDialog({
           </DialogHeader>
 
           <div className="flex items-center justify-between gap-4 py-2">
+            <div className="flex items-center gap-2"><div
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-full",
+                  (isRefund || isIncome) &&
+                    "bg-emerald-500/10 text-financial-positive",
+                  isExpense && "bg-red-500/10 text-financial-negative",
+                  schedule.type === "TRANSFER" &&
+                    "bg-muted text-muted-foreground",
+                )}
+              >
+                <AmountIcon className="size-4" />
+              </div>
             <p className="text-sm font-medium text-muted-foreground">
               {amountLabel}
-            </p>
+            </p></div>
+            
             <Currency
               value={displayAmount}
               options={{ currency: schedule.currency, signDisplay: "always" }}
               className={cn(
-                "text-2xl font-semibold tracking-tight",
+                "text-xl font-semibold tracking-tight",
                 displayAmount.isPos() && "text-financial-positive",
                 displayAmount.isNeg() && "text-financial-negative",
               )}

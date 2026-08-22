@@ -85,7 +85,7 @@ export function TransactionDetailDialog({
           </DialogHeader>
 
           <div className="flex items-center justify-between gap-4 py-2">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div
                 className={cn(
                   "flex size-8 shrink-0 items-center justify-center rounded-full",
@@ -109,7 +109,7 @@ export function TransactionDetailDialog({
                 signDisplay: "always",
               }}
               className={cn(
-                "text-2xl font-semibold tracking-tight",
+                "text-xl font-semibold tracking-tight",
                 displayAmount.isPos() && "text-financial-positive",
                 displayAmount.isNeg() && "text-financial-negative",
               )}
