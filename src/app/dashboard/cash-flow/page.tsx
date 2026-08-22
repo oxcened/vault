@@ -36,6 +36,7 @@ import {
 import { APP_CURRENCY } from "~/constants";
 import { cn } from "~/lib/utils";
 import { api, type RouterOutputs } from "~/trpc/react";
+import { toMonthTimestamp } from "~/utils/date";
 import { formatNumber } from "~/utils/number";
 
 type Overview = RouterOutputs["cashFlow"]["getMonthlyCashFlow"];
@@ -50,7 +51,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function CashFlowPage() {
-  const [categoryDate, setCategoryDate] = useState(new Date());
+  const [categoryDate, setCategoryDate] = useState(() =>
+    toMonthTimestamp(new Date()),
+  );
   const { data, isPending } = api.cashFlow.getMonthlyCashFlow.useQuery(
     { categoryDate },
     { placeholderData: (previousData) => previousData },
