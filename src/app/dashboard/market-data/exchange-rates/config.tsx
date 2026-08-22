@@ -44,6 +44,10 @@ export const exchangeRatesColumns = [
         </span>
       </div>
     ),
+    meta: {
+      cellClassName: "px-3",
+      headerClassName: "px-3",
+    },
   }),
   columnHelper.accessor("rate", {
     header: "Exchange rate",
@@ -57,15 +61,15 @@ export const exchangeRatesColumns = [
       );
     },
     meta: {
-      cellClassName: "text-right",
-      headerClassName: "text-right",
+      cellClassName: "px-2 text-right",
+      headerClassName: "px-2 text-right",
     },
   }),
   columnHelper.display({
     id: "actions",
     meta: {
-      cellClassName: "w-12 text-right",
-      headerClassName: "w-12 text-right",
+      cellClassName: "w-10 px-1 text-right",
+      headerClassName: "w-10 px-1 text-right",
     },
     cell: ({ row }) => {
       const utils = api.useUtils();
