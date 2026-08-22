@@ -1,16 +1,13 @@
-import { DataTable } from "../ui/data-table";
 import {
   getCoreRowModel,
   type RowSelectionState,
   type SortingState,
 } from "@tanstack/react-table";
-import { DataTableColumns } from "../ui/data-table-columns";
 import { AddTransactionDropdown } from "../add-transaction-dropdown";
 import { DataTablePagination } from "../ui/data-table-pagination";
 import { transactionColumns } from "./config";
 import { api } from "~/trpc/react";
 import { useRef, useState } from "react";
-import { TableSkeleton } from "../table-skeleton";
 import { keepPreviousData } from "@tanstack/react-query";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
@@ -204,12 +201,6 @@ export function TransactionTable() {
             </div>
           )}
 
-          {view === "TRANSACTIONS" && (
-            <div className="hidden md:block">
-              <DataTableColumns table={table} />
-            </div>
-          )}
-
           {view === "TRANSACTIONS" ? (
             <div className="flex-1 md:flex-none [&>button]:w-full">
               <AddTransactionDropdown onSuccess={handleCreated} />
@@ -251,7 +242,7 @@ export function TransactionTable() {
       )}
 
       {view === "TRANSACTIONS" && selectedIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 z-50 hidden w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 items-center gap-2 rounded-xl border bg-popover/95 px-3 py-2 shadow-2xl backdrop-blur md:flex">
+        <div className="fixed bottom-6 left-1/2 z-50 flex w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 items-center gap-2 rounded-xl border bg-popover/95 px-3 py-2 shadow-2xl backdrop-blur">
           <span className="mr-auto text-sm font-medium">
             {selectedIds.length} selected
           </span>
@@ -308,39 +299,44 @@ export function TransactionTable() {
       {view === "SCHEDULED" ? (
         <RecurringTransactionList />
       ) : isPending ? (
-        <>
-          <div className="overflow-hidden rounded-xl border md:hidden">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 border-b px-3 py-3 last:border-b-0"
-              >
-                <Skeleton className="size-9 shrink-0 rounded-full" />
-                <div className="flex-1 space-y-1.5">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-3 w-1/3" />
-                </div>
-                <div className="space-y-1.5">
-                  <Skeleton className="ml-auto h-4 w-16" />
-                  <Skeleton className="ml-auto h-3 w-10" />
-                </div>
+        <div className="overflow-hidden rounded-xl border">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 border-b px-3 py-3 last:border-b-0"
+            >
+              <Skeleton className="size-9 shrink-0 rounded-full" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
               </div>
-            ))}
-          </div>
-          <TableSkeleton className="hidden md:table" />
-        </>
+              <div className="space-y-1.5">
+                <Skeleton className="ml-auto h-4 w-16" />
+                <Skeleton className="ml-auto h-3 w-10" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <>
-          <div className="md:hidden">
-            <TransactionMobileList
-              transactions={data?.items ?? []}
-              onTransactionClick={setDetailTransaction}
-            />
-          </div>
-          <div className="hidden md:block">
-            <DataTable table={table} onRowClick={setDetailTransaction} />
-          </div>
-        </>
+        <TransactionMobileList
+          transactions={data?.items ?? []}
+          onTransactionClick={setDetailTransaction}
+          selectedIds={selectedIds}
+          onSelectedChange={(id, selected) =>
+            setRowSelection((state) => {
+              const next = { ...state };
+              if (selected) {
+                next[id] = true;
+              } else {
+                delete next[id];
+              }
+              return next;
+            })
+          }
+          allSelected={table.getIsAllPageRowsSelected()}
+          someSelected={table.getIsSomePageRowsSelected()}
+          onToggleAll={(selected) => table.toggleAllPageRowsSelected(selected)}
+        />
       )}
       {view === "TRANSACTIONS" && <DataTablePagination table={table} />}
 
