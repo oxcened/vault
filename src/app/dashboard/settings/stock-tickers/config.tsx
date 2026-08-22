@@ -33,10 +33,6 @@ export const stockTickerColumns = [
     header: "Alpha Vantage symbol",
     cell: ({ getValue }) => getValue() ?? "—",
   }),
-  columnHelper.accessor("autoUpdate", {
-    header: "Auto-update",
-    cell: ({ getValue }) => (getValue() ? "Enabled" : "Disabled"),
-  }),
   columnHelper.display({
     id: "actions",
     cell: ({ row }) => {

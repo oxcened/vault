@@ -3,14 +3,12 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Switch } from "~/components/ui/switch";
 import { createStockTickerSchema } from "~/trpc/schemas/stockTicker";
 import type { CreateStockTicker } from "~/trpc/schemas/stockTicker";
 
@@ -31,7 +29,6 @@ export function StockTickerForm({
       ticker: "",
       exchange: "",
       providerSymbol: "",
-      autoUpdate: false,
     },
     resolver: yupResolver(createStockTickerSchema),
   });
@@ -95,27 +92,6 @@ export function StockTickerForm({
                 <Input placeholder="VWCE.DEX" {...field} />
               </FormControl>
               <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="autoUpdate"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-3 md:col-span-2">
-              <div>
-                <FormLabel>Automatic price updates</FormLabel>
-                <FormDescription>
-                  Keep this investment’s value up to date automatically.
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
             </FormItem>
           )}
         />

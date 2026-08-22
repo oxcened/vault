@@ -10,7 +10,6 @@ export const createStockTickerSchema = yup.object({
     .uppercase()
     .label("Alpha Vantage symbol")
     .optional(),
-  autoUpdate: yup.boolean().default(false),
 });
 
 export type CreateStockTicker = yup.InferType<typeof createStockTickerSchema>;

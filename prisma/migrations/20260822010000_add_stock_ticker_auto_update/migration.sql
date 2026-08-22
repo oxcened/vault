@@ -1,1 +1,0 @@
-ALTER TABLE "StockTicker" ADD COLUMN "autoUpdate" BOOLEAN NOT NULL DEFAULT false;
