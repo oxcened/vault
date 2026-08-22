@@ -5,9 +5,11 @@ import { format, subMonths } from "date-fns";
 import {
   ArrowRightLeft,
   Check,
+  Circle,
   CircleDollarSign,
   Copy,
   Loader2,
+  RotateCcw,
   Save,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -142,6 +144,7 @@ function UpdateForm({ month, data }: { month: Date; data: UpdateData }) {
     return confirmedRates[key] && isValidValue(rateValues[key]);
   }).length;
   const completed = completedStocks + completedRates;
+  const remaining = total - completed;
 
   const save = api.monthEnd.save.useMutation({
     onSuccess: async () => {
@@ -214,17 +217,27 @@ function UpdateForm({ month, data }: { month: Date; data: UpdateData }) {
             )}
           </span>
           <div>
-            <p className="font-medium">{format(month, "MMMM yyyy")}</p>
+            <p className="font-medium">
+              {completed === total ? "Ready to complete" : "Update in progress"}
+            </p>
             <p className="text-sm text-muted-foreground">
-              {completed} of {total} values ready
+              {completed === total
+                ? `All ${total} closing values are ready for ${format(month, "MMMM yyyy")}.`
+                : `${remaining} ${remaining === 1 ? "value" : "values"} remaining for ${format(month, "MMMM yyyy")}.`}
             </p>
           </div>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-muted sm:w-48">
-          <div
-            className="h-full rounded-full bg-blue-500 transition-[width]"
-            style={{ width: `${total ? (completed / total) * 100 : 0}%` }}
-          />
+        <div className="min-w-48">
+          <div className="mb-2 flex justify-between text-xs text-muted-foreground">
+            <span>{completed} ready</span>
+            <span>{total} total</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-blue-500 transition-[width]"
+              style={{ width: `${total ? (completed / total) * 100 : 0}%` }}
+            />
+          </div>
         </div>
       </section>
 
@@ -233,6 +246,28 @@ function UpdateForm({ month, data }: { month: Date; data: UpdateData }) {
           title="Stock prices"
           description="Monthly closing prices for actively maintained securities."
           icon={CircleDollarSign}
+          completed={completedStocks}
+          total={data.stockPrices.length}
+          onCarryAll={() => {
+            setStockValues((values) => ({
+              ...values,
+              ...Object.fromEntries(
+                data.stockPrices.flatMap((item) =>
+                  item.previousValue
+                    ? [[item.tickerId, item.previousValue.toString()]]
+                    : [],
+                ),
+              ),
+            }));
+            setConfirmedStocks((items) => ({
+              ...items,
+              ...Object.fromEntries(
+                data.stockPrices.flatMap((item) =>
+                  item.previousValue ? [[item.tickerId, true]] : [],
+                ),
+              ),
+            }));
+          }}
         >
           {data.stockPrices.map((item) => (
             <UpdateRow
@@ -295,6 +330,35 @@ function UpdateForm({ month, data }: { month: Date; data: UpdateData }) {
           title="Exchange rates"
           description="Monthly conversion rates for active currency pairs."
           icon={ArrowRightLeft}
+          completed={completedRates}
+          total={data.exchangeRates.length}
+          onCarryAll={() => {
+            setRateValues((values) => ({
+              ...values,
+              ...Object.fromEntries(
+                data.exchangeRates.flatMap((item) =>
+                  item.previousValue
+                    ? [
+                        [
+                          `${item.baseCurrency}:${item.quoteCurrency}`,
+                          item.previousValue.toString(),
+                        ],
+                      ]
+                    : [],
+                ),
+              ),
+            }));
+            setConfirmedRates((items) => ({
+              ...items,
+              ...Object.fromEntries(
+                data.exchangeRates.flatMap((item) =>
+                  item.previousValue
+                    ? [[`${item.baseCurrency}:${item.quoteCurrency}`, true]]
+                    : [],
+                ),
+              ),
+            }));
+          }}
         >
           {data.exchangeRates.map((item) => {
             const key = `${item.baseCurrency}:${item.quoteCurrency}`;
@@ -347,16 +411,28 @@ function UpdateForm({ month, data }: { month: Date; data: UpdateData }) {
         </UpdateSection>
       )}
 
-      <div className="sticky bottom-20 z-10 flex justify-end rounded-2xl border bg-background/90 p-3 shadow-lg backdrop-blur md:bottom-4">
+      <section className="flex flex-col gap-4 rounded-2xl border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div>
+          <p className="font-medium">
+            {completed === total
+              ? "Everything is ready"
+              : `${completed} of ${total} values ready`}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {completed === total
+              ? "Complete the month to save these closing values and refresh your financial snapshots."
+              : "You can save ready values now and return later for the rest."}
+          </p>
+        </div>
         <Button
-          className="w-full sm:w-auto"
+          className="w-full shrink-0 sm:w-auto"
           disabled={completed === 0 || save.isPending}
           onClick={handleSave}
         >
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {completed === total ? "Complete month" : "Save confirmed values"}
         </Button>
-      </div>
+      </section>
     </>
   );
 }
@@ -365,23 +441,41 @@ function UpdateSection({
   title,
   description,
   icon: Icon,
+  completed,
+  total,
+  onCarryAll,
   children,
 }: {
   title: string;
   description: string;
   icon: typeof CircleDollarSign;
+  completed: number;
+  total: number;
+  onCarryAll: () => void;
   children: ReactNode;
 }) {
   return (
     <section className="overflow-hidden rounded-2xl border bg-card">
-      <div className="flex items-center gap-3 border-b bg-muted/20 px-4 py-4 sm:px-5">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-          <Icon className="size-4" />
-        </span>
-        <div>
-          <h2 className="font-semibold">{title}</h2>
-          <p className="text-xs text-muted-foreground">{description}</p>
+      <div className="flex flex-col gap-3 border-b bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex items-center gap-3">
+          <span className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            <Icon className="size-4" />
+          </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold">{title}</h2>
+              <span className="rounded-full bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-border">
+                {completed}/{total} ready
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">{description}</p>
+          </div>
         </div>
+        {completed < total && (
+          <Button variant="outline" size="sm" onClick={onCarryAll}>
+            <RotateCcw /> Use all previous
+          </Button>
+        )}
       </div>
       <div className="divide-y">{children}</div>
     </section>
@@ -408,43 +502,55 @@ function UpdateRow({
   children: ReactNode;
 }) {
   return (
-    <div className="grid gap-3 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] sm:items-center sm:px-5">
+    <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_10rem_minmax(14rem,18rem)] sm:items-center sm:px-5">
       <div className="min-w-0">
         <p className="font-medium">{title}</p>
         <p className="truncate text-xs text-muted-foreground">{description}</p>
-        {previous && onCarry && (
+      </div>
+      <div>
+        <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Previous month
+        </p>
+        {previous && onCarry ? (
           <button
             type="button"
-            className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-sm font-medium tabular-nums transition-colors hover:bg-muted"
             onClick={onCarry}
           >
-            Previous: {previous}
-            <Copy className="ml-1 size-3" />
-            <span className="sr-only">Use previous value</span>
+            {previous}
+            <Copy className="size-3 text-muted-foreground" />
+            <span className="sr-only">Use previous month value</span>
           </button>
+        ) : (
+          <span className="text-sm text-muted-foreground">Not available</span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          {children}
-          <div className="mt-1.5 flex min-h-7 items-center justify-end">
-            {confirmed && canConfirm ? (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-500">
-                <Check className="size-3.5" /> Closing value ready
-              </span>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs"
-                disabled={!canConfirm}
-                onClick={onConfirm}
-              >
-                Confirm existing value
-              </Button>
-            )}
-          </div>
+      <div className="min-w-0">
+        <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Closing value
+        </p>
+        {children}
+        <div className="mt-1.5 flex min-h-7 items-center justify-end">
+          {confirmed && canConfirm ? (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-500">
+              <Check className="size-3.5" /> Ready
+            </span>
+          ) : canConfirm ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              disabled={!canConfirm}
+              onClick={onConfirm}
+            >
+              Confirm existing value
+            </Button>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-xs text-amber-500">
+              <Circle className="size-3 fill-current" /> Value required
+            </span>
+          )}
         </div>
       </div>
     </div>

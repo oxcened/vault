@@ -19,13 +19,13 @@ type MonthPickerProps = {
   className?: string;
 };
 
-const monthFormatter = new Intl.DateTimeFormat(undefined, {
+const monthFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
   year: "numeric",
   timeZone: "UTC",
 });
 
-const shortMonthFormatter = new Intl.DateTimeFormat(undefined, {
+const shortMonthFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   timeZone: "UTC",
 });
