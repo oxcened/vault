@@ -178,6 +178,7 @@ export default function StockPricesPage() {
                   <SummaryItem
                     icon={ChartNoAxesCombined}
                     label="Latest price"
+                    className="col-span-2 min-w-0 sm:col-span-1"
                     value={
                       latestPrice ? (
                         <Number
@@ -210,7 +211,14 @@ export default function StockPricesPage() {
                     label="Last updated"
                     value={
                       latestPrice
-                        ? formatDate({ date: latestPrice.timestamp })
+                        ? formatDate({
+                            date: latestPrice.timestamp,
+                            options: {
+                              month: "long",
+                              year: "numeric",
+                              timeZone: "UTC",
+                            },
+                          })
                         : "—"
                     }
                   />
@@ -270,12 +278,12 @@ function SummaryItem({
   className?: string;
 }) {
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className ?? ""}`}>
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Icon className="size-3.5" />
         {label}
       </div>
-      <div className="mt-1 flex items-baseline gap-2 text-lg font-semibold tabular-nums">
+      <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-lg font-semibold tabular-nums">
         {value}
         {detail && <span className="text-xs font-medium">{detail}</span>}
       </div>
