@@ -26,19 +26,22 @@ export const exchangeRatesColumns = [
   columnHelper.accessor("timestamp", {
     header: "Date",
     cell: ({ getValue }) => {
-      return formatDate({ date: getValue() });
+      return formatDate({
+        date: getValue(),
+        options: { month: "long", year: "numeric", timeZone: "UTC" },
+      });
     },
   }),
-  columnHelper.accessor("baseCurrency", {
-    header: "Base",
-  }),
-  columnHelper.accessor("quoteCurrency", {
-    header: "Quote",
-  }),
   columnHelper.accessor("rate", {
-    header: "Rate",
+    header: "Exchange rate",
     cell: ({ getValue }) => {
-      return <Number value={getValue()} />;
+      return (
+        <Number
+          value={getValue()}
+          options={{ maximumFractionDigits: 8 }}
+          className="font-medium"
+        />
+      );
     },
     meta: {
       cellClassName: "text-right",
@@ -47,6 +50,10 @@ export const exchangeRatesColumns = [
   }),
   columnHelper.display({
     id: "actions",
+    meta: {
+      cellClassName: "w-12 text-right",
+      headerClassName: "w-12 text-right",
+    },
     cell: ({ row }) => {
       const utils = api.useUtils();
 
@@ -81,7 +88,7 @@ export const exchangeRatesColumns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="ml-auto h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontalIcon />
             </Button>

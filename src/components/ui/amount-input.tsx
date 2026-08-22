@@ -6,7 +6,7 @@ export type AmountInputProps = Omit<
   React.ComponentProps<"input">,
   "inputMode" | "onChange" | "type" | "value"
 > & {
-  currency: string;
+  currency?: string;
   maxFractionDigits: number;
   value?: number | string | null;
   onValueChange: (value: string) => void;
@@ -57,9 +57,11 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
           }}
           {...props}
         />
-        <span className="mr-3 border-l border-border pl-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {currency}
-        </span>
+        {currency && (
+          <span className="mr-3 border-l border-border pl-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {currency}
+          </span>
+        )}
       </div>
     );
   },

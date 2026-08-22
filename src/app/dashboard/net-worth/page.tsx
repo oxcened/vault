@@ -77,7 +77,7 @@ export default function NetWorthPage() {
         </Breadcrumb>
       </header>
 
-      <main className="mx-auto flex w-full max-w-screen-lg flex-col gap-5 p-5">
+      <main className="mx-auto flex w-full min-w-0 max-w-screen-lg flex-col gap-5 p-5">
         {isPending ? (
           <PageSkeleton />
         ) : data?.latestNetWorth ? (
@@ -219,8 +219,12 @@ function HistoryCard({ data }: { data: Overview }) {
   }));
 
   return (
-    <Tabs value={view} onValueChange={(value) => setView(value as HistoryView)}>
-      <Card className="shadow-none">
+    <Tabs
+      value={view}
+      onValueChange={(value) => setView(value as HistoryView)}
+      className="min-w-0 max-w-full"
+    >
+      <Card className="min-w-0 overflow-hidden shadow-none">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
           <div>
             <CardTitle>Net worth history</CardTitle>
@@ -272,9 +276,12 @@ function HistoryCard({ data }: { data: Overview }) {
             </TabsList>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <TabsContent value="CHART" className="mt-0">
-            <ChartContainer config={chartConfig} className="h-[17rem] w-full">
+            <ChartContainer
+              config={chartConfig}
+              className="h-[17rem] min-w-0 max-w-full"
+            >
               <LineChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
@@ -431,15 +438,15 @@ function AllocationCard({ data }: { data: Overview }) {
   const [type, setType] = useState<AllocationType>("asset");
   const items = type === "asset" ? data.assetByCategory : data.debtByCategory;
   return (
-    <Card className="shadow-none">
-      <CardHeader className="flex-row items-center justify-between space-y-0">
-        <div>
+    <Card className="min-w-0 overflow-hidden shadow-none">
+      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+        <div className="min-w-0">
           <CardTitle>Allocation</CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">
             As of {format(data.latestNetWorth!.timestamp, "d MMM yyyy")}
           </p>
         </div>
-        <div className="flex rounded-md border p-0.5">
+        <div className="flex shrink-0 rounded-md border p-0.5">
           {(["asset", "debt"] as const).map((option) => (
             <Button
               key={option}
@@ -453,7 +460,7 @@ function AllocationCard({ data }: { data: Overview }) {
           ))}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-w-0">
         {items.length ? (
           <div className="space-y-2">
             {items.map((item) => {
@@ -466,7 +473,7 @@ function AllocationCard({ data }: { data: Overview }) {
               return (
                 <div
                   key={item.category}
-                  className="relative overflow-hidden rounded-xl border bg-muted/15"
+                  className="relative min-w-0 overflow-hidden rounded-xl border bg-muted/15"
                 >
                   <div
                     aria-hidden="true"
@@ -481,8 +488,11 @@ function AllocationCard({ data }: { data: Overview }) {
                     <span className="min-w-0 flex-1 truncate text-sm font-medium">
                       {item.category}
                     </span>
-                    <div className="flex shrink-0 items-baseline gap-2">
-                      <RoundedCurrency value={item.value} className="text-sm" />
+                    <div className="grid max-w-[55%] shrink-0 grid-cols-[minmax(0,auto)_2.25rem] items-baseline gap-1.5">
+                      <RoundedCurrency
+                        value={item.value}
+                        className="overflow-hidden text-ellipsis whitespace-nowrap text-right text-sm"
+                      />
                       <Percentage
                         value={item.percentage}
                         className="w-9 text-right text-[11px] text-muted-foreground"
@@ -505,7 +515,7 @@ function AllocationCard({ data }: { data: Overview }) {
 
 function ChangesCard({ data }: { data: Overview }) {
   return (
-    <Card className="shadow-none">
+    <Card className="min-w-0 overflow-hidden shadow-none">
       <CardHeader>
         <CardTitle>What changed</CardTitle>
         <p className="text-xs text-muted-foreground">
@@ -521,7 +531,7 @@ function ChangesCard({ data }: { data: Overview }) {
               <Link
                 key={`${item.kind}-${item.id}`}
                 href={`/dashboard/net-worth/${item.kind === "asset" ? "assets" : "debts"}/${item.id}`}
-                className="flex items-center gap-3 px-6 py-3 transition-colors hover:bg-muted/40"
+                className="flex min-w-0 items-center gap-3 overflow-hidden px-4 py-3 transition-colors hover:bg-muted/40 sm:px-6"
               >
                 <HoldingIcon category={item.category} type={item.kind} />
                 <span className="min-w-0 flex-1">
@@ -536,7 +546,7 @@ function ChangesCard({ data }: { data: Overview }) {
                   value={item.change}
                   options={{ signDisplay: "always" }}
                   className={cn(
-                    "text-sm font-medium",
+                    "max-w-[45%] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-right text-sm font-medium",
                     item.change.gt(0)
                       ? "text-financial-positive"
                       : "text-financial-negative",

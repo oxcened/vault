@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { AmountInput } from "~/components/ui/amount-input";
 import { MonthPicker } from "~/components/ui/month-picker";
 import {
   Select,
@@ -27,18 +27,20 @@ import { toMonthTimestamp } from "~/utils/date";
 
 export type StockPriceDialogFormProps = {
   initialData?: CreateStockPrice;
+  defaultTickerId?: string;
   formId?: string;
   onSubmit: (data: CreateStockPrice) => void;
 };
 
 export function StockPriceDialogForm({
   initialData,
+  defaultTickerId,
   formId,
   onSubmit,
 }: StockPriceDialogFormProps) {
   const form = useForm({
     defaultValues: initialData ?? {
-      tickerId: "",
+      tickerId: defaultTickerId ?? "",
       timestamp: toMonthTimestamp(new Date()),
     },
     resolver: yupResolver(createStockPriceSchema),
@@ -92,12 +94,15 @@ export function StockPriceDialogForm({
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Price"
-                  type="number"
-                  step="any"
-                  {...field}
+                <AmountInput
+                  ref={field.ref}
+                  name={field.name}
+                  onBlur={field.onBlur}
+                  onValueChange={field.onChange}
                   value={field.value ?? ""}
+                  maxFractionDigits={8}
+                  placeholder="0.00"
+                  autoFocus={!initialData}
                 />
               </FormControl>
               <FormMessage />
@@ -109,7 +114,7 @@ export function StockPriceDialogForm({
           control={form.control}
           name="timestamp"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel>Month</FormLabel>
               <FormControl>
                 <MonthPicker

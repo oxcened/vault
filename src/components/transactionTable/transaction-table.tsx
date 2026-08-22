@@ -192,7 +192,7 @@ export function TransactionTable() {
             >
               Scheduled
               {attentionCount > 0 && (
-                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] leading-none text-destructive-foreground">
+                <span className="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-medium leading-none text-destructive-foreground">
                   {attentionCount}
                 </span>
               )}

@@ -17,10 +17,14 @@ export default function NewExchangeRateDialog({
   isOpen,
   onSuccess,
   onOpenChange,
+  defaultBaseCurrency,
+  defaultQuoteCurrency,
 }: {
   isOpen: boolean;
   onSuccess: () => void;
   onOpenChange: (newOpen: boolean) => void;
+  defaultBaseCurrency?: string;
+  defaultQuoteCurrency?: string;
 }) {
   const { mutate, isPending } = api.exchangeRate.create.useMutation({
     onSuccess: () => {
@@ -39,6 +43,8 @@ export default function NewExchangeRateDialog({
         </DialogHeader>
         <ExchangeRateDialogForm
           formId="new-exchange-rate-dialog-form"
+          defaultBaseCurrency={defaultBaseCurrency}
+          defaultQuoteCurrency={defaultQuoteCurrency}
           onSubmit={mutate}
         />
         <DialogFooter>

@@ -19,14 +19,14 @@ import {
 
 import { NavMain } from "~/components/nav-main";
 import { NavUser } from "~/components/nav-user";
+import { SidebarNavLink } from "~/components/sidebar-nav-link";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenuButton,
   SidebarMenu,
-  SidebarMenuItem,
+  SidebarMenuButton,
   SidebarRail,
   useSidebar,
 } from "~/components/ui/sidebar";
@@ -37,36 +37,57 @@ const navigation = {
       title: "Overview",
       url: "/dashboard",
       icon: LayoutDashboard,
+      iconClassName: "text-blue-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-blue-500",
     },
     {
       title: "Cash flow",
       url: "/dashboard/cash-flow",
       icon: ArrowLeftRight,
+      iconClassName: "text-emerald-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-emerald-500",
     },
     {
       title: "Transactions",
       url: "/dashboard/cash-flow/transactions",
       icon: ReceiptText,
+      iconClassName: "text-violet-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-violet-500",
     },
     {
       title: "Reserves",
       url: "/dashboard/cash-flow/envelopes",
       icon: WalletCards,
+      iconClassName: "text-amber-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-amber-500",
     },
     {
       title: "Net worth",
       url: "/dashboard/net-worth",
       icon: Wallet,
+      iconClassName: "text-indigo-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-indigo-500",
     },
     {
       title: "Assets",
       url: "/dashboard/net-worth/assets",
       icon: TrendingUp,
+      iconClassName: "text-teal-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-teal-500",
     },
     {
       title: "Debts",
       url: "/dashboard/net-worth/debts",
       icon: CreditCard,
+      iconClassName: "text-rose-500",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-rose-500",
     },
   ],
 };
@@ -75,6 +96,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
+  const settingsIsActive =
+    pathname.startsWith("/dashboard/settings") ||
+    pathname.startsWith("/dashboard/market-data");
   const user: React.ComponentProps<typeof NavUser>["user"] = {
     avatar: session?.user.image ?? "",
     email: session?.user.email ?? "john.doe@example.com",
@@ -109,25 +133,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border/70 p-3">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              tooltip="Settings"
-              isActive={
-                pathname.startsWith("/dashboard/settings") ||
-                pathname.startsWith("/dashboard/market-data")
-              }
-              className="h-10 rounded-xl px-3 text-sidebar-foreground/65 transition-all hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-blue-500/10 data-[active=true]:font-medium data-[active=true]:text-blue-600 dark:data-[active=true]:text-blue-400"
-            >
-              <Link
-                href="/dashboard/settings"
-                onClick={() => isMobile && setOpenMobile(false)}
-              >
-                <SettingsIcon />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <SidebarNavLink
+            title="Settings"
+            href="/dashboard/settings"
+            icon={SettingsIcon}
+            isActive={settingsIsActive}
+            iconClassName="text-slate-300"
+            activeClassName="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-slate-400"
+            onNavigate={() => isMobile && setOpenMobile(false)}
+          />
         </SidebarMenu>
         <NavUser user={user} />
       </SidebarFooter>

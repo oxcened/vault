@@ -26,19 +26,22 @@ export const stockPricesColumns = [
   columnHelper.accessor("timestamp", {
     header: "Date",
     cell: ({ getValue }) => {
-      return formatDate({ date: getValue() });
+      return formatDate({
+        date: getValue(),
+        options: { month: "long", year: "numeric", timeZone: "UTC" },
+      });
     },
   }),
-  columnHelper.accessor("ticker.ticker", {
-    header: "Ticker",
-  }),
-  columnHelper.accessor("ticker.exchange", {
-    header: "Exchange",
-  }),
   columnHelper.accessor("price", {
-    header: "Price",
+    header: "Closing price",
     cell: ({ getValue }) => {
-      return <Number value={getValue()} />;
+      return (
+        <Number
+          value={getValue()}
+          options={{ maximumFractionDigits: 4 }}
+          className="font-medium"
+        />
+      );
     },
     meta: {
       cellClassName: "text-right",
@@ -47,11 +50,16 @@ export const stockPricesColumns = [
   }),
   columnHelper.display({
     id: "actions",
+    meta: {
+      cellClassName: "w-12 text-right",
+      headerClassName: "w-12 text-right",
+    },
     cell: ({ row }) => {
       const utils = api.useUtils();
 
       function handleStockChanged() {
         void utils.stockPrice.getAll.invalidate();
+        void utils.stockTicker.getAll.invalidate();
         void utils.netWorthOverview.get.invalidate();
         void utils.netWorthAsset.getAll.invalidate();
         void utils.netWorthAsset.getDetailById.invalidate();
@@ -78,7 +86,7 @@ export const stockPricesColumns = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="ml-auto h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontalIcon />
             </Button>

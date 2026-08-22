@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { AmountInput } from "~/components/ui/amount-input";
 import { MonthPicker } from "~/components/ui/month-picker";
 import {
   type CreateExchangeRate,
@@ -19,23 +20,28 @@ import { toMonthTimestamp } from "~/utils/date";
 
 export type ExchangeRateDialogFormProps = {
   initialData?: CreateExchangeRate;
+  defaultBaseCurrency?: string;
+  defaultQuoteCurrency?: string;
   formId?: string;
   onSubmit: (data: CreateExchangeRate) => void;
 };
 
 export function ExchangeRateDialogForm({
   initialData,
+  defaultBaseCurrency,
+  defaultQuoteCurrency,
   formId,
   onSubmit,
 }: ExchangeRateDialogFormProps) {
   const form = useForm({
     defaultValues: initialData ?? {
-      baseCurrency: "",
-      quoteCurrency: "",
+      baseCurrency: defaultBaseCurrency ?? "",
+      quoteCurrency: defaultQuoteCurrency ?? "",
       timestamp: toMonthTimestamp(new Date()),
     },
     resolver: yupResolver(createExchangeRateSchema),
   });
+  const quoteCurrency = form.watch("quoteCurrency");
 
   return (
     <Form {...form}>
@@ -79,12 +85,16 @@ export function ExchangeRateDialogForm({
             <FormItem>
               <FormLabel>Rate</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Rate"
-                  type="number"
-                  step="any"
-                  {...field}
+                <AmountInput
+                  ref={field.ref}
+                  name={field.name}
+                  onBlur={field.onBlur}
+                  onValueChange={field.onChange}
                   value={field.value ?? ""}
+                  currency={quoteCurrency?.toUpperCase()}
+                  maxFractionDigits={8}
+                  placeholder="0.00"
+                  autoFocus={!initialData}
                 />
               </FormControl>
               <FormMessage />
@@ -96,7 +106,7 @@ export function ExchangeRateDialogForm({
           control={form.control}
           name="timestamp"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem>
               <FormLabel>Month</FormLabel>
               <FormControl>
                 <MonthPicker

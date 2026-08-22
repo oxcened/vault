@@ -91,3 +91,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media (max-width: 767px) {
+  [data-sidebar="trigger"] + [data-orientation="vertical"] {
+    display: none;
+  }
+}

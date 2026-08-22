@@ -158,7 +158,10 @@ function ScheduleSection({
     <section>
       <div className="mb-2 flex items-center gap-2 px-1">
         <h3 className="text-sm font-semibold">{title}</h3>
-        <Badge variant={urgent ? "destructive" : "secondary"}>
+        <Badge
+          variant={urgent ? "destructive" : "secondary"}
+          className="h-5 min-w-5 justify-center rounded-md px-1.5 py-0 text-[10px] font-medium leading-none shadow-none"
+        >
           {schedules.length}
         </Badge>
       </div>

@@ -17,10 +17,12 @@ export default function NewStockPriceDialog({
   isOpen,
   onSuccess,
   onOpenChange,
+  defaultTickerId,
 }: {
   isOpen: boolean;
   onSuccess: () => void;
   onOpenChange: (newOpen: boolean) => void;
+  defaultTickerId?: string;
 }) {
   const { mutate, isPending } = api.stockPrice.create.useMutation({
     onSuccess: () => {
@@ -39,6 +41,7 @@ export default function NewStockPriceDialog({
         </DialogHeader>
         <StockPriceDialogForm
           formId="new-stock-price-dialog-form"
+          defaultTickerId={defaultTickerId}
           onSubmit={mutate}
         />
         <DialogFooter>

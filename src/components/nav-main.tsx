@@ -1,15 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 
+import { SidebarNavLink } from "~/components/sidebar-nav-link";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
 
@@ -17,6 +15,8 @@ type NavItem = {
   title: string;
   url: string;
   icon: LucideIcon;
+  iconClassName: string;
+  activeClassName: string;
 };
 
 export type NavMainProps = {
@@ -45,19 +45,16 @@ export function NavMain({ primaryItems }: NavMainProps) {
       </SidebarGroupLabel>
       <SidebarMenu className="gap-1">
         {primaryItems.map((item) => (
-          <SidebarMenuItem key={item.url}>
-            <SidebarMenuButton
-              tooltip={item.title}
-              isActive={item.url === activePrimaryUrl}
-              asChild
-              className="relative h-10 rounded-xl px-3 text-sidebar-foreground/65 transition-all duration-200 before:absolute before:left-0 before:h-4 before:w-0.5 before:scale-y-0 before:rounded-full before:bg-blue-500 before:transition-transform hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-blue-500/10 data-[active=true]:font-medium data-[active=true]:text-blue-600 data-[active=true]:before:scale-y-100 dark:data-[active=true]:text-blue-400"
-            >
-              <Link href={item.url} onClick={handleNavigate}>
-                <item.icon />
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <SidebarNavLink
+            key={item.url}
+            title={item.title}
+            href={item.url}
+            icon={item.icon}
+            isActive={item.url === activePrimaryUrl}
+            iconClassName={item.iconClassName}
+            activeClassName={item.activeClassName}
+            onNavigate={handleNavigate}
+          />
         ))}
       </SidebarMenu>
     </SidebarGroup>

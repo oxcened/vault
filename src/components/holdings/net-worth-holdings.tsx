@@ -174,18 +174,18 @@ export default function NetWorthHoldings<T extends Holding>({
                   </p>
                 </div>
 
-                <div className="flex gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">
+                <div className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto">
                   {date && onDateChange && (
                     <MonthPicker
                       value={date}
                       maxMonth={new Date()}
-                      className="w-auto"
+                      className="col-span-2 w-full sm:w-auto"
                       onChange={onDateChange}
                     />
                   )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline">
+                      <Button variant="outline" className="w-full sm:w-auto">
                         <FilterIcon />
                         Filter
                       </Button>
@@ -204,7 +204,11 @@ export default function NetWorthHoldings<T extends Holding>({
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  <Button variant="default" onClick={() => onNewHolding()}>
+                  <Button
+                    variant="default"
+                    className="w-full sm:w-auto"
+                    onClick={() => onNewHolding()}
+                  >
                     <Plus />
                     Add
                   </Button>

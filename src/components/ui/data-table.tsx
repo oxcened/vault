@@ -5,7 +5,7 @@ import {
   Header,
   type Table as TableType,
 } from "@tanstack/react-table";
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, Inbox } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -32,10 +32,14 @@ export function DataTable<TData>({
   isDraggable?: boolean;
   onRowClick?: (data: TData) => void;
 }) {
+  const hasFooter = table
+    .getAllLeafColumns()
+    .some((column) => column.columnDef.footer !== undefined);
+
   return (
     <div
       className={cn(
-        "overflow-hidden whitespace-nowrap rounded-md border",
+        "overflow-hidden whitespace-nowrap rounded-xl border bg-card shadow-sm",
         className,
       )}
     >
@@ -113,39 +117,51 @@ export function DataTable<TData>({
             <TableRow>
               <TableCell
                 colSpan={table.getAllColumns().length}
-                className="h-24 text-center"
+                className="h-40 text-center"
               >
-                No results.
+                <div className="flex flex-col items-center justify-center text-muted-foreground">
+                  <span className="mb-3 flex size-9 items-center justify-center rounded-lg bg-muted">
+                    <Inbox className="size-4" />
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    No results
+                  </span>
+                  <span className="mt-1 text-xs">
+                    There is no data to display yet.
+                  </span>
+                </div>
               </TableCell>
             </TableRow>
           )}
         </TableBody>
 
-        <TableFooter>
-          {table.getFooterGroups().map((footerGroup) => (
-            <TableRow key={footerGroup.id}>
-              {footerGroup.headers.map((header) => {
-                const meta = header.column.columnDef.meta;
-                return (
-                  <TableHead
-                    key={header.id}
-                    className={cn(
-                      meta &&
-                        "footerClassName" in meta &&
-                        typeof meta.footerClassName === "string" &&
-                        meta.footerClassName,
-                    )}
-                  >
-                    {flexRender(
-                      header.column.columnDef.footer,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableFooter>
+        {hasFooter && (
+          <TableFooter>
+            {table.getFooterGroups().map((footerGroup) => (
+              <TableRow key={footerGroup.id}>
+                {footerGroup.headers.map((header) => {
+                  const meta = header.column.columnDef.meta;
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={cn(
+                        meta &&
+                          "footerClassName" in meta &&
+                          typeof meta.footerClassName === "string" &&
+                          meta.footerClassName,
+                      )}
+                    >
+                      {flexRender(
+                        header.column.columnDef.footer,
+                        header.getContext(),
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableFooter>
+        )}
       </Table>
     </div>
   );
@@ -176,7 +192,11 @@ function CustomTableHead<TData, TValue>({
 
   if (header.column.getCanSort()) {
     return (
-      <Button variant="ghost" onClick={header.column.getToggleSortingHandler()}>
+      <Button
+        variant="ghost"
+        className="-ml-3 h-8 gap-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground"
+        onClick={header.column.getToggleSortingHandler()}
+      >
         {content}
 
         {{
