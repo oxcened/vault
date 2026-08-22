@@ -216,10 +216,6 @@ export function HoldingDetail({
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={onEditHolding}>
-                      <PencilIcon />
-                      Edit
-                    </Button>
                     {!archivedAt && (
                       <Button onClick={onNewHolding}>
                         <PlusIcon />
@@ -234,6 +230,9 @@ export function HoldingDetail({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={onEditHolding}>
+                          <PencilIcon /> Edit holding
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
                             archivedAt
