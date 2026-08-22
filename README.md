@@ -176,6 +176,21 @@ Here’s a quick look at Vault in action:
 - **Transactions List**
   ![Transactions List](docs/screenshots/transactions.png)
 
+### Mobile
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/mobile/dashboard.png" alt="Vault dashboard on mobile" /></td>
+    <td><img src="docs/screenshots/mobile/assets.png" alt="Assets list on mobile" /></td>
+    <td><img src="docs/screenshots/mobile/debts.png" alt="Debts list on mobile" /></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/mobile/cash-flow.png" alt="Cash flow overview on mobile" /></td>
+    <td><img src="docs/screenshots/mobile/transactions.png" alt="Transactions list on mobile" /></td>
+    <td></td>
+  </tr>
+</table>
+
 ## 🧠 Reactive Architecture
 
 This app uses a fully reactive, event-driven architecture to keep derived financial data accurate and efficient. Here's how it works:
