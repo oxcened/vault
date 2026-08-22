@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import { FilterIcon } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import {
   TransactionFilters,
   TransactionFiltersForm,
@@ -16,6 +16,7 @@ import {
 import { api } from "~/trpc/react";
 import { useState } from "react";
 import { TransactionType } from "@prisma/client";
+import { cn } from "~/lib/utils";
 
 export const TransactionFiltersDialog = ({
   defaultValues,
@@ -29,6 +30,12 @@ export const TransactionFiltersDialog = ({
   const { data: transactionCategories = [], isPending: isLoadingCategories } =
     api.transactionCategory.getAll.useQuery();
   const [open, setOpen] = useState(false);
+  const activeFilterCount =
+    (defaultValues.types.length !== Object.values(TransactionType).length
+      ? 1
+      : 0) +
+    (defaultValues.categories.length > 0 ? 1 : 0) +
+    (defaultValues.dateRange?.from || defaultValues.dateRange?.to ? 1 : 0);
 
   const handleSubmit = (data: TransactionFilters) => {
     onSubmit(data);
@@ -46,9 +53,21 @@ export const TransactionFiltersDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <FilterIcon />
-          Filters
+        <Button
+          variant="outline"
+          className={cn(
+            "gap-2",
+            activeFilterCount > 0 &&
+              "border-blue-500/30 bg-blue-500/[0.07] text-blue-500 hover:bg-blue-500/10 hover:text-blue-500",
+          )}
+        >
+          <SlidersHorizontal />
+          <span>Filters</span>
+          {activeFilterCount > 0 && (
+            <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-[11px] font-semibold leading-none text-white">
+              {activeFilterCount}
+            </span>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

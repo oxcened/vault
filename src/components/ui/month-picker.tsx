@@ -79,7 +79,7 @@ export function MonthPicker({
             className,
           )}
         >
-          <CalendarIcon className="mr-2 size-4 opacity-60" />
+          <CalendarIcon className="size-4 opacity-60" />
           {value ? monthFormatter.format(value) : "Select a month"}
         </Button>
       </PopoverTrigger>

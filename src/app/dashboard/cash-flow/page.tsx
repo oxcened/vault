@@ -172,11 +172,15 @@ function SummaryCard({ data }: { data: Overview }) {
             label="Income"
             value={latest.income}
             color="bg-emerald-500"
+            type="INCOME"
+            month={latest.timestamp}
           />
           <MetricLink
             label="Expenses"
             value={latest.expenses}
             color="bg-rose-500"
+            type="EXPENSE"
+            month={latest.timestamp}
           />
         </div>
       </CardContent>
@@ -188,14 +192,18 @@ function MetricLink({
   label,
   value,
   color,
+  type,
+  month,
 }: {
   label: string;
   value: Prisma.Decimal;
   color: string;
+  type: CategoryType;
+  month: Date;
 }) {
   return (
     <Link
-      href="/dashboard/transactions"
+      href={`/dashboard/transactions?type=${type}&month=${format(month, "yyyy-MM")}`}
       className="group flex items-center rounded-lg border bg-background/40 p-3 transition-colors hover:bg-muted/50"
     >
       <span className={cn("mr-2 size-2 rounded-full", color)} />

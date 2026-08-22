@@ -37,16 +37,21 @@ import { RecurringTransactionList } from "./recurring-transaction-list";
 import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
 import { useConfirmDelete } from "../confirm-delete-modal";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
+import { endOfMonth, isValid, parse, startOfMonth } from "date-fns";
 
 type View = "TRANSACTIONS" | "SCHEDULED";
 
 export function TransactionTable() {
+  const searchParams = useSearchParams();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [detailTransaction, setDetailTransaction] = useState<TransactionRow>();
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionRow>();
-  const [view, setView] = useState<View>("TRANSACTIONS");
+  const [view, setView] = useState<View>(() =>
+    searchParams.get("view") === "scheduled" ? "SCHEDULED" : "TRANSACTIONS",
+  );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [isBulkCategoryDialogOpen, setBulkCategoryDialogOpen] = useState(false);
@@ -69,9 +74,26 @@ export function TransactionTable() {
     setPagination((state) => ({ ...state, pageIndex: 0 }));
   };
 
-  const [filters, setFilters] = useState<DialogTransactionFilters>({
-    types: Object.values(TransactionType),
-    categories: [],
+  const [filters, setFilters] = useState<DialogTransactionFilters>(() => {
+    const requestedType = searchParams.get("type");
+    const types = Object.values(TransactionType).includes(
+      requestedType as TransactionType,
+    )
+      ? [requestedType as TransactionType]
+      : Object.values(TransactionType);
+    const requestedMonth = searchParams.get("month");
+    const month = requestedMonth
+      ? parse(requestedMonth, "yyyy-MM", new Date())
+      : undefined;
+
+    return {
+      types,
+      categories: [],
+      dateRange:
+        month && isValid(month)
+          ? { from: startOfMonth(month), to: endOfMonth(month) }
+          : undefined,
+    };
   });
 
   const [sorting, setSorting] = useState<SortingState>([

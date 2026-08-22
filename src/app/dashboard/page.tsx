@@ -128,7 +128,7 @@ export default function OverviewPage() {
                   )}
                   {attentionCount > 0 && (
                     <Link
-                      href="/dashboard/transactions"
+                      href="/dashboard/transactions?view=scheduled"
                       className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 transition-colors hover:bg-amber-500/10"
                     >
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">

@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { CreditCard, FilterIcon, PiggyBank, Plus } from "lucide-react";
+import { CreditCard, PiggyBank, Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
@@ -146,7 +146,7 @@ export default function NetWorthHoldings<T extends Holding>({
                   </div>
                 </div>
 
-                <div className="sm:ml-auto sm:border-r sm:pr-5 sm:text-right">
+                <div className="sm:border-l sm:pl-5">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Total value
                   </p>
@@ -166,9 +166,21 @@ export default function NetWorthHoldings<T extends Holding>({
                   )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full sm:w-auto">
-                        <FilterIcon />
-                        Filter
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full gap-2 sm:w-auto",
+                          hideArchivedHolding &&
+                            "border-blue-500/30 bg-blue-500/[0.07] text-blue-500 hover:bg-blue-500/10 hover:text-blue-500",
+                        )}
+                      >
+                        <SlidersHorizontal />
+                        Filters
+                        {hideArchivedHolding && (
+                          <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-[11px] font-semibold leading-none text-white">
+                            1
+                          </span>
+                        )}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

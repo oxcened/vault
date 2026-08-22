@@ -2,7 +2,7 @@
 
 import { type Prisma } from "@prisma/client";
 import { lastDayOfMonth } from "date-fns";
-import { FilterIcon } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
@@ -25,6 +25,7 @@ import { holdingHistoryColumns } from "./config";
 import { DataTable } from "../ui/data-table";
 import { DataTableColumns } from "../ui/data-table-columns";
 import { useTable } from "~/hooks/useTable";
+import { cn } from "~/lib/utils";
 
 export type NetWorthHoldingsHistoryRow = {
   id: string;
@@ -107,9 +108,21 @@ export default function NetWorthHoldingsHistory({
                 <DataTableColumns table={table} />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      <FilterIcon />
-                      Filter
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "gap-2",
+                        hideZeroItems &&
+                          "border-blue-500/30 bg-blue-500/[0.07] text-blue-500 hover:bg-blue-500/10 hover:text-blue-500",
+                      )}
+                    >
+                      <SlidersHorizontal />
+                      Filters
+                      {hideZeroItems && (
+                        <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-[11px] font-semibold leading-none text-white">
+                          1
+                        </span>
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
