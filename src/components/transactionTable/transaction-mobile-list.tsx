@@ -35,7 +35,7 @@ export function TransactionMobileList({
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
       {(onToggleAll !== undefined || onSelectedChange !== undefined) && (
-        <div className="flex items-center gap-3 border-b bg-muted/40 px-3 py-2">
+        <div className="hidden items-center gap-3 border-b bg-muted/40 px-3 py-2 md:flex">
           <span className="flex min-w-9 min-h-5 shrink-0 items-center justify-center">
             <Checkbox
               checked={allSelected || (someSelected && "indeterminate")}
@@ -67,7 +67,7 @@ export function TransactionMobileList({
               <div className="group/transaction-select relative size-9 shrink-0">
                 <div
                   className={cn(
-                    "transition-opacity group-hover/transaction-select:opacity-0",
+                    "transition-opacity md:group-hover/transaction-select:opacity-0",
                     isSelected && "opacity-0",
                   )}
                 >
@@ -83,7 +83,7 @@ export function TransactionMobileList({
                     onSelectedChange(transaction.id, checked === true)
                   }
                   className={cn(
-                    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-100 transition-opacity focus-visible:opacity-100 group-hover/transaction-select:opacity-100 md:opacity-0",
+                    "absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity focus-visible:opacity-100 md:flex md:group-hover/transaction-select:opacity-100",
                     isSelected && "md:opacity-100",
                   )}
                   aria-label={`Select ${transaction.description}`}

@@ -29,6 +29,7 @@ type MobileNavItem = {
   href: string;
   icon: LucideIcon;
   isActive: (pathname: string) => boolean;
+  activeClassName: string;
 };
 
 const items: MobileNavItem[] = [
@@ -37,12 +38,14 @@ const items: MobileNavItem[] = [
     href: "/dashboard",
     icon: LayoutDashboard,
     isActive: (pathname) => pathname === "/dashboard",
+    activeClassName: "bg-blue-500/10 text-blue-500",
   },
   {
     title: "Cash flow",
     href: "/dashboard/cash-flow",
     icon: ArrowLeftRight,
     isActive: (pathname) => pathname === "/dashboard/cash-flow",
+    activeClassName: "bg-emerald-500/10 text-emerald-500",
   },
   {
     title: "Transactions",
@@ -50,14 +53,35 @@ const items: MobileNavItem[] = [
     icon: ReceiptText,
     isActive: (pathname) =>
       pathname.startsWith("/dashboard/cash-flow/transactions"),
+    activeClassName: "bg-violet-500/10 text-violet-500",
   },
   {
     title: "Net worth",
     href: "/dashboard/net-worth",
     icon: Wallet,
     isActive: (pathname) => pathname === "/dashboard/net-worth",
+    activeClassName: "bg-indigo-500/10 text-indigo-500",
   },
 ];
+
+function getMoreActiveClassName(pathname: string) {
+  if (pathname.startsWith("/dashboard/cash-flow/envelopes")) {
+    return "bg-amber-500/10 text-amber-500";
+  }
+  if (pathname.startsWith("/dashboard/net-worth/assets")) {
+    return "bg-teal-500/10 text-teal-500";
+  }
+  if (pathname.startsWith("/dashboard/net-worth/debts")) {
+    return "bg-rose-500/10 text-rose-500";
+  }
+  if (
+    pathname.startsWith("/dashboard/settings") ||
+    pathname.startsWith("/dashboard/market-data")
+  ) {
+    return "bg-slate-400/10 text-slate-300";
+  }
+  return "bg-blue-500/10 text-blue-500";
+}
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -91,7 +115,7 @@ export function MobileBottomNav() {
               <span
                 className={cn(
                   "flex h-6 w-10 items-center justify-center rounded-full transition-colors",
-                  active && "bg-blue-500/10 text-blue-500",
+                  active && item.activeClassName,
                 )}
               >
                 <item.icon className="size-[17px]" />
@@ -113,7 +137,7 @@ export function MobileBottomNav() {
               <span
                 className={cn(
                   "flex h-6 w-10 items-center justify-center rounded-full transition-colors",
-                  moreIsActive && "bg-blue-500/10 text-blue-500",
+                  moreIsActive && getMoreActiveClassName(pathname),
                 )}
               >
                 <Menu className="size-[17px]" />
