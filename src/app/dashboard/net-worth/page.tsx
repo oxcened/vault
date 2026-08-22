@@ -261,7 +261,7 @@ function HistoryCard({ data }: { data: Overview }) {
           <TabsContent value="CHART" className="mt-0">
             <ChartContainer
               config={chartConfig}
-              className="h-[17rem] min-w-0 max-w-full"
+              className="h-[17rem] w-full min-w-0"
             >
               <LineChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />
