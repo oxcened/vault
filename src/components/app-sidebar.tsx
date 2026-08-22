@@ -3,10 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import {
   ArrowLeftRight,
   CreditCard,
-  Database,
   LayoutDashboard,
   ReceiptText,
   SettingsIcon,
@@ -14,6 +14,7 @@ import {
   Vault,
   Wallet,
   WalletCards,
+  Zap,
 } from "lucide-react";
 
 import { NavMain } from "~/components/nav-main";
@@ -24,7 +25,10 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenuButton,
+  SidebarMenu,
+  SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "~/components/ui/sidebar";
 
 const navigation = {
@@ -65,48 +69,12 @@ const navigation = {
       icon: CreditCard,
     },
   ],
-  collections: [
-    {
-      title: "Market data",
-      icon: Database,
-      items: [
-        {
-          title: "Exchange rates",
-          url: "/dashboard/market-data/exchange-rates",
-        },
-        {
-          title: "Stock prices",
-          url: "/dashboard/market-data/stock-prices",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      icon: SettingsIcon,
-      items: [
-        {
-          title: "Transaction presets",
-          url: "/dashboard/settings/transaction-templates",
-        },
-        {
-          title: "Transaction categories",
-          url: "/dashboard/settings/transaction-categories",
-        },
-        {
-          title: "Net worth categories",
-          url: "/dashboard/settings/net-worth-categories",
-        },
-        {
-          title: "Stock tickers",
-          url: "/dashboard/settings/stock-tickers",
-        },
-      ],
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
   const user: React.ComponentProps<typeof NavUser>["user"] = {
     avatar: session?.user.image ?? "",
     email: session?.user.email ?? "john.doe@example.com",
@@ -114,29 +82,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="border-b border-sidebar-border p-3">
-        <SidebarMenuButton asChild size="lg" className="h-11">
+    <Sidebar collapsible="icon" className="border-sidebar-border/70" {...props}>
+      <SidebarHeader className="px-3 pb-4 pt-4 group-data-[collapsible=icon]:px-2">
+        <SidebarMenuButton
+          asChild
+          size="lg"
+          className="h-12 rounded-xl px-2 hover:bg-sidebar-accent/60 data-[state=open]:bg-sidebar-accent group-data-[collapsible=icon]:rounded-lg"
+        >
           <Link href="/dashboard">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-              <Vault className="size-4" />
+            <div className="relative flex aspect-square size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-[0_8px_24px_-10px_rgba(59,130,246,0.9)] group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:shadow-none">
+              <Vault className="size-[18px]" strokeWidth={2.2} />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">Vault</span>
-              <span className="truncate text-xs text-muted-foreground">
-                Personal finance
+            <div className="grid flex-1 text-left leading-tight">
+              <span className="truncate text-[15px] font-semibold tracking-tight">
+                Vault
+              </span>
+              <span className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-sidebar-foreground/50">
+                <Zap className="size-2.5 fill-current" /> Personal finance
               </span>
             </div>
           </Link>
         </SidebarMenuButton>
       </SidebarHeader>
-      <SidebarContent className="py-2">
-        <NavMain
-          primaryItems={navigation.primary}
-          collections={navigation.collections}
-        />
+      <SidebarContent className="px-2 pb-3">
+        <NavMain primaryItems={navigation.primary} />
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border p-3">
+      <SidebarFooter className="border-t border-sidebar-border/70 p-3">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Settings"
+              isActive={
+                pathname.startsWith("/dashboard/settings") ||
+                pathname.startsWith("/dashboard/market-data")
+              }
+              className="h-10 rounded-xl px-3 text-sidebar-foreground/65 transition-all hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-blue-500/10 data-[active=true]:font-medium data-[active=true]:text-blue-600 dark:data-[active=true]:text-blue-400"
+            >
+              <Link
+                href="/dashboard/settings"
+                onClick={() => isMobile && setOpenMobile(false)}
+              >
+                <SettingsIcon />
+                <span>Settings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />

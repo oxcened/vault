@@ -1,24 +1,15 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "~/components/ui/sidebar";
 
@@ -28,15 +19,8 @@ type NavItem = {
   icon: LucideIcon;
 };
 
-type NavCollection = {
-  title: string;
-  icon: LucideIcon;
-  items: Omit<NavItem, "icon">[];
-};
-
 export type NavMainProps = {
   primaryItems: NavItem[];
-  collections: NavCollection[];
 };
 
 function isCurrentPath(pathname: string, url: string) {
@@ -44,60 +28,7 @@ function isCurrentPath(pathname: string, url: string) {
   return pathname === url || pathname.startsWith(`${url}/`);
 }
 
-function NavCollection({
-  collection,
-  pathname,
-  onNavigate,
-}: {
-  collection: NavCollection;
-  pathname: string;
-  onNavigate: () => void;
-}) {
-  const collectionIsActive = collection.items.some((item) =>
-    isCurrentPath(pathname, item.url),
-  );
-  const [open, setOpen] = React.useState(collectionIsActive);
-
-  React.useEffect(() => {
-    if (collectionIsActive) setOpen(true);
-  }, [collectionIsActive]);
-
-  return (
-    <Collapsible open={open} onOpenChange={setOpen} asChild>
-      <SidebarMenuItem>
-        <CollapsibleTrigger asChild>
-          <SidebarMenuButton
-            tooltip={collection.title}
-            isActive={collectionIsActive}
-            className="group/collection"
-          >
-            <collection.icon />
-            <span>{collection.title}</span>
-            <ChevronRight className="ml-auto size-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collection:rotate-90" />
-          </SidebarMenuButton>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <SidebarMenuSub className="mb-1 mt-1">
-            {collection.items.map((item) => (
-              <SidebarMenuSubItem key={item.url}>
-                <SidebarMenuSubButton
-                  asChild
-                  isActive={isCurrentPath(pathname, item.url)}
-                >
-                  <Link href={item.url} onClick={onNavigate}>
-                    {item.title}
-                  </Link>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            ))}
-          </SidebarMenuSub>
-        </CollapsibleContent>
-      </SidebarMenuItem>
-    </Collapsible>
-  );
-}
-
-export function NavMain({ primaryItems, collections }: NavMainProps) {
+export function NavMain({ primaryItems }: NavMainProps) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const handleNavigate = () => {
@@ -108,40 +39,27 @@ export function NavMain({ primaryItems, collections }: NavMainProps) {
     .sort((a, b) => b.url.length - a.url.length)[0]?.url;
 
   return (
-    <>
-      <SidebarGroup className="pb-2">
-        <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-        <SidebarMenu>
-          {primaryItems.map((item) => (
-            <SidebarMenuItem key={item.url}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                isActive={item.url === activePrimaryUrl}
-                asChild
-              >
-                <Link href={item.url} onClick={handleNavigate}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroup>
-
-      <SidebarGroup className="pt-2">
-        <SidebarGroupLabel>More</SidebarGroupLabel>
-        <SidebarMenu>
-          {collections.map((collection) => (
-            <NavCollection
-              key={collection.title}
-              collection={collection}
-              pathname={pathname}
-              onNavigate={handleNavigate}
-            />
-          ))}
-        </SidebarMenu>
-      </SidebarGroup>
-    </>
+    <SidebarGroup className="p-0 pb-4">
+      <SidebarGroupLabel className="mb-1 h-7 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-foreground/35">
+        Workspace
+      </SidebarGroupLabel>
+      <SidebarMenu className="gap-1">
+        {primaryItems.map((item) => (
+          <SidebarMenuItem key={item.url}>
+            <SidebarMenuButton
+              tooltip={item.title}
+              isActive={item.url === activePrimaryUrl}
+              asChild
+              className="relative h-10 rounded-xl px-3 text-sidebar-foreground/65 transition-all duration-200 before:absolute before:left-0 before:h-4 before:w-0.5 before:scale-y-0 before:rounded-full before:bg-blue-500 before:transition-transform hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-blue-500/10 data-[active=true]:font-medium data-[active=true]:text-blue-600 data-[active=true]:before:scale-y-100 dark:data-[active=true]:text-blue-400"
+            >
+              <Link href={item.url} onClick={handleNavigate}>
+                <item.icon />
+                <span>{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    </SidebarGroup>
   );
 }
