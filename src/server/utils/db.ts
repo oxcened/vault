@@ -137,10 +137,14 @@ export async function getAssetValueHistory({
   db,
   userId,
   assetId,
+  cursor,
+  limit,
 }: {
   db: Pick<PrismaClient, "$queryRaw">;
   userId: string;
   assetId: string;
+  cursor?: Date | null;
+  limit?: number;
 }): Promise<
   {
     assetTimestamp: Date;
@@ -156,17 +160,27 @@ export async function getAssetValueHistory({
     valueInTarget: Prisma.Decimal;
   }[]
 > {
-  return db.$queryRaw`SELECT * FROM get_asset_value_history(${userId}::TEXT, ${assetId}::TEXT, ${APP_CURRENCY}::VARCHAR)`;
+  if (cursor && limit) {
+    return db.$queryRaw`SELECT * FROM get_asset_value_history(${userId}::TEXT, ${assetId}::TEXT, ${APP_CURRENCY}::VARCHAR) WHERE "assetTimestamp" < ${cursor} ORDER BY "assetTimestamp" DESC LIMIT ${limit}`;
+  }
+  if (limit) {
+    return db.$queryRaw`SELECT * FROM get_asset_value_history(${userId}::TEXT, ${assetId}::TEXT, ${APP_CURRENCY}::VARCHAR) ORDER BY "assetTimestamp" DESC LIMIT ${limit}`;
+  }
+  return db.$queryRaw`SELECT * FROM get_asset_value_history(${userId}::TEXT, ${assetId}::TEXT, ${APP_CURRENCY}::VARCHAR) ORDER BY "assetTimestamp" DESC`;
 }
 
 export async function getDebtValueHistory({
   db,
   userId,
   debtId,
+  cursor,
+  limit,
 }: {
   db: Pick<PrismaClient, "$queryRaw">;
   userId: string;
   debtId: string;
+  cursor?: Date | null;
+  limit?: number;
 }): Promise<
   {
     debtTimestamp: Date;
@@ -179,5 +193,11 @@ export async function getDebtValueHistory({
     valueInTarget: Prisma.Decimal;
   }[]
 > {
-  return db.$queryRaw`SELECT * FROM get_debt_value_history(${userId}::TEXT, ${debtId}::TEXT, ${APP_CURRENCY}::VARCHAR)`;
+  if (cursor && limit) {
+    return db.$queryRaw`SELECT * FROM get_debt_value_history(${userId}::TEXT, ${debtId}::TEXT, ${APP_CURRENCY}::VARCHAR) WHERE "debtTimestamp" < ${cursor} ORDER BY "debtTimestamp" DESC LIMIT ${limit}`;
+  }
+  if (limit) {
+    return db.$queryRaw`SELECT * FROM get_debt_value_history(${userId}::TEXT, ${debtId}::TEXT, ${APP_CURRENCY}::VARCHAR) ORDER BY "debtTimestamp" DESC LIMIT ${limit}`;
+  }
+  return db.$queryRaw`SELECT * FROM get_debt_value_history(${userId}::TEXT, ${debtId}::TEXT, ${APP_CURRENCY}::VARCHAR) ORDER BY "debtTimestamp" DESC`;
 }

@@ -5,7 +5,7 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
 import NewQuantityDialog from "./NewQuantityDialog";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
 import EditAssetDialog from "../EditAssetDialog";
 
@@ -21,6 +21,32 @@ export default function AssetDetailPage() {
       enabled: !!parsedAssetId,
     },
   );
+
+  const {
+    data: historyPages,
+    isPending: isPendingHistory,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch: refetchHistory,
+  } = api.netWorthAsset.getValueHistory.useInfiniteQuery(
+    { assetId: parsedAssetId!, limit: 25 },
+    {
+      enabled: !!parsedAssetId,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+  const valueHistory = useMemo(
+    () =>
+      historyPages?.pages.flatMap((page) =>
+        page.items.map((item) => ({
+          ...item,
+          timestamp: item.assetTimestamp,
+        })),
+      ) ?? [],
+    [historyPages],
+  );
+  const nextValueHistoryRow = historyPages?.pages.at(-1)?.nextItem;
 
   const {
     data: quantitiesData = [],
@@ -61,6 +87,7 @@ export default function AssetDetailPage() {
   function handleQuantitySuccess() {
     void refetchQuantities();
     void refetch();
+    void refetchHistory();
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.netWorthAsset.getAll.invalidate();
@@ -72,15 +99,23 @@ export default function AssetDetailPage() {
       <HoldingDetail
         ticker={data?.ticker?.ticker}
         isCategoryStock={data?.category?.isStock}
-        valueHistory={data?.valueHistory?.map((item) => ({
-          ...item,
-          timestamp: item.assetTimestamp,
-        }))}
+        valueHistory={valueHistory}
+        nextValueHistoryRow={
+          nextValueHistoryRow
+            ? {
+                ...nextValueHistoryRow,
+                timestamp: nextValueHistoryRow.assetTimestamp,
+              }
+            : undefined
+        }
+        hasMoreValueHistory={hasNextPage}
+        isFetchingMoreValueHistory={isFetchingNextPage}
+        onLoadMoreValueHistory={() => void fetchNextPage()}
         holdingCurrency={data?.currency}
         latestStockPrice={data?.latestStockPrice?.price}
         tickerName={data?.ticker?.name}
         tickerExchange={data?.ticker?.exchange}
-        isPending={isPending || isPendingQuantities}
+        isPending={isPending || isPendingQuantities || isPendingHistory}
         holdingComputedValue={data?.computedValue}
         quantity={data?.latestQuantity?.quantity}
         holdingName={data?.name}

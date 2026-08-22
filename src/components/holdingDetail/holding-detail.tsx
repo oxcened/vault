@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type Decimal from "decimal.js";
 import { format } from "date-fns";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ArchiveIcon,
+  Loader2Icon,
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
@@ -75,6 +76,9 @@ export function HoldingDetail({
   tickerExchange,
   tickerName,
   valueHistory = [],
+  nextValueHistoryRow,
+  hasMoreValueHistory = false,
+  isFetchingMoreValueHistory = false,
   type,
   quantity,
   archivedAt,
@@ -82,6 +86,7 @@ export function HoldingDetail({
   onQuantityDelete,
   onNewHolding,
   onEditHolding,
+  onLoadMoreValueHistory,
 }: {
   holdingName?: string;
   holdingCategory?: string;
@@ -95,6 +100,9 @@ export function HoldingDetail({
   tickerExchange?: string;
   latestStockPrice?: Decimal;
   valueHistory?: ValueHistoryRow[];
+  nextValueHistoryRow?: ValueHistoryRow;
+  hasMoreValueHistory?: boolean;
+  isFetchingMoreValueHistory?: boolean;
   type: "asset" | "debt";
   quantity?: Decimal;
   archivedAt?: Date | null;
@@ -102,6 +110,7 @@ export function HoldingDetail({
   onQuantityDelete: (args: { timestamp: Date }) => void;
   onNewHolding: () => void;
   onEditHolding: () => void;
+  onLoadMoreValueHistory: () => void;
 }) {
   const [range, setRange] = useState<Range>("1Y");
   const previousValue = valueHistory[1]?.valueInTarget;
@@ -315,6 +324,10 @@ export function HoldingDetail({
               </div>
               <ValuationHistoryList
                 rows={valueHistory}
+                nextRow={nextValueHistoryRow}
+                hasMore={hasMoreValueHistory}
+                isFetchingMore={isFetchingMoreValueHistory}
+                onLoadMore={onLoadMoreValueHistory}
                 onEdit={onQuantityEdit}
                 onDelete={onQuantityDelete}
               />
@@ -328,19 +341,45 @@ export function HoldingDetail({
 
 function ValuationHistoryList({
   rows,
+  nextRow,
+  hasMore,
+  isFetchingMore,
+  onLoadMore,
   onEdit,
   onDelete,
 }: {
   rows: ValueHistoryRow[];
+  nextRow?: ValueHistoryRow;
+  hasMore: boolean;
+  isFetchingMore: boolean;
+  onLoadMore: () => void;
   onEdit: (args: { id: string }) => void;
   onDelete: (args: { timestamp: Date }) => void;
 }) {
   const { confirm, modal } = useConfirmDelete();
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting && !isFetchingMore) {
+          onLoadMore();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, isFetchingMore, onLoadMore]);
+
   return (
     <>
       <div className="overflow-hidden rounded-xl border bg-card">
         {rows.map((row, index) => {
-          const previous = rows[index + 1];
+          const previous = rows[index + 1] ?? nextRow;
           const change = previous
             ? row.valueInTarget.minus(previous.valueInTarget)
             : undefined;
@@ -455,6 +494,18 @@ function ValuationHistoryList({
           );
         })}
       </div>
+      {hasMore && (
+        <div
+          ref={loadMoreRef}
+          className="flex h-14 items-center justify-center"
+        >
+          {isFetchingMore && (
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2Icon className="size-4 animate-spin" /> Loading more
+            </span>
+          )}
+        </div>
+      )}
       {modal}
     </>
   );

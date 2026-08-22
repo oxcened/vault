@@ -123,6 +123,32 @@ export const netWorthDebtRouter = createTRPCRouter({
         userId: ctx.session.user.id,
       });
     }),
+  getValueHistory: protectedProcedure
+    .input(
+      z.object({
+        debtId: z.string(),
+        cursor: z.date().nullish(),
+        limit: z.number().min(1).max(100).default(25),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const rows = await getDebtValueHistory({
+        db: ctx.db,
+        userId: ctx.session.user.id,
+        debtId: input.debtId,
+        cursor: input.cursor,
+        limit: input.limit + 1,
+      });
+      const hasMore = rows.length > input.limit;
+      const nextItem = hasMore ? rows[input.limit] : undefined;
+      const items = hasMore ? rows.slice(0, input.limit) : rows;
+
+      return {
+        items,
+        nextItem,
+        nextCursor: hasMore ? items.at(-1)?.debtTimestamp : undefined,
+      };
+    }),
   getDetailById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -154,16 +180,9 @@ export const netWorthDebtRouter = createTRPCRouter({
           ? nativeComputedValue?.times(exchangeRate.rate)
           : nativeComputedValue;
 
-        const valueHistory = await getDebtValueHistory({
-          db: tx,
-          userId: ctx.session.user.id,
-          debtId: input.id,
-        });
-
         return {
           ...asset,
           latestQuantity,
-          valueHistory,
           nativeComputedValue,
           computedValue,
         };

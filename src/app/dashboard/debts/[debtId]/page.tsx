@@ -5,7 +5,7 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
 import NewQuantityDialog from "./NewQuantityDialog";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import EditQuantityDialog from "./EditQuantityDialog";
 import EditDebtDialog from "../EditDebtDialog";
 
@@ -21,6 +21,32 @@ export default function DebtDetailPage() {
       enabled: !!parsedDebtId,
     },
   );
+
+  const {
+    data: historyPages,
+    isPending: isPendingHistory,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch: refetchHistory,
+  } = api.netWorthDebt.getValueHistory.useInfiniteQuery(
+    { debtId: parsedDebtId!, limit: 25 },
+    {
+      enabled: !!parsedDebtId,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+  const valueHistory = useMemo(
+    () =>
+      historyPages?.pages.flatMap((page) =>
+        page.items.map((item) => ({
+          ...item,
+          timestamp: item.debtTimestamp,
+        })),
+      ) ?? [],
+    [historyPages],
+  );
+  const nextValueHistoryRow = historyPages?.pages.at(-1)?.nextItem;
 
   const {
     data: quantitiesData = [],
@@ -61,6 +87,7 @@ export default function DebtDetailPage() {
   function handleQuantitySuccess() {
     void refetchQuantities();
     void refetch();
+    void refetchHistory();
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.netWorthDebt.getAll.invalidate();
@@ -71,12 +98,20 @@ export default function DebtDetailPage() {
     <>
       <HoldingDetail
         isCategoryStock={data?.category?.isStock}
-        valueHistory={data?.valueHistory?.map((item) => ({
-          ...item,
-          timestamp: item.debtTimestamp,
-        }))}
+        valueHistory={valueHistory}
+        nextValueHistoryRow={
+          nextValueHistoryRow
+            ? {
+                ...nextValueHistoryRow,
+                timestamp: nextValueHistoryRow.debtTimestamp,
+              }
+            : undefined
+        }
+        hasMoreValueHistory={hasNextPage}
+        isFetchingMoreValueHistory={isFetchingNextPage}
+        onLoadMoreValueHistory={() => void fetchNextPage()}
         holdingCurrency={data?.currency}
-        isPending={isPending || isPendingQuantities}
+        isPending={isPending || isPendingQuantities || isPendingHistory}
         holdingComputedValue={data?.computedValue}
         holdingName={data?.name}
         holdingCategory={data?.category?.name}
