@@ -221,6 +221,21 @@ export const transactionRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createTransactionSchema)
     .mutation(async ({ input, ctx }) => {
+      const category = await ctx.db.transactionCategory.findUnique({
+        where: { id: input.categoryId },
+        select: { type: true },
+      });
+
+      if (!category) {
+        throw new Error("Category not found.");
+      }
+
+      if (category.type !== input.type) {
+        throw new Error(
+          `Cannot assign a ${category.type.toLowerCase()} category to a ${input.type.toLowerCase()} transaction.`,
+        );
+      }
+
       const result = await ctx.db.$transaction(async (tx) => {
         const created = await tx.transaction.create({
           data: {
@@ -315,9 +330,93 @@ export const transactionRouter = createTRPCRouter({
       return { count: transactions.length };
     }),
 
+  updateManyCategory: protectedProcedure
+    .input(
+      z.object({
+        ids: z.array(z.string()).min(1).max(100),
+        categoryId: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const [transactions, category] = await Promise.all([
+        ctx.db.transaction.findMany({
+          where: {
+            id: { in: input.ids },
+            createdById: ctx.session.user.id,
+          },
+          select: { id: true, timestamp: true, type: true },
+        }),
+        ctx.db.transactionCategory.findUnique({
+          where: { id: input.categoryId },
+          select: { id: true, type: true },
+        }),
+      ]);
+
+      if (!category || transactions.length === 0) {
+        return { count: 0 };
+      }
+
+      const incompatibleTypes = transactions.filter(
+        (transaction) => transaction.type !== category.type,
+      );
+      if (incompatibleTypes.length > 0) {
+        throw new Error(
+          `Cannot assign a ${category.type.toLowerCase()} category to ${incompatibleTypes.length} transaction(s) of a different type.`,
+        );
+      }
+
+      await ctx.db.transaction.updateMany({
+        where: { id: { in: transactions.map(({ id }) => id) } },
+        data: { categoryId: input.categoryId },
+      });
+
+      const affectedMonths = new Map<string, Date>();
+      for (const { timestamp } of transactions) {
+        const key = `${timestamp.getUTCFullYear()}-${timestamp.getUTCMonth()}`;
+        affectedMonths.set(key, timestamp);
+      }
+      for (const timestamp of affectedMonths.values()) {
+        appEmitter.emit("transaction:updated", {
+          userId: ctx.session.user.id,
+          timestamp,
+        });
+      }
+
+      return { count: transactions.length };
+    }),
+
   update: protectedProcedure
     .input(updateTransactionSchema)
     .mutation(async ({ input, ctx }) => {
+      const existing = await ctx.db.transaction.findUnique({
+        where: { id: input.id, createdById: ctx.session.user.id },
+        select: { type: true, categoryId: true },
+      });
+
+      if (!existing) {
+        throw new Error("Transaction not found.");
+      }
+
+      const newType = input.type ?? existing.type;
+      const newCategoryId = input.categoryId ?? existing.categoryId;
+
+      if (newCategoryId !== existing.categoryId || newType !== existing.type) {
+        const category = await ctx.db.transactionCategory.findUnique({
+          where: { id: newCategoryId },
+          select: { type: true },
+        });
+
+        if (!category) {
+          throw new Error("Category not found.");
+        }
+
+        if (category.type !== newType) {
+          throw new Error(
+            `Cannot assign a ${category.type.toLowerCase()} category to a ${newType.toLowerCase()} transaction.`,
+          );
+        }
+      }
+
       const updated = await ctx.db.transaction.update({
         where: { id: input.id },
         data: input,

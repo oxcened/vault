@@ -16,6 +16,7 @@ import {
   CalendarClock,
   CalendarPlus,
   ChevronRight,
+  FolderInput,
   Loader2,
   Trash2,
   XIcon,
@@ -30,6 +31,7 @@ import { type TransactionRow } from "./config";
 import { TransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/TransactionDetailDialog";
 import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
 import { TransactionMobileList } from "./transaction-mobile-list";
+import { BulkChangeCategoryDialog } from "./bulk-change-category-dialog";
 import { Skeleton } from "../ui/skeleton";
 import { RecurringTransactionList } from "./recurring-transaction-list";
 import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
@@ -47,6 +49,7 @@ export function TransactionTable() {
   const [view, setView] = useState<View>("TRANSACTIONS");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [isBulkCategoryDialogOpen, setBulkCategoryDialogOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: schedules = [] } = api.recurringTransaction.getAll.useQuery();
   const endOfToday = new Date();
@@ -140,6 +143,13 @@ export function TransactionTable() {
   const selectedIds = Object.entries(rowSelection)
     .filter(([, selected]) => selected)
     .map(([id]) => id);
+  const selectedTypes = Array.from(
+    new Set(
+      (data?.items ?? [])
+        .filter((transaction) => selectedIds.includes(transaction.id))
+        .map((transaction) => transaction.type),
+    ),
+  );
   const deleteMany = api.transaction.deleteMany.useMutation({
     onSuccess: ({ count }) => {
       toast.success(`${count} transaction${count === 1 ? "" : "s"} deleted.`);
@@ -254,6 +264,17 @@ export function TransactionTable() {
           >
             Clear
           </Button>
+          {selectedTypes.length === 1 && (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setBulkCategoryDialogOpen(true)}
+            >
+              <FolderInput />
+              Category
+            </Button>
+          )}
           <Button
             type="button"
             size="sm"
@@ -357,6 +378,18 @@ export function TransactionTable() {
           if (!open) setEditingTransaction(undefined);
         }}
         onSuccess={handleCreated}
+      />
+
+      <BulkChangeCategoryDialog
+        key={`bulk-change-category-dialog-${isBulkCategoryDialogOpen}`}
+        isOpen={isBulkCategoryDialogOpen}
+        onOpenChange={setBulkCategoryDialogOpen}
+        transactionIds={selectedIds}
+        transactionTypes={selectedTypes}
+        onSuccess={() => {
+          setRowSelection({});
+          handleCreated();
+        }}
       />
 
       <RecurringTransactionDialog

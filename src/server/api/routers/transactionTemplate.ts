@@ -105,6 +105,36 @@ export const transactionTemplateRouter = createTRPCRouter({
     .input(updateTransactionSchema)
     .mutation(async ({ input, ctx }) => {
       const { id, amount, categoryId, currency, description, type } = input;
+
+      const existing = await ctx.db.transactionTemplate.findUnique({
+        where: { id, createdById: ctx.session.user.id },
+        select: { type: true, categoryId: true },
+      });
+
+      if (!existing) {
+        throw new Error("Preset not found.");
+      }
+
+      const newType = type ?? existing.type;
+      const newCategoryId = categoryId ?? existing.categoryId;
+
+      if (newCategoryId !== existing.categoryId || newType !== existing.type) {
+        const category = await ctx.db.transactionCategory.findUnique({
+          where: { id: newCategoryId },
+          select: { type: true },
+        });
+
+        if (!category) {
+          throw new Error("Category not found.");
+        }
+
+        if (category.type !== newType) {
+          throw new Error(
+            `Cannot assign a ${category.type.toLowerCase()} category to a ${newType.toLowerCase()} transaction.`,
+          );
+        }
+      }
+
       return ctx.db.transactionTemplate.update({
         where: { id, createdById: ctx.session.user.id },
         data: { amount, categoryId, currency, description, type },
