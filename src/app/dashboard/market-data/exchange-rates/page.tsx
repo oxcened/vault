@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,6 +16,7 @@ import {
   ArrowRightLeft,
   CalendarDays,
   Database,
+  Loader2,
   Plus,
   type LucideIcon,
 } from "lucide-react";
@@ -37,24 +38,19 @@ import {
 
 const pairKey = (baseCurrency: string, quoteCurrency: string) =>
   `${baseCurrency}:${quoteCurrency}`;
-const EMPTY_RATES: never[] = [];
 
 export default function ExchangeRatesPage() {
-  const {
-    data: queryData,
-    refetch,
-    isPending,
-  } = api.exchangeRate.getAll.useQuery();
-  const data = queryData ?? EMPTY_RATES;
-  const pairs = useMemo(() => {
-    const seen = new Set<string>();
-    return data.flatMap((rate) => {
-      const key = pairKey(rate.baseCurrency, rate.quoteCurrency);
-      if (seen.has(key)) return [];
-      seen.add(key);
-      return [{ key, base: rate.baseCurrency, quote: rate.quoteCurrency }];
-    });
-  }, [data]);
+  const { data: pairData, isPending: isPendingPairs } =
+    api.exchangeRate.getPairs.useQuery();
+  const pairs = useMemo(
+    () =>
+      (pairData ?? []).map((pair) => ({
+        key: pairKey(pair.baseCurrency, pair.quoteCurrency),
+        base: pair.baseCurrency,
+        quote: pair.quoteCurrency,
+      })),
+    [pairData],
+  );
   const [selectedPairKey, setSelectedPairKey] = useState<string>();
 
   useEffect(() => {
@@ -65,25 +61,56 @@ export default function ExchangeRatesPage() {
   }, [pairs]);
 
   const selectedPair = pairs.find((pair) => pair.key === selectedPairKey);
-  const filteredRates = useMemo(
-    () =>
-      data.filter(
-        (rate) =>
-          selectedPair &&
-          rate.baseCurrency === selectedPair.base &&
-          rate.quoteCurrency === selectedPair.quote,
-      ),
-    [data, selectedPair],
+  const {
+    data: ratePages,
+    refetch,
+    isPending,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = api.exchangeRate.getAll.useInfiniteQuery(
+    {
+      baseCurrency: selectedPair?.base ?? "",
+      quoteCurrency: selectedPair?.quote ?? "",
+      limit: 25,
+    },
+    {
+      enabled: !!selectedPair,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
   );
-  const latestRate = filteredRates[0];
-  const previousRate = filteredRates[1];
+  const rates = useMemo(
+    () => ratePages?.pages.flatMap((page) => page.items) ?? [],
+    [ratePages],
+  );
+  const totalCount = ratePages?.pages[0]?.totalCount ?? 0;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  const latestRate = rates[0];
+  const previousRate = rates[1];
   const rateChange =
     latestRate && previousRate
       ? latestRate.rate.minus(previousRate.rate)
       : undefined;
 
   const table = useTable({
-    data: filteredRates,
+    data: rates,
     columns: exchangeRatesColumns,
     getCoreRowModel: getCoreRowModel(),
     meta: {
@@ -97,6 +124,7 @@ export default function ExchangeRatesPage() {
 
   function handleRateCreatedOrEdited() {
     void refetch();
+    void utils.exchangeRate.getPairs.invalidate();
     void utils.netWorthOverview.get.invalidate();
     void utils.netWorthAsset.getAll.invalidate();
     void utils.netWorthAsset.getDetailById.invalidate();
@@ -133,7 +161,7 @@ export default function ExchangeRatesPage() {
           </p>
         </div>
 
-        {data.length === 0 && !isPending ? (
+        {pairs.length === 0 && !isPendingPairs ? (
           <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
             <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
               <ArrowRightLeft className="size-5" />
@@ -156,11 +184,11 @@ export default function ExchangeRatesPage() {
                   </label>
                   <Select
                     value={selectedPairKey}
-                    disabled={isPending}
+                    disabled={isPendingPairs}
                     onValueChange={setSelectedPairKey}
                   >
                     <SelectTrigger
-                      isLoading={isPending}
+                      isLoading={isPendingPairs}
                       className="h-11 w-full bg-background/70 sm:max-w-md"
                     >
                       <SelectValue placeholder="Select a currency pair" />
@@ -239,7 +267,7 @@ export default function ExchangeRatesPage() {
                   <SummaryItem
                     icon={Database}
                     label="History"
-                    value={`${filteredRates.length} ${filteredRates.length === 1 ? "entry" : "entries"}`}
+                    value={`${totalCount} ${totalCount === 1 ? "entry" : "entries"}`}
                     className="col-span-2 sm:col-span-1"
                   />
                 </div>
@@ -258,7 +286,19 @@ export default function ExchangeRatesPage() {
               {isPending ? (
                 <TableSkeleton columns={3} />
               ) : (
-                <DataTable table={table} />
+                <>
+                  <DataTable table={table} />
+                  <div
+                    ref={loadMoreRef}
+                    className="flex h-14 items-center justify-center"
+                  >
+                    {isFetchingNextPage && (
+                      <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="size-4 animate-spin" /> Loading more
+                      </span>
+                    )}
+                  </div>
+                </>
               )}
             </section>
           </>

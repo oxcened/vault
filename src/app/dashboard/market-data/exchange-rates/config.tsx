@@ -20,7 +20,9 @@ import { type ExchangeRate } from "@prisma/client";
 import EditExchangeRateDialog from "./EditExchangeRateDialog";
 
 const columnHelper =
-  createColumnHelper<RouterOutputs["exchangeRate"]["getAll"][number]>();
+  createColumnHelper<
+    RouterOutputs["exchangeRate"]["getAll"]["items"][number]
+  >();
 
 export const exchangeRatesColumns = [
   columnHelper.accessor("timestamp", {
@@ -76,6 +78,7 @@ export const exchangeRatesColumns = [
 
       function handleRateChanged() {
         void utils.exchangeRate.getAll.invalidate();
+        void utils.exchangeRate.getPairs.invalidate();
         void utils.netWorthOverview.get.invalidate();
         void utils.netWorthAsset.getAll.invalidate();
         void utils.netWorthAsset.getDetailById.invalidate();

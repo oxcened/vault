@@ -7,17 +7,48 @@ import {
 import { appEmitter } from "~/server/eventBus";
 import { TRPCError } from "@trpc/server";
 import {
-  toMonthTimestamp,
   toMonthTimestampEnd,
   toNextMonthTimestamp,
 } from "~/utils/date";
 
 export const exchangeRateRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.exchangeRate.findMany({
-      orderBy: { timestamp: "desc" },
-    });
-  }),
+  getPairs: protectedProcedure.query(({ ctx }) =>
+    ctx.db.exchangeRate.findMany({
+      distinct: ["baseCurrency", "quoteCurrency"],
+      orderBy: [{ baseCurrency: "asc" }, { quoteCurrency: "asc" }],
+      select: { baseCurrency: true, quoteCurrency: true },
+    }),
+  ),
+  getAll: protectedProcedure
+    .input(
+      z.object({
+        baseCurrency: z.string(),
+        quoteCurrency: z.string(),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).default(25),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const where = {
+        baseCurrency: input.baseCurrency,
+        quoteCurrency: input.quoteCurrency,
+      };
+      const items = await ctx.db.exchangeRate.findMany({
+        where,
+        orderBy: [{ timestamp: "desc" }, { id: "desc" }],
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+        skip: input.cursor ? 1 : 0,
+        take: input.limit + 1,
+      });
+      const hasMore = items.length > input.limit;
+      if (hasMore) items.pop();
+
+      return {
+        items,
+        nextCursor: hasMore ? items.at(-1)?.id : undefined,
+        totalCount: await ctx.db.exchangeRate.count({ where }),
+      };
+    }),
 
   create: protectedProcedure
     .input(createExchangeRateSchema)
