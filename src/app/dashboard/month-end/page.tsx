@@ -7,6 +7,7 @@ import {
   Check,
   Circle,
   CircleDollarSign,
+  ListChecks,
   Copy,
   Loader2,
   RotateCcw,
@@ -213,7 +214,7 @@ function UpdateForm({ month, data }: { month: Date; data: UpdateData }) {
             {completed === total ? (
               <Check className="size-5" />
             ) : (
-              <CircleDollarSign className="size-5" />
+              <ListChecks className="size-5" />
             )}
           </span>
           <div>
