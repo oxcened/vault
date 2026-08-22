@@ -20,7 +20,7 @@ import EditStockPriceDialog from "./EditStockPriceDialog";
 import { Number } from "~/components/ui/number";
 
 const columnHelper =
-  createColumnHelper<RouterOutputs["stockPrice"]["getAll"][number]>();
+  createColumnHelper<RouterOutputs["stockPrice"]["getAll"]["items"][number]>();
 
 export const stockPricesColumns = [
   columnHelper.accessor("timestamp", {

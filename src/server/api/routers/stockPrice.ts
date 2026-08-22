@@ -5,31 +5,38 @@ import {
   updateStockPriceSchema,
 } from "~/trpc/schemas/stockPrice";
 import { appEmitter } from "~/server/eventBus";
-import * as yup from "yup";
 import { TRPCError } from "@trpc/server";
-import {
-  toMonthTimestamp,
-  toMonthTimestampEnd,
-  toNextMonthTimestamp,
-} from "~/utils/date";
+import { toMonthTimestampEnd, toNextMonthTimestamp } from "~/utils/date";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(
-      yup.object({
-        tickerId: yup.string().optional(),
+      z.object({
+        tickerId: z.string(),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).default(25),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return ctx.db.stockPriceHistory.findMany({
-        where: {
-          tickerId: input.tickerId,
-        },
-        orderBy: { timestamp: "desc" },
+      const where = { tickerId: input.tickerId };
+      const items = await ctx.db.stockPriceHistory.findMany({
+        where,
+        orderBy: [{ timestamp: "desc" }, { id: "desc" }],
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+        skip: input.cursor ? 1 : 0,
+        take: input.limit + 1,
         include: {
           ticker: true,
         },
       });
+      const hasMore = items.length > input.limit;
+      if (hasMore) items.pop();
+
+      return {
+        items,
+        nextCursor: hasMore ? items.at(-1)?.id : undefined,
+        totalCount: await ctx.db.stockPriceHistory.count({ where }),
+      };
     }),
 
   create: protectedProcedure

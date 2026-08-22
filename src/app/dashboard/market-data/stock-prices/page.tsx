@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +17,7 @@ import {
   CalendarDays,
   ChartNoAxesCombined,
   Database,
+  Loader2,
   Plus,
   Settings2,
   type LucideIcon,
@@ -41,17 +42,44 @@ export default function StockPricesPage() {
   const [tickerId, setTickerId] = useState<string>();
 
   const {
-    data = [],
+    data: pricePages,
     refetch,
     isPending,
-  } = api.stockPrice.getAll.useQuery(
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = api.stockPrice.getAll.useInfiniteQuery(
     {
-      tickerId,
+      tickerId: tickerId ?? "",
+      limit: 25,
     },
     {
       enabled: !!tickerId,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
+  const data = useMemo(
+    () => pricePages?.pages.flatMap((page) => page.items) ?? [],
+    [pricePages],
+  );
+  const totalCount = pricePages?.pages[0]?.totalCount ?? 0;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const table = useTable({
     data,
@@ -225,7 +253,7 @@ export default function StockPricesPage() {
                   <SummaryItem
                     icon={Database}
                     label="History"
-                    value={`${data.length} ${data.length === 1 ? "entry" : "entries"}`}
+                    value={`${totalCount} ${totalCount === 1 ? "entry" : "entries"}`}
                     className="col-span-2 sm:col-span-1"
                   />
                 </div>
@@ -246,7 +274,19 @@ export default function StockPricesPage() {
               {isPending ? (
                 <TableSkeleton />
               ) : (
-                <DataTable table={table} className="rounded-xl" />
+                <>
+                  <DataTable table={table} className="rounded-xl" />
+                  <div
+                    ref={loadMoreRef}
+                    className="flex h-14 items-center justify-center"
+                  >
+                    {isFetchingNextPage && (
+                      <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="size-4 animate-spin" /> Loading more
+                      </span>
+                    )}
+                  </div>
+                </>
               )}
             </section>
           </>
