@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Menu,
   ReceiptText,
+  RefreshCw,
   Settings,
   TrendingUp,
   Wallet,
@@ -62,6 +63,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const moreIsActive =
     pathname.startsWith("/dashboard/cash-flow/envelopes") ||
+    pathname.startsWith("/dashboard/month-end") ||
     pathname.startsWith("/dashboard/net-worth/assets") ||
     pathname.startsWith("/dashboard/net-worth/debts") ||
     pathname.startsWith("/dashboard/settings") ||
@@ -126,6 +128,11 @@ export function MobileBottomNav() {
             className="min-w-48 rounded-xl p-1.5"
           >
             {[
+              {
+                title: "Monthly update",
+                href: "/dashboard/month-end",
+                icon: RefreshCw,
+              },
               {
                 title: "Reserves",
                 href: "/dashboard/cash-flow/envelopes",

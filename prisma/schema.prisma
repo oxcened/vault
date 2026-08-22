@@ -101,20 +101,20 @@ model NetWorthCategory {
 }
 
 model NetWorthAsset {
-  id              String                  @id @default(cuid())
-  name            String
-  categoryId      String
-  tickerId        String?
-  currency        String
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
-  createdById     String
-  archivedAt      DateTime?
-  isLiquid        Boolean                 @default(false)
-  createdBy       User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  ticker          StockTicker?            @relation(fields: [tickerId], references: [id])
-  quantities      NetWorthAssetQuantity[]
-  category        NetWorthCategory        @relation(fields: [categoryId], references: [id])
+  id          String                  @id @default(cuid())
+  name        String
+  categoryId  String
+  tickerId    String?
+  currency    String
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  createdById String
+  archivedAt  DateTime?
+  isLiquid    Boolean                 @default(false)
+  createdBy   User                    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  ticker      StockTicker?            @relation(fields: [tickerId], references: [id])
+  quantities  NetWorthAssetQuantity[]
+  category    NetWorthCategory        @relation(fields: [categoryId], references: [id])
 }
 
 model NetWorthAssetQuantity {
@@ -167,22 +167,26 @@ model StockTicker {
 }
 
 model StockPriceHistory {
-  id        String      @id @default(cuid())
-  tickerId  String
-  price     Decimal     @db.Decimal(38, 18)
-  timestamp DateTime
-  ticker    StockTicker @relation(fields: [tickerId], references: [id])
+  id          String      @id @default(cuid())
+  tickerId    String
+  price       Decimal     @db.Decimal(38, 18)
+  timestamp   DateTime
+  isClosing   Boolean     @default(true)
+  confirmedAt DateTime?
+  ticker      StockTicker @relation(fields: [tickerId], references: [id])
 
   @@unique([tickerId, timestamp], name: "ticker_timestamp")
   @@index([tickerId, timestamp])
 }
 
 model ExchangeRate {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   baseCurrency  String
   quoteCurrency String
-  rate          Decimal  @db.Decimal(38, 18)
+  rate          Decimal   @db.Decimal(38, 18)
   timestamp     DateTime
+  isClosing     Boolean   @default(true)
+  confirmedAt   DateTime?
 
   @@unique([baseCurrency, quoteCurrency, timestamp], name: "base_quote_timestamp")
   @@index([baseCurrency, quoteCurrency, timestamp])

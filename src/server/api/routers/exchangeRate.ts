@@ -6,7 +6,11 @@ import {
 } from "~/trpc/schemas/exchangeRate";
 import { appEmitter } from "~/server/eventBus";
 import { TRPCError } from "@trpc/server";
-import { toMonthTimestamp, toMonthTimestampEnd, toNextMonthTimestamp } from "~/utils/date";
+import {
+  toMonthTimestamp,
+  toMonthTimestampEnd,
+  toNextMonthTimestamp,
+} from "~/utils/date";
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -41,6 +45,8 @@ export const exchangeRateRouter = createTRPCRouter({
           quoteCurrency,
           rate: input.rate,
           timestamp,
+          isClosing: false,
+          confirmedAt: null,
         },
       });
     }),
@@ -72,6 +78,8 @@ export const exchangeRateRouter = createTRPCRouter({
           quoteCurrency,
           rate: input.rate,
           timestamp,
+          isClosing: false,
+          confirmedAt: null,
         },
       });
 

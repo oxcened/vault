@@ -14,6 +14,7 @@ import { netWorthCategoryRouter } from "./routers/netWorthCategory";
 import { transactionTemplateRouter } from "./routers/transactionTemplate";
 import { envelopeRouter } from "./routers/envelope";
 import { recurringTransactionRouter } from "./routers/recurringTransaction";
+import { monthEndRouter } from "./routers/monthEnd";
 
 /**
  * This is the primary router for your server.
@@ -36,6 +37,7 @@ export const appRouter = createTRPCRouter({
   transactionTemplate: transactionTemplateRouter,
   envelope: envelopeRouter,
   recurringTransaction: recurringTransactionRouter,
+  monthEnd: monthEndRouter,
 });
 
 // export type definition of API

@@ -25,12 +25,25 @@ const columnHelper =
 export const exchangeRatesColumns = [
   columnHelper.accessor("timestamp", {
     header: "Date",
-    cell: ({ getValue }) => {
-      return formatDate({
-        date: getValue(),
-        options: { month: "long", year: "numeric", timeZone: "UTC" },
-      });
-    },
+    cell: ({ getValue, row }) => (
+      <div className="flex items-center gap-2">
+        <span>
+          {formatDate({
+            date: getValue(),
+            options: { month: "long", year: "numeric", timeZone: "UTC" },
+          })}
+        </span>
+        <span
+          className={
+            row.original.isClosing
+              ? "rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-500"
+              : "rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500"
+          }
+        >
+          {row.original.isClosing ? "Closing" : "Provisional"}
+        </span>
+      </div>
+    ),
   }),
   columnHelper.accessor("rate", {
     header: "Exchange rate",

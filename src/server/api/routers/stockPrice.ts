@@ -7,7 +7,11 @@ import {
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
 import { TRPCError } from "@trpc/server";
-import { toMonthTimestamp, toMonthTimestampEnd, toNextMonthTimestamp } from "~/utils/date";
+import {
+  toMonthTimestamp,
+  toMonthTimestampEnd,
+  toNextMonthTimestamp,
+} from "~/utils/date";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -50,6 +54,8 @@ export const stockPriceRouter = createTRPCRouter({
           tickerId: input.tickerId,
           price: input.price,
           timestamp,
+          isClosing: false,
+          confirmedAt: null,
         },
       });
     }),
@@ -73,7 +79,12 @@ export const stockPriceRouter = createTRPCRouter({
       }
       const updated = await ctx.db.stockPriceHistory.update({
         where: { id: input.id },
-        data: { price: input.price, timestamp },
+        data: {
+          price: input.price,
+          timestamp,
+          isClosing: false,
+          confirmedAt: null,
+        },
       });
 
       appEmitter.emit("stockPrice:updated", { stockPriceId: updated.id });

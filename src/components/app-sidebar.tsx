@@ -9,6 +9,7 @@ import {
   CreditCard,
   LayoutDashboard,
   ReceiptText,
+  RefreshCw,
   SettingsIcon,
   TrendingUp,
   Vault,
@@ -99,6 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const settingsIsActive =
     pathname.startsWith("/dashboard/settings") ||
     pathname.startsWith("/dashboard/market-data");
+  const monthlyUpdateIsActive = pathname.startsWith("/dashboard/month-end");
   const user: React.ComponentProps<typeof NavUser>["user"] = {
     avatar: session?.user.image ?? "",
     email: session?.user.email ?? "john.doe@example.com",
@@ -133,6 +135,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border/70 p-3">
         <SidebarMenu>
+          <SidebarNavLink
+            title="Monthly update"
+            href="/dashboard/month-end"
+            icon={RefreshCw}
+            isActive={monthlyUpdateIsActive}
+            iconClassName="text-blue-400"
+            activeClassName="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-blue-500"
+            onNavigate={() => isMobile && setOpenMobile(false)}
+          />
           <SidebarNavLink
             title="Settings"
             href="/dashboard/settings"

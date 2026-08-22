@@ -1,0 +1,7 @@
+ALTER TABLE "StockPriceHistory"
+ADD COLUMN "isClosing" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "confirmedAt" TIMESTAMP(3);
+
+ALTER TABLE "ExchangeRate"
+ADD COLUMN "isClosing" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "confirmedAt" TIMESTAMP(3);
