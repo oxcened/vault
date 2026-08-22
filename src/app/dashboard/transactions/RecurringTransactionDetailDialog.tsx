@@ -90,7 +90,7 @@ export function RecurringTransactionDetailDialog({
   const displayAmount = schedule.amount.mul(
     schedule.type === "EXPENSE" ? -1 : 1,
   );
-   const isRefund = schedule.type === "EXPENSE" && schedule.amount.isNeg();
+  const isRefund = schedule.type === "EXPENSE" && schedule.amount.isNeg();
   const isExpense = schedule.type === "EXPENSE" && !isRefund;
   const isIncome = schedule.type === "INCOME";
   const AmountIcon = isRefund
@@ -130,7 +130,8 @@ export function RecurringTransactionDetailDialog({
           </DialogHeader>
 
           <div className="flex items-center justify-between gap-4 py-2">
-            <div className="flex items-center gap-2"><div
+            <div className="flex items-center gap-2">
+              <div
                 className={cn(
                   "flex size-8 shrink-0 items-center justify-center rounded-full",
                   (isRefund || isIncome) &&
@@ -142,10 +143,11 @@ export function RecurringTransactionDetailDialog({
               >
                 <AmountIcon className="size-4" />
               </div>
-            <p className="text-sm font-medium text-muted-foreground">
-              {amountLabel}
-            </p></div>
-            
+              <p className="text-sm font-medium text-muted-foreground">
+                {amountLabel}
+              </p>
+            </div>
+
             <Currency
               value={displayAmount}
               options={{ currency: schedule.currency, signDisplay: "always" }}

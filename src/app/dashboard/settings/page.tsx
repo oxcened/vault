@@ -12,12 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "~/components/ui/breadcrumb";
+import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 
@@ -48,13 +43,13 @@ const sections: {
       {
         title: "Exchange rates",
         description: "Manage currency conversion rates.",
-        href: "/dashboard/market-data/exchange-rates",
+        href: "/dashboard/settings/exchange-rates",
         icon: BadgeEuro,
       },
       {
         title: "Stock prices",
         description: "Review and update historical market prices.",
-        href: "/dashboard/market-data/stock-prices",
+        href: "/dashboard/settings/stock-prices",
         icon: ChartNoAxesCombined,
       },
       {
@@ -101,13 +96,7 @@ export default function SettingsPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Settings</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DashboardBreadcrumb items={[{ label: "Settings" }]} />
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-xl flex-col gap-6 p-5 py-8 md:p-8 lg:py-10">

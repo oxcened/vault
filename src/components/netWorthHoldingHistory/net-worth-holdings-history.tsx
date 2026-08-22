@@ -5,14 +5,7 @@ import { lastDayOfMonth } from "date-fns";
 import { FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TableSkeleton } from "~/components/table-skeleton";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbLink,
-  BreadcrumbItem,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "~/components/ui/breadcrumb";
+import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -83,21 +76,15 @@ export default function NetWorthHoldingsHistory({
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/dashboard/net-worth">
-                Performance & History
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>
-                {type === "asset" ? "Assets" : "Debts"} history
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DashboardBreadcrumb
+          items={[
+            {
+              label: type === "asset" ? "Assets" : "Debts",
+              href: `/dashboard/${type === "asset" ? "assets" : "debts"}`,
+            },
+            { label: `${type === "asset" ? "Assets" : "Debts"} history` },
+          ]}
+        />
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-lg flex-col gap-5 p-5">

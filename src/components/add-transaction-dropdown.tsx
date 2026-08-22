@@ -7,10 +7,10 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { CalendarClock, ChevronDown, PlusIcon, ZapIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import NewTransactionDialog from "~/app/dashboard/cash-flow/transactions/NewTransactionDialog";
+import NewTransactionDialog from "~/app/dashboard/transactions/NewTransactionDialog";
 import { useEffect, useState } from "react";
-import TransactionTemplateDialog from "~/app/dashboard/cash-flow/transactions/TransactionTemplateDialog";
-import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
+import TransactionTemplateDialog from "~/app/dashboard/transactions/TransactionTemplateDialog";
+import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
 
 export function AddTransactionDropdown({
   onSuccess,

@@ -29,7 +29,7 @@ export function RecentTransactionTable({
           Recent transactions
         </h2>
         <Link
-          href="/dashboard/cash-flow/transactions"
+          href="/dashboard/transactions"
           className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
         >
           See all
@@ -70,7 +70,7 @@ export function RecentTransactionTable({
             return (
               <Link
                 key={transaction.id}
-                href="/dashboard/cash-flow/transactions"
+                href="/dashboard/transactions"
                 className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b px-4 py-3 transition-colors last:border-b-0 hover:bg-muted/40"
               >
                 <TransactionIcon

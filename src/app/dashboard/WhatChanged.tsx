@@ -44,7 +44,7 @@ export function WhatChanged() {
                 return (
                   <Link
                     key={`${item.kind}-${item.id}`}
-                    href={`/dashboard/net-worth/${item.kind === "asset" ? "assets" : "debts"}/${item.id}`}
+                    href={`/dashboard/${item.kind === "asset" ? "assets" : "debts"}/${item.id}`}
                     className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
                   >
                     <HoldingIcon category={item.category} type={item.kind} />
@@ -75,7 +75,7 @@ export function WhatChanged() {
               {cashFlowChanges.map((item) => (
                 <Link
                   key={item.id}
-                  href="/dashboard/cash-flow/transactions"
+                  href="/dashboard/transactions"
                   className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
                 >
                   <TransactionIcon category={item.name} type={item.type} />

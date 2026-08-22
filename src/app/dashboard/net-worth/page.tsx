@@ -12,14 +12,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
+import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -62,19 +55,7 @@ export default function NetWorthPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/dashboard/net-worth">
-                Net worth
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Overview</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DashboardBreadcrumb items={[{ label: "Net worth" }]} />
       </header>
 
       <main className="mx-auto flex w-full min-w-0 max-w-screen-lg flex-col gap-5 p-5">
@@ -162,13 +143,13 @@ function SnapshotCard({ data }: { data: Overview }) {
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <SnapshotLink
-            href="/dashboard/net-worth/assets"
+            href="/dashboard/assets"
             label="Assets"
             value={latest.totalAssets}
             color="bg-blue-500"
           />
           <SnapshotLink
-            href="/dashboard/net-worth/debts"
+            href="/dashboard/debts"
             label="Debts"
             value={latest.totalDebts}
             color="bg-rose-500"
@@ -530,7 +511,7 @@ function ChangesCard({ data }: { data: Overview }) {
             {data.holdingChanges.map((item) => (
               <Link
                 key={`${item.kind}-${item.id}`}
-                href={`/dashboard/net-worth/${item.kind === "asset" ? "assets" : "debts"}/${item.id}`}
+                href={`/dashboard/${item.kind === "asset" ? "assets" : "debts"}/${item.id}`}
                 className="flex min-w-0 items-center gap-3 overflow-hidden px-4 py-3 transition-colors hover:bg-muted/40 sm:px-6"
               >
                 <HoldingIcon category={item.category} type={item.kind} />

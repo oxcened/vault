@@ -52,7 +52,7 @@ const navigation = {
     },
     {
       title: "Transactions",
-      url: "/dashboard/cash-flow/transactions",
+      url: "/dashboard/transactions",
       icon: ReceiptText,
       iconClassName: "text-violet-500",
       activeClassName:
@@ -60,7 +60,7 @@ const navigation = {
     },
     {
       title: "Reserves",
-      url: "/dashboard/cash-flow/envelopes",
+      url: "/dashboard/reserves",
       icon: WalletCards,
       iconClassName: "text-amber-500",
       activeClassName:
@@ -76,7 +76,7 @@ const navigation = {
     },
     {
       title: "Assets",
-      url: "/dashboard/net-worth/assets",
+      url: "/dashboard/assets",
       icon: TrendingUp,
       iconClassName: "text-teal-500",
       activeClassName:
@@ -84,7 +84,7 @@ const navigation = {
     },
     {
       title: "Debts",
-      url: "/dashboard/net-worth/debts",
+      url: "/dashboard/debts",
       icon: CreditCard,
       iconClassName: "text-rose-500",
       activeClassName:
@@ -97,10 +97,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
-  const settingsIsActive =
-    pathname.startsWith("/dashboard/settings") ||
-    pathname.startsWith("/dashboard/market-data");
-  const monthlyUpdateIsActive = pathname.startsWith("/dashboard/month-end");
+  const settingsIsActive = pathname.startsWith("/dashboard/settings");
+  const monthlyUpdateIsActive = pathname.startsWith(
+    "/dashboard/monthly-update",
+  );
   const user: React.ComponentProps<typeof NavUser>["user"] = {
     avatar: session?.user.image ?? "",
     email: session?.user.email ?? "john.doe@example.com",
@@ -137,7 +137,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarNavLink
             title="Monthly update"
-            href="/dashboard/month-end"
+            href="/dashboard/monthly-update"
             icon={RefreshCw}
             isActive={monthlyUpdateIsActive}
             iconClassName="text-blue-400"

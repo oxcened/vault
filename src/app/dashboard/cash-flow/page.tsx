@@ -6,14 +6,7 @@ import { format } from "date-fns";
 import { type Prisma } from "@prisma/client";
 import { ArrowRight, ArrowUpDown, ChartNoAxesColumn, List } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
+import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -64,19 +57,7 @@ export default function CashFlowPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/cash-flow">
-                Cash flow
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Overview</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DashboardBreadcrumb items={[{ label: "Cash flow" }]} />
       </header>
 
       <main className="mx-auto flex w-full max-w-screen-lg flex-col gap-5 p-5">
@@ -214,7 +195,7 @@ function MetricLink({
 }) {
   return (
     <Link
-      href="/dashboard/cash-flow/transactions"
+      href="/dashboard/transactions"
       className="group flex items-center rounded-lg border bg-background/40 p-3 transition-colors hover:bg-muted/50"
     >
       <span className={cn("mr-2 size-2 rounded-full", color)} />
@@ -504,7 +485,7 @@ function CategoryCard({
               return (
                 <Link
                   key={item.category}
-                  href="/dashboard/cash-flow/transactions"
+                  href="/dashboard/transactions"
                   className="group relative overflow-hidden rounded-xl border bg-muted/15 transition-colors hover:bg-muted/25"
                 >
                   <div

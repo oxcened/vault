@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
-import { RecurringTransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDetailDialog";
+import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
+import { RecurringTransactionDetailDialog } from "~/app/dashboard/transactions/RecurringTransactionDetailDialog";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";

@@ -28,13 +28,13 @@ import type { SortField } from "~/server/api/routers/transaction";
 import { TransactionFiltersDialog } from "./transaction-filters-dialog";
 import type { TransactionFilters as DialogTransactionFilters } from "./transaction-filters-form";
 import { type TransactionRow } from "./config";
-import { TransactionDetailDialog } from "~/app/dashboard/cash-flow/transactions/TransactionDetailDialog";
-import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
+import { TransactionDetailDialog } from "~/app/dashboard/transactions/TransactionDetailDialog";
+import EditTransactionDialog from "~/app/dashboard/transactions/EditTransactionDialog";
 import { TransactionMobileList } from "./transaction-mobile-list";
 import { BulkChangeCategoryDialog } from "./bulk-change-category-dialog";
 import { Skeleton } from "../ui/skeleton";
 import { RecurringTransactionList } from "./recurring-transaction-list";
-import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
+import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
 import { useConfirmDelete } from "../confirm-delete-modal";
 import { toast } from "sonner";
 

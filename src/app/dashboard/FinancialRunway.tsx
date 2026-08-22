@@ -131,7 +131,7 @@ export default function FinancialRunway() {
           {!hasLiquidAssets ? (
             <>
               <Link
-                href="/dashboard/net-worth/assets"
+                href="/dashboard/assets"
                 className="font-medium text-foreground underline-offset-4 hover:underline"
               >
                 Mark liquid assets

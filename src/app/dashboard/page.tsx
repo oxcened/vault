@@ -3,12 +3,7 @@
 import { api } from "~/trpc/react";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { Separator } from "~/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "~/components/ui/breadcrumb";
+import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Skeleton } from "~/components/ui/skeleton";
 import FinancialRunway from "./FinancialRunway";
 import NetWorthForecast from "./NetWorthForecast";
@@ -63,13 +58,7 @@ export default function OverviewPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Overview</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DashboardBreadcrumb items={[{ label: "Overview" }]} />
       </header>
 
       {isPending && (
@@ -118,7 +107,7 @@ export default function OverviewPage() {
                 <div className="space-y-2">
                   {marketDataAttentionCount > 0 && (
                     <Link
-                      href="/dashboard/month-end"
+                      href="/dashboard/monthly-update"
                       className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/5 px-4 py-3 transition-colors hover:bg-blue-500/10"
                     >
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
@@ -139,7 +128,7 @@ export default function OverviewPage() {
                   )}
                   {attentionCount > 0 && (
                     <Link
-                      href="/dashboard/cash-flow/transactions"
+                      href="/dashboard/transactions"
                       className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 transition-colors hover:bg-amber-500/10"
                     >
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">

@@ -49,10 +49,9 @@ const items: MobileNavItem[] = [
   },
   {
     title: "Transactions",
-    href: "/dashboard/cash-flow/transactions",
+    href: "/dashboard/transactions",
     icon: ReceiptText,
-    isActive: (pathname) =>
-      pathname.startsWith("/dashboard/cash-flow/transactions"),
+    isActive: (pathname) => pathname.startsWith("/dashboard/transactions"),
     activeClassName: "bg-violet-500/10 text-violet-500",
   },
   {
@@ -65,19 +64,16 @@ const items: MobileNavItem[] = [
 ];
 
 function getMoreActiveClassName(pathname: string) {
-  if (pathname.startsWith("/dashboard/cash-flow/envelopes")) {
+  if (pathname.startsWith("/dashboard/reserves")) {
     return "bg-amber-500/10 text-amber-500";
   }
-  if (pathname.startsWith("/dashboard/net-worth/assets")) {
+  if (pathname.startsWith("/dashboard/assets")) {
     return "bg-teal-500/10 text-teal-500";
   }
-  if (pathname.startsWith("/dashboard/net-worth/debts")) {
+  if (pathname.startsWith("/dashboard/debts")) {
     return "bg-rose-500/10 text-rose-500";
   }
-  if (
-    pathname.startsWith("/dashboard/settings") ||
-    pathname.startsWith("/dashboard/market-data")
-  ) {
+  if (pathname.startsWith("/dashboard/settings")) {
     return "bg-slate-400/10 text-slate-300";
   }
   return "bg-blue-500/10 text-blue-500";
@@ -86,12 +82,11 @@ function getMoreActiveClassName(pathname: string) {
 export function MobileBottomNav() {
   const pathname = usePathname();
   const moreIsActive =
-    pathname.startsWith("/dashboard/cash-flow/envelopes") ||
-    pathname.startsWith("/dashboard/month-end") ||
-    pathname.startsWith("/dashboard/net-worth/assets") ||
-    pathname.startsWith("/dashboard/net-worth/debts") ||
-    pathname.startsWith("/dashboard/settings") ||
-    pathname.startsWith("/dashboard/market-data");
+    pathname.startsWith("/dashboard/reserves") ||
+    pathname.startsWith("/dashboard/monthly-update") ||
+    pathname.startsWith("/dashboard/assets") ||
+    pathname.startsWith("/dashboard/debts") ||
+    pathname.startsWith("/dashboard/settings");
 
   return (
     <nav
@@ -154,22 +149,22 @@ export function MobileBottomNav() {
             {[
               {
                 title: "Monthly update",
-                href: "/dashboard/month-end",
+                href: "/dashboard/monthly-update",
                 icon: RefreshCw,
               },
               {
                 title: "Reserves",
-                href: "/dashboard/cash-flow/envelopes",
+                href: "/dashboard/reserves",
                 icon: WalletCards,
               },
               {
                 title: "Assets",
-                href: "/dashboard/net-worth/assets",
+                href: "/dashboard/assets",
                 icon: TrendingUp,
               },
               {
                 title: "Debts",
-                href: "/dashboard/net-worth/debts",
+                href: "/dashboard/debts",
                 icon: CreditCard,
               },
               {

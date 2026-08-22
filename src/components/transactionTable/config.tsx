@@ -21,8 +21,8 @@ import { MoreHorizontalIcon } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { useConfirmDelete } from "../confirm-delete-modal";
-import EditTransactionDialog from "~/app/dashboard/cash-flow/transactions/EditTransactionDialog";
-import NewTransactionDialog from "~/app/dashboard/cash-flow/transactions/NewTransactionDialog";
+import EditTransactionDialog from "~/app/dashboard/transactions/EditTransactionDialog";
+import NewTransactionDialog from "~/app/dashboard/transactions/NewTransactionDialog";
 import { type CreateTransaction } from "~/trpc/schemas/transaction";
 import { useState } from "react";
 import { addMonths } from "date-fns";
@@ -33,7 +33,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { TransactionIcon } from "./transaction-icon";
-import { RecurringTransactionDialog } from "~/app/dashboard/cash-flow/transactions/RecurringTransactionDialog";
+import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
 import type { RecurringTransactionInput } from "~/trpc/schemas/recurring-transaction";
 import { RecurrenceFrequency } from "@prisma/client";
 import { Checkbox } from "../ui/checkbox";

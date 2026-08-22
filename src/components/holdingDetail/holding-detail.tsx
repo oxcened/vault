@@ -10,14 +10,7 @@ import {
   PencilIcon,
   PlusIcon,
 } from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
+import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -130,27 +123,15 @@ export function HoldingDetail({
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/dashboard/net-worth">
-                Net worth
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink
-                href={`/dashboard/net-worth/${type === "asset" ? "assets" : "debts"}`}
-              >
-                {type === "asset" ? "Assets" : "Debts"}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{holdingName}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DashboardBreadcrumb
+          items={[
+            {
+              label: type === "asset" ? "Assets" : "Debts",
+              href: `/dashboard/${type === "asset" ? "assets" : "debts"}`,
+            },
+            { label: holdingName ?? (type === "asset" ? "Asset" : "Debt") },
+          ]}
+        />
       </header>
 
       <main className="mx-auto w-full max-w-screen-lg p-5">
