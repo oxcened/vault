@@ -543,9 +543,13 @@ function ValuationHistoryList({
                             : "bg-muted text-muted-foreground",
                       )}
                     />
-                    {previous && (
-                      <ValueChangePopup row={row} previousRow={previous} />
-                    )}
+                    {previous &&
+                      (row.stockPrice ||
+                        row.fxRate ||
+                        previous.stockPrice ||
+                        previous.fxRate) && (
+                        <ValueChangePopup row={row} previousRow={previous} />
+                      )}
                   </>
                 ) : (
                   <span className="text-xs text-muted-foreground">
