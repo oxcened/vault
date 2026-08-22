@@ -213,26 +213,24 @@ function HistoryCard({ data }: { data: Overview }) {
               Track the direction, without losing the underlying totals.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {view === "CHART" && (
-              <>
-                <Button
-                  variant={showAssets ? "secondary" : "outline"}
-                  size="sm"
-                  onClick={() => setShowAssets((value) => !value)}
-                >
-                  Assets
-                </Button>
-                <Button
-                  variant={showDebts ? "secondary" : "outline"}
-                  size="sm"
-                  onClick={() => setShowDebts((value) => !value)}
-                >
-                  Debts
-                </Button>
-              </>
-            )}
-            <div className="flex rounded-md border p-0.5">
+          <div className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-2 sm:flex sm:flex-wrap">
+            <TabsList className="h-8 w-full sm:order-last sm:w-auto">
+              <TabsTrigger
+                value="CHART"
+                className="h-7 flex-1 gap-1.5 px-2.5 sm:flex-none"
+              >
+                <ChartNoAxesColumn className="size-3.5" />
+                Chart
+              </TabsTrigger>
+              <TabsTrigger
+                value="LIST"
+                className="h-7 flex-1 gap-1.5 px-2.5 sm:flex-none"
+              >
+                <List className="size-3.5" />
+                List
+              </TabsTrigger>
+            </TabsList>
+            <div className="flex rounded-md border p-0.5 sm:ml-auto">
               {(["6M", "1Y", "ALL"] as const).map((option) => (
                 <Button
                   key={option}
@@ -245,16 +243,26 @@ function HistoryCard({ data }: { data: Overview }) {
                 </Button>
               ))}
             </div>
-            <TabsList className="h-8">
-              <TabsTrigger value="CHART" className="h-7 gap-1.5 px-2.5">
-                <ChartNoAxesColumn className="size-3.5" />
-                Chart
-              </TabsTrigger>
-              <TabsTrigger value="LIST" className="h-7 gap-1.5 px-2.5">
-                <List className="size-3.5" />
-                List
-              </TabsTrigger>
-            </TabsList>
+            {view === "CHART" && (
+              <div className="col-span-2 grid grid-cols-2 gap-2 sm:order-first sm:flex">
+                <Button
+                  variant={showAssets ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowAssets((value) => !value)}
+                >
+                  <span className="size-2 rounded-full bg-[var(--chart-1)]" />
+                  Assets
+                </Button>
+                <Button
+                  variant={showDebts ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowDebts((value) => !value)}
+                >
+                  <span className="size-2 rounded-full bg-[var(--chart-2)]" />
+                  Debts
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="min-w-0">
