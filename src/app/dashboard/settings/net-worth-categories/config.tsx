@@ -14,7 +14,9 @@ import { Button } from "~/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
-import { NetWorthCategory } from "@prisma/client";
+import type { NetWorthCategory } from "@prisma/client";
+import { useState } from "react";
+import { CategoryDialog } from "./CategoryDialog";
 
 const columnHelper = createColumnHelper<NetWorthCategory>();
 
@@ -45,6 +47,7 @@ export const netWorthCategoryColumns = [
           },
         });
       const { confirm, modal } = useConfirmDelete();
+      const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 
       return (
         <DropdownMenu>
@@ -56,7 +59,9 @@ export const netWorthCategoryColumns = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              Edit
+            </DropdownMenuItem>
             <DropdownMenuItem
               className="text-red-500"
               onClick={() =>
@@ -74,6 +79,12 @@ export const netWorthCategoryColumns = [
             </DropdownMenuItem>
           </DropdownMenuContent>
           {modal}
+          <CategoryDialog
+            key={`edit-category-${isEditDialogOpen}`}
+            category={row.original}
+            isOpen={isEditDialogOpen}
+            onOpenChange={setEditDialogOpen}
+          />
         </DropdownMenu>
       );
     },

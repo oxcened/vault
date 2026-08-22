@@ -2,6 +2,10 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import * as yup from "yup";
 import { NetWorthCategoryType } from "@prisma/client";
 import { z } from "zod";
+import {
+  createNetWorthCategorySchema,
+  updateNetWorthCategorySchema,
+} from "~/trpc/schemas/netWorthCategory";
 
 export const netWorthCategoryRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -31,6 +35,17 @@ export const netWorthCategoryRouter = createTRPCRouter({
           },
         },
       });
+    }),
+  create: protectedProcedure
+    .input(createNetWorthCategorySchema)
+    .mutation(({ input, ctx }) =>
+      ctx.db.netWorthCategory.create({ data: input }),
+    ),
+  update: protectedProcedure
+    .input(updateNetWorthCategorySchema)
+    .mutation(({ input, ctx }) => {
+      const { id, ...data } = input;
+      return ctx.db.netWorthCategory.update({ where: { id }, data });
     }),
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
