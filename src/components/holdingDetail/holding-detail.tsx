@@ -559,7 +559,7 @@ function ValuationHistoryList({
                     value={row.valueInTarget}
                     className="text-sm font-medium"
                   />
-                  <ValuePopup row={row} />
+                  {(row.stockPrice || row.fxRate) && <ValuePopup row={row} />}
                 </span>
                 {change && (
                   <RoundedCurrency
