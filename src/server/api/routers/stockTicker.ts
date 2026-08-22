@@ -4,7 +4,6 @@ import {
   createStockTickerSchema,
   updateStockTickerSchema,
 } from "~/trpc/schemas/stockTicker";
-import { sanitizeOptionalString } from "~/server/utils/sanitize";
 
 export const stockTickerRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -24,24 +23,16 @@ export const stockTickerRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createStockTickerSchema)
     .mutation(async ({ input, ctx }) => {
-      const { providerSymbol, ...data } = input;
       return ctx.db.stockTicker.create({
-        data: {
-          ...data,
-          providerSymbol: sanitizeOptionalString(providerSymbol),
-        },
+        data: input,
       });
     }),
   update: protectedProcedure
     .input(updateStockTickerSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id, providerSymbol, ...data } = input;
       const updated = await ctx.db.stockTicker.update({
-        where: { id },
-        data: {
-          ...data,
-          providerSymbol: sanitizeOptionalString(providerSymbol),
-        },
+        where: { id: input.id },
+        data: input,
       });
 
       return updated;

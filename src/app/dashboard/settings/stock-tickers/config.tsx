@@ -13,7 +13,7 @@ import { Button } from "~/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
-import type { StockTicker } from "@prisma/client";
+import { StockTicker } from "@prisma/client";
 import { useState } from "react";
 import EditStockTickerDialog from "./EditStockTickerDialog";
 
@@ -28,10 +28,6 @@ export const stockTickerColumns = [
   }),
   columnHelper.accessor("exchange", {
     header: "Exchange",
-  }),
-  columnHelper.accessor("providerSymbol", {
-    header: "Alpha Vantage symbol",
-    cell: ({ getValue }) => getValue() ?? "—",
   }),
   columnHelper.display({
     id: "actions",

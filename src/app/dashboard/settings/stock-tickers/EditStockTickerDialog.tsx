@@ -11,7 +11,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import type { StockTicker } from "@prisma/client";
+import { StockTicker } from "@prisma/client";
 import { StockTickerForm } from "./StockTickerForm";
 
 export type EditStockTickerDialogProps = {
@@ -43,14 +43,7 @@ export default function EditStockTickerDialog({
         </DialogHeader>
         <StockTickerForm
           formId="edit-stock-ticker-dialog-form"
-          initialData={
-            stockTicker
-              ? {
-                  ...stockTicker,
-                  providerSymbol: stockTicker.providerSymbol ?? undefined,
-                }
-              : undefined
-          }
+          initialData={stockTicker}
           onSubmit={(data) =>
             stockTicker?.id && mutate({ ...data, id: stockTicker.id })
           }

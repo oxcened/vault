@@ -160,7 +160,6 @@ model StockTicker {
   ticker         String
   exchange       String
   name           String
-  providerSymbol String?
   netWorthAssets NetWorthAsset[]
   prices         StockPriceHistory[]
 

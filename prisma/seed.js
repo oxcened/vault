@@ -122,22 +122,16 @@ async function main() {
   });
   const appleTicker = await db.stockTicker.upsert({
     where: { ticker_exchange: { ticker: "AAPL", exchange: "NASDAQ" } },
-    update: { providerSymbol: "AAPL" },
-    create: {
-      ticker: "AAPL",
-      exchange: "NASDAQ",
-      name: "Apple Inc.",
-      providerSymbol: "AAPL",
-    },
+    update: {},
+    create: { ticker: "AAPL", exchange: "NASDAQ", name: "Apple Inc." },
   });
   const microsoftTicker = await db.stockTicker.upsert({
     where: { ticker_exchange: { ticker: "MSFT", exchange: "NASDAQ" } },
-    update: { providerSymbol: "MSFT" },
+    update: {},
     create: {
       ticker: "MSFT",
       exchange: "NASDAQ",
       name: "Microsoft Corporation",
-      providerSymbol: "MSFT",
     },
   });
   const apple = await db.netWorthAsset.create({
