@@ -7,7 +7,7 @@ import {
 import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
 import { TRPCError } from "@trpc/server";
-import { toMonthTimestamp, toNextMonthTimestamp } from "~/utils/date";
+import { toMonthTimestamp, toMonthTimestampEnd, toNextMonthTimestamp } from "~/utils/date";
 
 export const stockPriceRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -31,7 +31,7 @@ export const stockPriceRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
-      const timestamp = toMonthTimestamp(input.timestamp);
+      const timestamp = toMonthTimestampEnd(input.timestamp);
       const existing = await ctx.db.stockPriceHistory.findFirst({
         where: {
           tickerId: input.tickerId,
@@ -57,7 +57,7 @@ export const stockPriceRouter = createTRPCRouter({
   update: protectedProcedure
     .input(updateStockPriceSchema)
     .mutation(async ({ input, ctx }) => {
-      const timestamp = toMonthTimestamp(input.timestamp);
+      const timestamp = toMonthTimestampEnd(input.timestamp);
       const existing = await ctx.db.stockPriceHistory.findFirst({
         where: {
           tickerId: input.tickerId,

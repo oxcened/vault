@@ -6,7 +6,7 @@ import {
 } from "~/trpc/schemas/exchangeRate";
 import { appEmitter } from "~/server/eventBus";
 import { TRPCError } from "@trpc/server";
-import { toMonthTimestamp, toNextMonthTimestamp } from "~/utils/date";
+import { toMonthTimestamp, toMonthTimestampEnd, toNextMonthTimestamp } from "~/utils/date";
 
 export const exchangeRateRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -20,7 +20,7 @@ export const exchangeRateRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const baseCurrency = input.baseCurrency.toUpperCase();
       const quoteCurrency = input.quoteCurrency.toUpperCase();
-      const timestamp = toMonthTimestamp(input.timestamp);
+      const timestamp = toMonthTimestampEnd(input.timestamp);
       const existing = await ctx.db.exchangeRate.findFirst({
         where: {
           baseCurrency,
@@ -49,7 +49,7 @@ export const exchangeRateRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const baseCurrency = input.baseCurrency.toUpperCase();
       const quoteCurrency = input.quoteCurrency.toUpperCase();
-      const timestamp = toMonthTimestamp(input.timestamp);
+      const timestamp = toMonthTimestampEnd(input.timestamp);
       const existing = await ctx.db.exchangeRate.findFirst({
         where: {
           baseCurrency,
