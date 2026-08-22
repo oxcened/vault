@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
@@ -12,6 +12,7 @@ import EditDebtDialog from "../EditDebtDialog";
 export default function DebtDetailPage() {
   const { debtId } = useParams();
   const parsedDebtId = Array.isArray(debtId) ? debtId[0] : debtId;
+  const router = useRouter();
 
   const { data, isPending, refetch } = api.netWorthDebt.getDetailById.useQuery(
     {
@@ -65,6 +66,25 @@ export default function DebtDetailPage() {
     api.netWorthDebt.deleteQuantityByTimestamp.useMutation({
       onSuccess: handleQuantitySuccess,
     });
+  const { mutate: archiveDebt } = api.netWorthDebt.archive.useMutation({
+    onSuccess: () => {
+      toast.success("Debt changed to zero and archived.");
+      handleQuantitySuccess();
+    },
+  });
+  const { mutate: restoreDebt } = api.netWorthDebt.update.useMutation({
+    onSuccess: () => {
+      toast.success("Debt restored.");
+      handleQuantitySuccess();
+    },
+  });
+  const { mutate: deleteDebt } = api.netWorthDebt.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Debt deleted.");
+      handleQuantitySuccess();
+      router.push("/dashboard/debts");
+    },
+  });
 
   const utils = api.useUtils();
 
@@ -113,6 +133,7 @@ export default function DebtDetailPage() {
         holdingCurrency={data?.currency}
         isPending={isPending || isPendingQuantities || isPendingHistory}
         holdingComputedValue={data?.computedValue}
+        quantity={data?.latestQuantity?.quantity}
         holdingName={data?.name}
         holdingCategory={data?.category?.name}
         type="debt"
@@ -126,6 +147,12 @@ export default function DebtDetailPage() {
         }
         onNewHolding={() => setNewDialogOpen(true)}
         onEditHolding={() => setEditDebtOpen(true)}
+        onArchiveHolding={() =>
+          data?.archivedAt
+            ? restoreDebt({ id: parsedDebtId!, archivedAt: null })
+            : archiveDebt({ id: parsedDebtId! })
+        }
+        onDeleteHolding={() => deleteDebt({ id: parsedDebtId! })}
       />
 
       <EditDebtDialog

@@ -25,6 +25,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
@@ -40,9 +41,20 @@ import { HistoryDot } from "~/components/ui/history-dot";
 import { useConfirmDelete } from "~/components/confirm-delete-modal";
 import { APP_CURRENCY } from "~/constants";
 import { cn } from "~/lib/utils";
+import { formatDate } from "~/utils/date";
 import { formatNumber } from "~/utils/number";
 import { ValueChangePopup } from "./value-change-popup";
 import { ValuePopup } from "./value-popup";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 
 export type ValueHistoryRow = {
   timestamp: Date;
@@ -86,6 +98,8 @@ export function HoldingDetail({
   onQuantityDelete,
   onNewHolding,
   onEditHolding,
+  onArchiveHolding,
+  onDeleteHolding,
   onLoadMoreValueHistory,
 }: {
   holdingName?: string;
@@ -110,9 +124,14 @@ export function HoldingDetail({
   onQuantityDelete: (args: { timestamp: Date }) => void;
   onNewHolding: () => void;
   onEditHolding: () => void;
+  onArchiveHolding: () => void;
+  onDeleteHolding: () => void;
   onLoadMoreValueHistory: () => void;
 }) {
   const [range, setRange] = useState<Range>("1Y");
+  const [isArchiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const { confirm: confirmHoldingDelete, modal: holdingDeleteModal } =
+    useConfirmDelete();
   const previousValue = valueHistory[1]?.valueInTarget;
   const change =
     holdingComputedValue && previousValue
@@ -138,6 +157,14 @@ export function HoldingDetail({
               label: type === "asset" ? "Assets" : "Debts",
               href: `/dashboard/${type === "asset" ? "assets" : "debts"}`,
             },
+            ...(archivedAt
+              ? [
+                  {
+                    label: "Archived",
+                    href: `/dashboard/${type === "asset" ? "assets" : "debts"}/archived`,
+                  },
+                ]
+              : []),
             { label: holdingName ?? (type === "asset" ? "Asset" : "Debt") },
           ]}
         />
@@ -173,6 +200,19 @@ export function HoldingDetail({
                         {holdingCategory} · {holdingCurrency}
                         {type === "asset" && isLiquid ? " · Liquid" : ""}
                       </p>
+                      {archivedAt && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          Archived{" "}
+                          {formatDate({
+                            date: archivedAt,
+                            options: {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          })}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -180,10 +220,48 @@ export function HoldingDetail({
                       <PencilIcon />
                       Edit
                     </Button>
-                    <Button onClick={onNewHolding}>
-                      <PlusIcon />
-                      Add valuation
-                    </Button>
+                    {!archivedAt && (
+                      <Button onClick={onNewHolding}>
+                        <PlusIcon />
+                        Add valuation
+                      </Button>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <MoreHorizontalIcon />
+                          <span className="sr-only">Holding actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            archivedAt
+                              ? onArchiveHolding()
+                              : setArchiveDialogOpen(true)
+                          }
+                        >
+                          {archivedAt
+                            ? "Restore"
+                            : quantity && !quantity.eq(0)
+                              ? "Change to zero and archive"
+                              : "Archive"}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() =>
+                            confirmHoldingDelete({
+                              itemType: type,
+                              itemName: holdingName,
+                              onConfirm: onDeleteHolding,
+                            })
+                          }
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
                 <div className="mt-7 flex flex-wrap items-end justify-between gap-3">
@@ -324,6 +402,7 @@ export function HoldingDetail({
               </div>
               <ValuationHistoryList
                 rows={valueHistory}
+                readOnly={!!archivedAt}
                 nextRow={nextValueHistoryRow}
                 hasMore={hasMoreValueHistory}
                 isFetchingMore={isFetchingMoreValueHistory}
@@ -335,12 +414,48 @@ export function HoldingDetail({
           </div>
         )}
       </main>
+      <AlertDialog
+        open={isArchiveDialogOpen}
+        onOpenChange={setArchiveDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {quantity && !quantity.eq(0)
+                ? `Change ${holdingName} to zero and archive?`
+                : `Archive ${holdingName}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {quantity && !quantity.eq(0) && (
+                <>A zero valuation will be recorded for the current month. </>
+              )}
+              This holding will be removed from your active portfolio and
+              totals. You can restore it at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onArchiveHolding();
+                setArchiveDialogOpen(false);
+              }}
+            >
+              {quantity && !quantity.eq(0)
+                ? "Change to zero and archive"
+                : "Archive"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {holdingDeleteModal}
     </>
   );
 }
 
 function ValuationHistoryList({
   rows,
+  readOnly,
   nextRow,
   hasMore,
   isFetchingMore,
@@ -349,6 +464,7 @@ function ValuationHistoryList({
   onDelete,
 }: {
   rows: ValueHistoryRow[];
+  readOnly: boolean;
   nextRow?: ValueHistoryRow;
   hasMore: boolean;
   isFetchingMore: boolean;
@@ -399,7 +515,9 @@ function ValuationHistoryList({
               <button
                 type="button"
                 className="min-w-0 flex-1 text-left sm:flex sm:items-center sm:gap-3"
-                disabled={!row.quantityId || !!row.quantityIsCarried}
+                disabled={
+                  readOnly || !row.quantityId || !!row.quantityIsCarried
+                }
                 onClick={() => row.quantityId && onEdit({ id: row.quantityId })}
               >
                 <span className="block text-sm font-medium sm:w-32">
@@ -460,7 +578,7 @@ function ValuationHistoryList({
                 )}
               </span>
               <span className="flex size-8 shrink-0 items-center justify-center">
-                {row.quantityId && !row.quantityIsCarried && (
+                {!readOnly && row.quantityId && !row.quantityIsCarried && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="size-8">

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCContext,
+  createTRPCRouter,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate, type StockPriceHistory } from "@prisma/client";
 import {
@@ -277,6 +281,41 @@ export const netWorthAssetRouter = createTRPCRouter({
 
       return updatedAsset;
     }),
+  archive: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const timestamp = toMonthTimestamp(new Date());
+      const archivedAsset = await ctx.db.$transaction(async (tx) => {
+        const { count } = await tx.netWorthAssetQuantity.updateMany({
+          where: {
+            netWorthAssetId: input.id,
+            timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+          },
+          data: { quantity: 0, quantityFormula: "0" },
+        });
+        if (count === 0) {
+          await tx.netWorthAssetQuantity.create({
+            data: {
+              netWorthAssetId: input.id,
+              timestamp,
+              quantity: 0,
+              quantityFormula: "0",
+            },
+          });
+        }
+
+        return tx.netWorthAsset.update({
+          where: { id: input.id, createdById: ctx.session.user.id },
+          data: { archivedAt: new Date() },
+        });
+      });
+
+      appEmitter.emit("netWorthAssetQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp,
+      });
+      return archivedAsset;
+    }),
   deleteQuantityByTimestamp: protectedProcedure
     .input(
       yup.object({
@@ -285,6 +324,7 @@ export const netWorthAssetRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      await assertActiveAsset(ctx, input.assetId);
       const deletedQuantity = await ctx.db.netWorthAssetQuantity.delete({
         where: {
           netWorthAssetId_timestamp: {
@@ -320,6 +360,7 @@ export const netWorthAssetRouter = createTRPCRouter({
   createQuantity: protectedProcedure
     .input(createQuantitySchema)
     .mutation(async ({ input, ctx }) => {
+      await assertActiveAsset(ctx, input.assetId);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedQuantity: number = evaluate(input.quantity);
 
@@ -360,6 +401,7 @@ export const netWorthAssetRouter = createTRPCRouter({
   updateQuantity: protectedProcedure
     .input(updateQuantitySchema)
     .mutation(async ({ input, ctx }) => {
+      await assertActiveAsset(ctx, input.assetId);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedQuantity: number = evaluate(input.quantity);
 
@@ -397,3 +439,26 @@ export const netWorthAssetRouter = createTRPCRouter({
       return updatedQuantity;
     }),
 });
+
+async function assertActiveAsset(
+  ctx: Awaited<ReturnType<typeof createTRPCContext>> & {
+    session: NonNullable<
+      Awaited<ReturnType<typeof createTRPCContext>>["session"]
+    >;
+  },
+  assetId: string,
+) {
+  const asset = await ctx.db.netWorthAsset.findFirst({
+    where: { id: assetId, createdById: ctx.session.user.id },
+    select: { archivedAt: true },
+  });
+  if (!asset) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Asset not found." });
+  }
+  if (asset.archivedAt) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Restore this asset before changing its valuations.",
+    });
+  }
+}

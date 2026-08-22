@@ -1,9 +1,9 @@
 import {
   ArchiveIcon,
   Droplets,
-  HelpCircleIcon,
   MoreHorizontalIcon,
   Pencil,
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { RoundedCurrency, RoundedNumber } from "~/components/ui/number";
@@ -18,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type HoldingListProps<T extends Holding> = {
   holdings: T[];
@@ -28,6 +27,7 @@ type HoldingListProps<T extends Holding> = {
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
   onArchiveHolding: (holding: T) => void;
+  archivedView?: boolean;
 };
 
 export function HoldingMobileList<T extends Holding>({
@@ -38,11 +38,12 @@ export function HoldingMobileList<T extends Holding>({
   onEditHolding,
   onDeleteHolding,
   onArchiveHolding,
+  archivedView = false,
 }: HoldingListProps<T>) {
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
       {holdings.map((holding) => {
-        const isArchiveDisabled = !!holding.quantity && !holding.quantity.eq(0);
+        const hasBalance = !!holding.quantity && !holding.quantity.eq(0);
 
         return (
           <div
@@ -69,12 +70,25 @@ export function HoldingMobileList<T extends Holding>({
                   )}
                 </span>
                 <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                  {type === "asset" && holding.isLiquid && (
+                  {archivedView && holding.archivedAt && (
+                    <span>
+                      Archived{" "}
+                      {formatDate({
+                        date: holding.archivedAt,
+                        options: {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        },
+                      })}
+                    </span>
+                  )}
+                  {!archivedView && type === "asset" && holding.isLiquid && (
                     <span className="flex shrink-0 items-center gap-1">
                       <Droplets className="size-3" /> Liquid
                     </span>
                   )}
-                  {isStock && holding.quantity && (
+                  {!archivedView && isStock && holding.quantity && (
                     <>
                       {type === "asset" && holding.isLiquid && (
                         <span aria-hidden="true">·</span>
@@ -95,15 +109,17 @@ export function HoldingMobileList<T extends Holding>({
                       </span>
                     </>
                   )}
-                  {!isStock && !(type === "asset" && holding.isLiquid) && (
-                    <span>
-                      Updated{" "}
-                      {formatDate({
-                        date: holding.timestamp,
-                        options: { month: "short", day: "numeric" },
-                      })}
-                    </span>
-                  )}
+                  {!archivedView &&
+                    !isStock &&
+                    !(type === "asset" && holding.isLiquid) && (
+                      <span>
+                        Updated{" "}
+                        {formatDate({
+                          date: holding.timestamp,
+                          options: { month: "short", day: "numeric" },
+                        })}
+                      </span>
+                    )}
                 </span>
               </span>
             </button>
@@ -117,13 +133,15 @@ export function HoldingMobileList<T extends Holding>({
                 value={holding.valueInTarget}
                 className="block text-sm"
               />
-              <span className="mt-0.5 hidden text-xs text-muted-foreground md:block">
-                Updated{" "}
-                {formatDate({
-                  date: holding.timestamp,
-                  options: { month: "short", day: "numeric" },
-                })}
-              </span>
+              {!archivedView && (
+                <span className="mt-0.5 hidden text-xs text-muted-foreground md:block">
+                  Updated{" "}
+                  {formatDate({
+                    date: holding.timestamp,
+                    options: { month: "short", day: "numeric" },
+                  })}
+                </span>
+              )}
             </button>
 
             <DropdownMenu>
@@ -134,29 +152,22 @@ export function HoldingMobileList<T extends Holding>({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {archivedView && (
+                  <DropdownMenuItem onClick={() => onArchiveHolding(holding)}>
+                    <RotateCcw /> Restore
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => onEditHolding(holding)}>
                   <Pencil /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <div className="flex items-center gap-1">
-                  <DropdownMenuItem
-                    className="flex-1"
-                    disabled={isArchiveDisabled}
-                    onClick={() => onArchiveHolding(holding)}
-                  >
-                    {holding.archivedAt ? "Unarchive" : "Archive"}
-                  </DropdownMenuItem>
-                  {isArchiveDisabled && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircleIcon className="mr-2 size-4 opacity-50" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Quantity must be 0 to archive.
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
+                {!archivedView && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => onArchiveHolding(holding)}>
+                      {hasBalance ? "Change to zero and archive" : "Archive"}
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
                   onClick={() => onDeleteHolding(holding)}

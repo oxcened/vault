@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { HoldingDetail } from "~/components/holdingDetail/holding-detail";
@@ -12,6 +12,7 @@ import EditAssetDialog from "../EditAssetDialog";
 export default function AssetDetailPage() {
   const { assetId } = useParams();
   const parsedAssetId = Array.isArray(assetId) ? assetId[0] : assetId;
+  const router = useRouter();
 
   const { data, isPending, refetch } = api.netWorthAsset.getDetailById.useQuery(
     {
@@ -65,6 +66,25 @@ export default function AssetDetailPage() {
     api.netWorthAsset.deleteQuantityByTimestamp.useMutation({
       onSuccess: handleQuantitySuccess,
     });
+  const { mutate: archiveAsset } = api.netWorthAsset.archive.useMutation({
+    onSuccess: () => {
+      toast.success("Asset changed to zero and archived.");
+      handleQuantitySuccess();
+    },
+  });
+  const { mutate: restoreAsset } = api.netWorthAsset.update.useMutation({
+    onSuccess: () => {
+      toast.success("Asset restored.");
+      handleQuantitySuccess();
+    },
+  });
+  const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Asset deleted.");
+      handleQuantitySuccess();
+      router.push("/dashboard/assets");
+    },
+  });
 
   const utils = api.useUtils();
 
@@ -132,6 +152,12 @@ export default function AssetDetailPage() {
         }
         onNewHolding={() => setNewDialogOpen(true)}
         onEditHolding={() => setEditAssetOpen(true)}
+        onArchiveHolding={() =>
+          data?.archivedAt
+            ? restoreAsset({ id: parsedAssetId!, archivedAt: null })
+            : archiveAsset({ id: parsedAssetId! })
+        }
+        onDeleteHolding={() => deleteAsset({ id: parsedAssetId! })}
       />
 
       <EditAssetDialog

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCContext,
+  createTRPCRouter,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import { APP_CURRENCY } from "~/constants";
 import { type ExchangeRate } from "@prisma/client";
 import {
@@ -210,6 +214,41 @@ export const netWorthDebtRouter = createTRPCRouter({
 
       return updatedAsset;
     }),
+  archive: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const timestamp = toMonthTimestamp(new Date());
+      const archivedDebt = await ctx.db.$transaction(async (tx) => {
+        const { count } = await tx.netWorthDebtQuantity.updateMany({
+          where: {
+            netWorthDebtId: input.id,
+            timestamp: { gte: timestamp, lt: toNextMonthTimestamp(timestamp) },
+          },
+          data: { quantity: 0, quantityFormula: "0" },
+        });
+        if (count === 0) {
+          await tx.netWorthDebtQuantity.create({
+            data: {
+              netWorthDebtId: input.id,
+              timestamp,
+              quantity: 0,
+              quantityFormula: "0",
+            },
+          });
+        }
+
+        return tx.netWorthDebt.update({
+          where: { id: input.id, createdById: ctx.session.user.id },
+          data: { archivedAt: new Date() },
+        });
+      });
+
+      appEmitter.emit("netWorthDebtQuantity:updated", {
+        userId: ctx.session.user.id,
+        timestamp,
+      });
+      return archivedDebt;
+    }),
   deleteQuantityByTimestamp: protectedProcedure
     .input(
       yup.object({
@@ -218,6 +257,7 @@ export const netWorthDebtRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      await assertActiveDebt(ctx, input.debtId);
       const deletedQuantity = await ctx.db.netWorthDebtQuantity.delete({
         where: {
           netWorthDebtId_timestamp: {
@@ -253,6 +293,7 @@ export const netWorthDebtRouter = createTRPCRouter({
   createQuantity: protectedProcedure
     .input(createQuantitySchema)
     .mutation(async ({ input, ctx }) => {
+      await assertActiveDebt(ctx, input.debtId);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedQuantity: number = evaluate(input.quantity);
 
@@ -293,6 +334,7 @@ export const netWorthDebtRouter = createTRPCRouter({
   updateQuantity: protectedProcedure
     .input(updateQuantitySchema)
     .mutation(async ({ input, ctx }) => {
+      await assertActiveDebt(ctx, input.debtId);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const parsedQuantity: number = evaluate(input.quantity);
 
@@ -330,3 +372,26 @@ export const netWorthDebtRouter = createTRPCRouter({
       return updatedQuantity;
     }),
 });
+
+async function assertActiveDebt(
+  ctx: Awaited<ReturnType<typeof createTRPCContext>> & {
+    session: NonNullable<
+      Awaited<ReturnType<typeof createTRPCContext>>["session"]
+    >;
+  },
+  debtId: string,
+) {
+  const debt = await ctx.db.netWorthDebt.findFirst({
+    where: { id: debtId, createdById: ctx.session.user.id },
+    select: { archivedAt: true },
+  });
+  if (!debt) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Debt not found." });
+  }
+  if (debt.archivedAt) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Restore this debt before changing its valuations.",
+    });
+  }
+}

@@ -21,11 +21,7 @@ export default function AssetsPage() {
       ),
     ),
   );
-  const {
-    data = [],
-    refetch,
-    isPending,
-  } = api.netWorthAsset.getAll.useQuery({
+  const { data = [], isPending } = api.netWorthAsset.getAll.useQuery({
     date,
   });
 
@@ -41,6 +37,12 @@ export default function AssetsPage() {
       handleAssetSuccess();
     },
   });
+  const { mutate: archiveAsset } = api.netWorthAsset.archive.useMutation({
+    onSuccess: () => {
+      toast.success("Asset changed to zero and archived.");
+      handleAssetSuccess();
+    },
+  });
 
   const utils = api.useUtils();
 
@@ -48,11 +50,12 @@ export default function AssetsPage() {
   const [editingAsset, setEditingAsset] = useState<Holding>();
 
   function handleAssetSuccess() {
-    void refetch();
+    void utils.netWorthAsset.getAll.invalidate();
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.netWorth.getAll.invalidate();
     void utils.netWorthAsset.getDetailById.invalidate();
+    void utils.netWorthAsset.getValueHistory.invalidate();
   }
 
   const mappedData: Holding[] = data.map((row) => ({
@@ -73,14 +76,13 @@ export default function AssetsPage() {
     });
   };
   const handleArchive = (holding: Holding) => {
-    const newValue = holding.archivedAt ? null : new Date();
-
+    if (!holding.archivedAt) {
+      archiveAsset({ id: holding.id });
+      return;
+    }
     patchAsset(
-      { id: holding.id, archivedAt: newValue },
-      {
-        onSuccess: () =>
-          toast.success(newValue ? "Asset archived." : "Asset unarchived."),
-      },
+      { id: holding.id, archivedAt: null },
+      { onSuccess: () => toast.success("Asset restored.") },
     );
   };
   return (

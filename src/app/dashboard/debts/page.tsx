@@ -21,11 +21,7 @@ export default function DebtsPage() {
       ),
     ),
   );
-  const {
-    data = [],
-    refetch,
-    isPending,
-  } = api.netWorthDebt.getAll.useQuery({
+  const { data = [], isPending } = api.netWorthDebt.getAll.useQuery({
     date,
   });
 
@@ -41,17 +37,24 @@ export default function DebtsPage() {
       handleDebtSuccess();
     },
   });
+  const { mutate: archiveDebt } = api.netWorthDebt.archive.useMutation({
+    onSuccess: () => {
+      toast.success("Debt changed to zero and archived.");
+      handleDebtSuccess();
+    },
+  });
 
   const utils = api.useUtils();
 
   const [newDialog, setNewDialog] = useState(false);
 
   function handleDebtSuccess() {
-    void refetch();
+    void utils.netWorthDebt.getAll.invalidate();
     void utils.netWorthOverview.get.invalidate();
     void utils.dashboard.getSummary.invalidate();
     void utils.netWorth.getAll.invalidate();
     void utils.netWorthDebt.getDetailById.invalidate();
+    void utils.netWorthDebt.getValueHistory.invalidate();
   }
 
   const mappedData: Holding[] = data.map((row) => ({
@@ -75,14 +78,13 @@ export default function DebtsPage() {
     });
   };
   const handleArchive = (holding: Holding) => {
-    const newValue = holding.archivedAt ? null : new Date();
-
+    if (!holding.archivedAt) {
+      archiveDebt({ id: holding.id });
+      return;
+    }
     patchDebt(
-      { id: holding.id, archivedAt: newValue },
-      {
-        onSuccess: () =>
-          toast.success(newValue ? "Debt archived." : "Debt unarchived."),
-      },
+      { id: holding.id, archivedAt: null },
+      { onSuccess: () => toast.success("Debt restored.") },
     );
   };
 

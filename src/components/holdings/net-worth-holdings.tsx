@@ -4,15 +4,7 @@ import { useState } from "react";
 import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { CreditCard, PiggyBank, Plus, SlidersHorizontal } from "lucide-react";
+import { Archive, ArrowLeft, CreditCard, PiggyBank, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { TableSkeleton } from "~/components/table-skeleton";
 import { RoundedCurrency } from "~/components/ui/number";
@@ -22,6 +14,19 @@ import type Decimal from "decimal.js";
 import { CategoryTable } from "./category-table";
 import { cn } from "~/lib/utils";
 import { MonthPicker } from "~/components/ui/month-picker";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
+import { HoldingMobileList } from "./holding-mobile-list";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export type Holding = {
   quantityId: string;
@@ -52,11 +57,12 @@ export type NetWorthHoldingsProps<T> = {
   type: "asset" | "debt";
   date?: Date;
   onDateChange?: (date: Date) => void;
-  onNewHolding: () => void;
+  onNewHolding?: () => void;
   onEditHolding: (holding: T) => void;
   onDeleteHolding: (holding: T) => void;
   onArchiveHolding: (holding: T) => void;
   getHoldingDetailUrl: (holding: T) => string;
+  archivedOnly?: boolean;
 };
 
 export default function NetWorthHoldings<T extends Holding>({
@@ -72,36 +78,51 @@ export default function NetWorthHoldings<T extends Holding>({
   onDeleteHolding,
   onArchiveHolding,
   getHoldingDetailUrl,
+  archivedOnly = false,
 }: NetWorthHoldingsProps<T>) {
-  const [hideArchivedHolding, setHideArchivedHoldings] = useState(true);
-
-  const filteredHoldings = holdings.filter((holding) => {
-    if (hideArchivedHolding && holding.archivedAt) {
-      return false;
-    }
-    return true;
-  });
+  const [holdingToArchive, setHoldingToArchive] = useState<T>();
+  const router = useRouter();
+  const activeHoldings = holdings.filter((holding) => !holding.archivedAt);
+  const archivedHoldings = holdings
+    .filter((holding) => holding.archivedAt)
+    .sort(
+      (a, b) => (b.archivedAt?.getTime() ?? 0) - (a.archivedAt?.getTime() ?? 0),
+    );
 
   const { data: categories = [], isPending: isLoadingCategories } =
     api.netWorthCategory.getByType.useQuery({
       type: [type === "asset" ? "ASSET" : "DEBT", "BOTH"],
     });
 
-  const total = filteredHoldings.reduce(
+  const total = activeHoldings.reduce(
     (prev, curr) => (curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev),
     DECIMAL_ZERO,
   );
   const visibleCategoryCount = new Set(
-    filteredHoldings.map((holding) => holding.categoryId).filter(Boolean),
+    activeHoldings.map((holding) => holding.categoryId).filter(Boolean),
   ).size;
   const HoldingTypeIcon = type === "asset" ? PiggyBank : CreditCard;
+  const holdingToArchiveHasBalance =
+    !!holdingToArchive?.quantity && !holdingToArchive.quantity.eq(0);
 
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <DashboardBreadcrumb items={[{ label: holdingLabelPlural }]} />
+        <DashboardBreadcrumb
+          items={
+            archivedOnly
+              ? [
+                  {
+                    label: holdingLabelPlural,
+                    href: `/dashboard/${type === "asset" ? "assets" : "debts"}`,
+                  },
+                  { label: "Archived" },
+                ]
+              : [{ label: holdingLabelPlural }]
+          }
+        />
       </header>
 
       <div className="mx-auto flex w-full max-w-screen-lg flex-col gap-5 p-5">
@@ -131,32 +152,49 @@ export default function NetWorthHoldings<T extends Holding>({
                   </div>
                   <div className="min-w-0">
                     <h1 className="text-xl font-semibold tracking-tight">
-                      {holdingLabelPlural}
+                      {archivedOnly
+                        ? `Archived ${holdingLabelPlural.toLocaleLowerCase()}`
+                        : holdingLabelPlural}
                     </h1>
                     <p className="truncate text-sm text-muted-foreground">
-                      {filteredHoldings.length}{" "}
-                      {filteredHoldings.length === 1
-                        ? holdingLabel.toLocaleLowerCase()
-                        : holdingLabelPlural.toLocaleLowerCase()}
-                      {visibleCategoryCount > 0 &&
-                        ` across ${visibleCategoryCount} ${
-                          visibleCategoryCount === 1 ? "category" : "categories"
-                        }`}
+                      {archivedOnly ? (
+                        <>
+                          {archivedHoldings.length} archived{" "}
+                          {archivedHoldings.length === 1
+                            ? holdingLabel.toLocaleLowerCase()
+                            : holdingLabelPlural.toLocaleLowerCase()}
+                        </>
+                      ) : (
+                        <>
+                          {activeHoldings.length}{" "}
+                          {activeHoldings.length === 1
+                            ? holdingLabel.toLocaleLowerCase()
+                            : holdingLabelPlural.toLocaleLowerCase()}
+                          {visibleCategoryCount > 0 &&
+                            ` across ${visibleCategoryCount} ${
+                              visibleCategoryCount === 1
+                                ? "category"
+                                : "categories"
+                            }`}
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
 
-                <div className="sm:border-l sm:pl-5">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Total value
-                  </p>
-                  <p className="text-2xl font-semibold tabular-nums">
-                    <RoundedCurrency value={total} />
-                  </p>
-                </div>
+                {!archivedOnly && (
+                  <div className="sm:border-l sm:pl-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Total value
+                    </p>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      <RoundedCurrency value={total} />
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto">
-                  {date && onDateChange && (
+                  {!archivedOnly && date && onDateChange && (
                     <MonthPicker
                       value={date}
                       maxMonth={new Date()}
@@ -164,83 +202,144 @@ export default function NetWorthHoldings<T extends Holding>({
                       onChange={onDateChange}
                     />
                   )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full gap-2 sm:w-auto",
-                          hideArchivedHolding &&
-                            "border-blue-500/30 bg-blue-500/[0.07] text-blue-500 hover:bg-blue-500/10 hover:text-blue-500",
-                        )}
+                  {archivedOnly ? (
+                    <Button asChild variant="outline">
+                      <Link
+                        href={`/dashboard/${type === "asset" ? "assets" : "debts"}`}
                       >
-                        <SlidersHorizontal />
-                        Filters
-                        {hideArchivedHolding && (
-                          <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-[11px] font-semibold leading-none text-white">
-                            1
-                          </span>
-                        )}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>
-                        Filter {holdingLabelPlural.toLocaleLowerCase()}
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem
-                        checked={hideArchivedHolding}
-                        onCheckedChange={setHideArchivedHoldings}
-                      >
-                        Hide archived
-                      </DropdownMenuCheckboxItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <Button
-                    variant="default"
-                    className="w-full sm:w-auto"
-                    onClick={() => onNewHolding()}
-                  >
-                    <Plus />
-                    Add
-                  </Button>
+                        <ArrowLeft /> Back to active
+                      </Link>
+                    </Button>
+                  ) : onNewHolding ? (
+                    <Button
+                      variant="default"
+                      className="col-span-2 w-full sm:col-span-1 sm:w-auto"
+                      onClick={onNewHolding}
+                    >
+                      <Plus />
+                      Add
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             </section>
 
-            {categories
-              .map((category) => {
-                const holdingsForCat = filteredHoldings.filter(
-                  (holding) => holding.categoryId === category.id,
-                );
-                const total = holdingsForCat.reduce(
-                  (prev, curr) =>
-                    curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev,
-                  DECIMAL_ZERO,
-                );
-                return { category, holdingsForCat, total };
-              })
-              .sort((a, b) => b.total.comparedTo(a.total))
-              .map(({ category, holdingsForCat, total }) => {
-                if (!holdingsForCat.length) return null;
-                return (
-                  <CategoryTable
-                    key={category.id}
-                    holdings={holdingsForCat}
-                    category={category}
-                    total={total}
-                    onArchiveHolding={onArchiveHolding}
-                    onDeleteHolding={onDeleteHolding}
-                    onEditHolding={onEditHolding}
-                    getHoldingDetailUrl={getHoldingDetailUrl}
+            {!archivedOnly &&
+              categories
+                .map((category) => {
+                  const holdingsForCat = activeHoldings.filter(
+                    (holding) => holding.categoryId === category.id,
+                  );
+                  const total = holdingsForCat.reduce(
+                    (prev, curr) =>
+                      curr.valueInTarget ? prev.plus(curr.valueInTarget) : prev,
+                    DECIMAL_ZERO,
+                  );
+                  return { category, holdingsForCat, total };
+                })
+                .sort((a, b) => b.total.comparedTo(a.total))
+                .map(({ category, holdingsForCat, total }) => {
+                  if (!holdingsForCat.length) return null;
+                  return (
+                    <CategoryTable
+                      key={category.id}
+                      holdings={holdingsForCat}
+                      category={category}
+                      total={total}
+                      onArchiveHolding={setHoldingToArchive}
+                      onDeleteHolding={onDeleteHolding}
+                      onEditHolding={onEditHolding}
+                      getHoldingDetailUrl={getHoldingDetailUrl}
+                      type={type}
+                    />
+                  );
+                })}
+
+            {!archivedOnly && activeHoldings.length === 0 && (
+              <div className="rounded-xl border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
+                No active {holdingLabelPlural.toLocaleLowerCase()}.
+              </div>
+            )}
+
+            {!archivedOnly && archivedHoldings.length > 0 && (
+              <div className="flex justify-center border-t pt-4">
+                <Button asChild variant="ghost" size="sm">
+                  <Link
+                    href={`/dashboard/${type === "asset" ? "assets" : "debts"}/archived`}
+                    className="text-muted-foreground"
+                  >
+                    <Archive /> Archived ({archivedHoldings.length})
+                  </Link>
+                </Button>
+              </div>
+            )}
+
+            {archivedOnly && (
+              <section>
+                <div className="mb-3 px-1">
+                  <h2 className="font-semibold">Archived holdings</h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Removed from active totals. Restore a holding to make it
+                    active again.
+                  </p>
+                </div>
+                {archivedHoldings.length > 0 ? (
+                  <HoldingMobileList
+                    holdings={archivedHoldings}
                     type={type}
+                    archivedView
+                    onHoldingClick={(holding) =>
+                      router.push(getHoldingDetailUrl(holding))
+                    }
+                    onEditHolding={onEditHolding}
+                    onDeleteHolding={onDeleteHolding}
+                    onArchiveHolding={onArchiveHolding}
                   />
-                );
-              })}
+                ) : (
+                  <div className="rounded-xl border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">
+                    No archived {holdingLabelPlural.toLocaleLowerCase()}.
+                  </div>
+                )}
+              </section>
+            )}
           </>
         )}
       </div>
+
+      <AlertDialog
+        open={!!holdingToArchive}
+        onOpenChange={(open) => !open && setHoldingToArchive(undefined)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {holdingToArchiveHasBalance
+                ? `Change ${holdingToArchive?.name} to zero and archive?`
+                : `Archive ${holdingToArchive?.name}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {holdingToArchiveHasBalance && (
+                <>A zero valuation will be recorded for the current month. </>
+              )}
+              This {holdingLabel.toLocaleLowerCase()} will be removed from your
+              active portfolio and totals. You can restore it at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (holdingToArchive) onArchiveHolding(holdingToArchive);
+                setHoldingToArchive(undefined);
+              }}
+            >
+              {holdingToArchiveHasBalance
+                ? "Change to zero and archive"
+                : "Archive"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
