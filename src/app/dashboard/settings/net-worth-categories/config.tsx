@@ -36,6 +36,10 @@ export const netWorthCategoryColumns = [
   }),
   columnHelper.display({
     id: "actions",
+    meta: {
+      headerClassName: "w-12 text-right",
+      cellClassName: "w-12 text-right",
+    },
     cell: ({ row }) => {
       const utils = api.useUtils();
 

@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Database,
   ListTree,
-  ReceiptText,
   Shapes,
   Tags,
   TrendingUp,
@@ -68,12 +67,6 @@ const sections: {
     iconClassName: "bg-violet-500/10 text-violet-500 ring-violet-500/20",
     glowClassName: "bg-violet-500/10",
     items: [
-      {
-        title: "Transaction presets",
-        description: "Create reusable transaction templates.",
-        href: "/dashboard/settings/transaction-templates",
-        icon: ReceiptText,
-      },
       {
         title: "Transaction categories",
         description: "Organize income and expenses.",
