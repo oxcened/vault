@@ -10,7 +10,7 @@
 
 ![Vault Dashboard](docs/screenshots/dashboard.png)
 
-Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple and effective way. Vault is an evolving project, with planned features like **multi-currency support**, **real-time exchange rates**, and **stock tracking**.
+Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple and effective way. It supports **multiple currencies**, **monthly exchange rates**, and **stock and crypto tracking**.
 
 ## 📌 Table of Contents
 
@@ -32,7 +32,7 @@ Vault helps you track **net worth**, **cash flow**, and **expenses** in a simple
 - **Net Worth Tracking** – A simple way to see assets and liabilities in one place.
 - **Cash Flow Insights** – A glance at how money moves over time.
 - **Expense Tracking** – A lightweight way to keep an eye on spending.
-- **Multi-Currency Support** – Potential support for different currencies.
+- **Multi-Currency Support** – Track holdings and transactions in different currencies using monthly exchange rates.
 - **Stock & Crypto Tracking** – Basic market tracking for stocks and crypto.
 - **Slick UI** – A clean and modern interface.
 - **Dark Mode** – Optimized for both light and dark themes.
