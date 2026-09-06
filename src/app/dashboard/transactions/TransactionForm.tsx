@@ -59,12 +59,40 @@ export type TransactionFormProps = {
   onSubmit: (data: CreateTransaction) => void;
 };
 
+type TimestampSuggestion = { label: string; date: Date };
+
+function setTime(date: Date, hours: number, minutes = 0) {
+  const result = new Date(date);
+  result.setHours(hours, minutes, 0, 0);
+  return result;
+}
+
+function getTimestampSuggestions(now: Date): TimestampSuggestion[] {
+  const suggestions: TimestampSuggestion[] = [{ label: "Now", date: now }];
+  const hour = now.getHours();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (hour >= 12) {
+    suggestions.push({ label: "This morning", date: setTime(now, 9) });
+  }
+
+  suggestions.push(
+    { label: "Yesterday", date: setTime(yesterday, hour, now.getMinutes()) },
+    { label: "Yesterday evening", date: setTime(yesterday, 18) },
+  );
+
+  return suggestions;
+}
+
 const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
   function (
     { initialData, isEditing = false, formId, hideTimestamp = false, onSubmit },
     ref,
   ) {
     const [showMoreOptions, setShowMoreOptions] = useState(isEditing);
+    const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+    const [currentTime, setCurrentTime] = useState(() => new Date());
     const [categorySuggestionSource, setCategorySuggestionSource] = useState<
       string | null
     >(null);
@@ -89,6 +117,14 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
     const watchAmount = form.watch("amount");
     const watchCategoryId = form.watch("categoryId");
     const [debouncedDescription] = useDebounce(watchDescription.trim(), 300);
+
+    useEffect(() => {
+      const timer = window.setInterval(
+        () => setCurrentTime(new Date()),
+        60_000,
+      );
+      return () => window.clearInterval(timer);
+    }, []);
 
     const { data: categorySuggestion } =
       api.transaction.suggestCategory.useQuery(
@@ -281,6 +317,43 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             )}
           />
 
+          {!isEditing && !hideTimestamp && (
+            <FormItem className="col-span-full">
+              <FormLabel>When?</FormLabel>
+              <div className="flex flex-wrap gap-2">
+                {getTimestampSuggestions(currentTime).map((suggestion) => (
+                  <Button
+                    key={suggestion.label}
+                    type="button"
+                    variant={
+                      watchTimestamp?.getTime() === suggestion.date.getTime()
+                        ? "secondary"
+                        : "outline"
+                    }
+                    size="sm"
+                    onClick={() => form.setValue("timestamp", suggestion.date)}
+                  >
+                    {suggestion.label}
+                  </Button>
+                ))}
+                <span className="flex items-center px-1 text-sm text-muted-foreground">
+                  or
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowMoreOptions(true);
+                    setDatePickerOpen(true);
+                  }}
+                >
+                  Custom date…
+                </Button>
+              </div>
+            </FormItem>
+          )}
+
           <Button
             type="button"
             variant="ghost"
@@ -369,7 +442,10 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date</FormLabel>
-                      <Popover>
+                      <Popover
+                        open={isDatePickerOpen}
+                        onOpenChange={setDatePickerOpen}
+                      >
                         <PopoverTrigger asChild>
                           <FormControl className="w-full">
                             <Button
