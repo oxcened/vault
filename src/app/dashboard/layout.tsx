@@ -2,6 +2,7 @@ import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { type PropsWithChildren } from "react";
 import { AppSidebar } from "~/components/app-sidebar";
+import { DashboardEntryGate } from "~/components/dashboard-entry-gate";
 import { MobileBottomNav } from "~/components/mobile-bottom-nav";
 import { MobileUserMenu } from "~/components/mobile-user-menu";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
@@ -20,7 +21,17 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
     <SessionProvider>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset className="pb-20 md:pb-0">{children}</SidebarInset>
+        <SidebarInset className="pb-20 md:pb-0">
+          <DashboardEntryGate
+            user={{
+              name: session.user.name ?? "Vault user",
+              email: session.user.email ?? "",
+              image: session.user.image ?? "",
+            }}
+          >
+            {children}
+          </DashboardEntryGate>
+        </SidebarInset>
         <MobileUserMenu />
         <MobileBottomNav />
       </SidebarProvider>
