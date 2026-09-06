@@ -19,6 +19,7 @@ import { APP_CURRENCY } from "~/constants";
 import { calculateZeroInclusiveYAxisDomain } from "~/utils/chart";
 import { formatDate } from "~/utils/date";
 import { formatNumber } from "~/utils/number";
+import { usePrivacy } from "~/components/privacy";
 
 type ChartDataItem = {
   id: string;
@@ -44,6 +45,7 @@ const netWorthChartConfig: ChartConfig = {
 };
 
 export function Chart({ data }: { data: ChartDataItem[] }) {
+  const { mode } = usePrivacy();
   const chartData = data.map((nw) => ({
     month: formatDate({
       date: nw.timestamp,
@@ -80,14 +82,16 @@ export function Chart({ data }: { data: ChartDataItem[] }) {
               tickMargin={8}
               domain={calculateZeroInclusiveYAxisDomain}
               tickFormatter={(value: number) =>
-                formatNumber({
-                  value,
-                  options: {
-                    style: "currency",
-                    currency: APP_CURRENCY,
-                    maximumFractionDigits: 0,
-                  },
-                })
+                mode === "off"
+                  ? formatNumber({
+                      value,
+                      options: {
+                        style: "currency",
+                        currency: APP_CURRENCY,
+                        maximumFractionDigits: 0,
+                      },
+                    })
+                  : "••••"
               }
             />
 

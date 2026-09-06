@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { type Prisma } from "@prisma/client";
 import { ArrowRight, ArrowUpDown, ChartNoAxesColumn, List } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { usePrivacy } from "~/components/privacy";
 import { DashboardBreadcrumb } from "~/components/dashboard-breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -215,6 +216,7 @@ function MetricLink({
 }
 
 function HistoryCard({ data }: { data: Overview }) {
+  const { mode } = usePrivacy();
   const [range, setRange] = useState<Range>("1Y");
   const [view, setView] = useState<HistoryView>("CHART");
   const [showIncome, setShowIncome] = useState(false);
@@ -309,15 +311,17 @@ function HistoryCard({ data }: { data: Overview }) {
                   tickMargin={8}
                   width={68}
                   tickFormatter={(value: number) =>
-                    formatNumber({
-                      value,
-                      options: {
-                        style: "currency",
-                        currency: APP_CURRENCY,
-                        maximumFractionDigits: 0,
-                        notation: "compact",
-                      },
-                    })
+                    mode === "off"
+                      ? formatNumber({
+                          value,
+                          options: {
+                            style: "currency",
+                            currency: APP_CURRENCY,
+                            maximumFractionDigits: 0,
+                            notation: "compact",
+                          },
+                        })
+                      : "••••"
                   }
                 />
                 <ChartTooltip

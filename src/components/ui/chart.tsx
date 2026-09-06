@@ -6,6 +6,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "~/lib/utils";
+import { usePrivacy } from "~/components/privacy";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -135,6 +136,7 @@ const ChartTooltipContent = React.forwardRef<
     ref,
   ) => {
     const { config } = useChart();
+    const { mode } = usePrivacy();
 
     const tooltipLabel = React.useMemo(() => {
       if (hideLabel || !payload?.length) {
@@ -241,9 +243,17 @@ const ChartTooltipContent = React.forwardRef<
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
-                      {item.value && (
-                        <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
+                      {item.value !== undefined && item.value !== null && (
+                        <span
+                          className={cn(
+                            "font-mono font-medium tabular-nums text-foreground",
+                            mode === "hoverToReveal" && "blur-md",
+                            mode === "hoverToReveal" && "hover:blur-none",
+                          )}
+                        >
+                          {mode === "off" || mode === "hoverToReveal"
+                            ? item.value.toLocaleString()
+                            : "••••"}
                         </span>
                       )}
                     </div>

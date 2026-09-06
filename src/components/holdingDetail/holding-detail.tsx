@@ -45,6 +45,7 @@ import { formatDate } from "~/utils/date";
 import { formatNumber } from "~/utils/number";
 import { ValueChangePopup } from "./value-change-popup";
 import { ValuePopup } from "./value-popup";
+import { usePrivacy } from "~/components/privacy";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -128,6 +129,7 @@ export function HoldingDetail({
   onDeleteHolding: () => void;
   onLoadMoreValueHistory: () => void;
 }) {
+  const { mode } = usePrivacy();
   const [range, setRange] = useState<Range>("1Y");
   const [isArchiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const { confirm: confirmHoldingDelete, modal: holdingDeleteModal } =
@@ -364,15 +366,17 @@ export function HoldingDetail({
                         tickMargin={8}
                         width={68}
                         tickFormatter={(value: number) =>
-                          formatNumber({
-                            value,
-                            options: {
-                              style: "currency",
-                              currency: APP_CURRENCY,
-                              maximumFractionDigits: 0,
-                              notation: "compact",
-                            },
-                          })
+                          mode === "off"
+                            ? formatNumber({
+                                value,
+                                options: {
+                                  style: "currency",
+                                  currency: APP_CURRENCY,
+                                  maximumFractionDigits: 0,
+                                  notation: "compact",
+                                },
+                              })
+                            : "••••"
                         }
                       />
                       <ChartTooltip
