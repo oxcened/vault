@@ -4,12 +4,12 @@ import {
   createTransactionSchema,
   updateTransactionSchema,
 } from "~/trpc/schemas/transaction";
-import { APP_CURRENCY } from "~/constants";
-import { appEmitter } from "~/server/eventBus";
 import * as yup from "yup";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import type { Prisma, TransactionCategoryType } from "@prisma/client";
 import { DECIMAL_ZERO } from "~/utils/number";
+import { createTransaction as createTransactionRecord } from "~/server/services/transaction";
+import { appEmitter } from "~/server/eventBus";
 
 const ALLOWED_SORT_FIELDS = ["id", "timestamp"] as const;
 export type SortField = (typeof ALLOWED_SORT_FIELDS)[number];
@@ -221,67 +221,11 @@ export const transactionRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createTransactionSchema)
     .mutation(async ({ input, ctx }) => {
-      const category = await ctx.db.transactionCategory.findUnique({
-        where: { id: input.categoryId },
-        select: { type: true },
-      });
-
-      if (!category) {
-        throw new Error("Category not found.");
-      }
-
-      if (category.type !== input.type) {
-        throw new Error(
-          `Cannot assign a ${category.type.toLowerCase()} category to a ${input.type.toLowerCase()} transaction.`,
-        );
-      }
-
-      const result = await ctx.db.$transaction(async (tx) => {
-        const created = await tx.transaction.create({
-          data: {
-            timestamp: input.timestamp,
-            amount: input.amount,
-            currency: input.currency,
-            description: input.description,
-            type: input.type,
-            status: input.status,
-            category: { connect: { id: input.categoryId } },
-            createdBy: { connect: { id: ctx.session.user.id } },
-          },
-        });
-
-        if (input.currency.toUpperCase() !== APP_CURRENCY) {
-          const date = new Date(input.timestamp);
-          date.setUTCHours(0, 0, 0, 0);
-          const newRate = 1;
-
-          await tx.exchangeRate.upsert({
-            where: {
-              base_quote_timestamp: {
-                baseCurrency: input.currency.toUpperCase(),
-                quoteCurrency: APP_CURRENCY,
-                timestamp: date,
-              },
-            },
-            update: {},
-            create: {
-              baseCurrency: input.currency.toUpperCase(),
-              quoteCurrency: APP_CURRENCY,
-              rate: newRate,
-              timestamp: date,
-            },
-          });
-        }
-
-        return created;
-      });
-
-      appEmitter.emit("transaction:updated", {
+      return createTransactionRecord({
+        db: ctx.db,
+        input,
         userId: ctx.session.user.id,
-        timestamp: result.timestamp,
       });
-
-      return result;
     }),
 
   delete: protectedProcedure

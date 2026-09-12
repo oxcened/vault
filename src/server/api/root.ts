@@ -15,6 +15,7 @@ import { transactionTemplateRouter } from "./routers/transactionTemplate";
 import { envelopeRouter } from "./routers/envelope";
 import { recurringTransactionRouter } from "./routers/recurringTransaction";
 import { monthEndRouter } from "./routers/monthEnd";
+import { shortcutApiTokenRouter } from "./routers/shortcutApiToken";
 
 /**
  * This is the primary router for your server.
@@ -38,6 +39,7 @@ export const appRouter = createTRPCRouter({
   envelope: envelopeRouter,
   recurringTransaction: recurringTransactionRouter,
   monthEnd: monthEndRouter,
+  shortcutApiToken: shortcutApiTokenRouter,
 });
 
 // export type definition of API
