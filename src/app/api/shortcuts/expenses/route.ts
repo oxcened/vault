@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { env } from "~/env";
 import { db } from "~/server/db";
 import { createTransaction as createTransactionRecord } from "~/server/services/transaction";
 import {
@@ -7,6 +6,7 @@ import {
   type CreateTransaction,
 } from "~/trpc/schemas/transaction";
 import { shortcutExpenseDefaults } from "~/server/services/transaction";
+import { hashShortcutApiToken } from "~/server/utils/shortcut-api-token";
 import * as yup from "yup";
 
 const requestSchema = yup.object({
@@ -23,12 +23,23 @@ function errorResponse(message: string, status: number) {
   return NextResponse.json({ ok: false, error: message }, { status });
 }
 
-function hasValidToken(request: Request) {
-  const configuredToken = env.SHORTCUTS_API_TOKEN;
-  if (!configuredToken) return false;
-
+async function resolveTokenOwner(request: Request) {
   const authorization = request.headers.get("authorization");
-  return authorization === `Bearer ${configuredToken}`;
+  const token = authorization?.match(/^Bearer (.+)$/)?.[1];
+  if (!token) return null;
+
+  const apiToken = await db.shortcutApiToken.findUnique({
+    where: { tokenHash: hashShortcutApiToken(token) },
+    select: { id: true, createdById: true },
+  });
+  if (!apiToken) return null;
+
+  await db.shortcutApiToken.update({
+    where: { id: apiToken.id },
+    data: { lastUsedAt: new Date() },
+  });
+
+  return apiToken.createdById;
 }
 
 async function resolveCategory(categoryIdOrName: string | undefined) {
@@ -52,11 +63,8 @@ async function resolveCategory(categoryIdOrName: string | undefined) {
 }
 
 export async function POST(request: Request) {
-  if (!env.SHORTCUTS_API_TOKEN || !env.SHORTCUTS_USER_EMAIL) {
-    return errorResponse("Shortcut expense import is not configured.", 404);
-  }
-
-  if (!hasValidToken(request)) {
+  const userId = await resolveTokenOwner(request);
+  if (!userId) {
     return errorResponse("Invalid Shortcut API token.", 401);
   }
 
@@ -94,16 +102,10 @@ export async function POST(request: Request) {
         ...shortcutExpenseDefaults,
       });
 
-    const user = await db.user.findUnique({
-      where: { email: env.SHORTCUTS_USER_EMAIL },
-      select: { id: true },
-    });
-    if (!user) return errorResponse("Shortcut owner account not found.", 500);
-
     const transaction = await createTransactionRecord({
       db,
       input: transactionInput,
-      userId: user.id,
+      userId,
     });
 
     return NextResponse.json({

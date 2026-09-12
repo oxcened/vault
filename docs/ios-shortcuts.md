@@ -1,13 +1,8 @@
 # iOS Shortcuts expense import
 
-Vault exposes `POST /api/shortcuts/expenses` for creating an expense from an iOS Shortcut.
+Vault exposes `POST /api/shortcuts/expenses` for creating an expense from an iOS Shortcut. Each Vault user creates and manages their own tokens from **Settings → iOS Shortcuts**.
 
-Configure these server environment variables:
-
-- `SHORTCUTS_API_TOKEN`: a long random secret used as a Bearer token.
-- `SHORTCUTS_USER_EMAIL`: the Vault account that owns imported transactions.
-
-Send a JSON request with an `Authorization: Bearer <SHORTCUTS_API_TOKEN>` header:
+Send a JSON request with an `Authorization: Bearer <token>` header:
 
 ```json
 {
@@ -21,4 +16,4 @@ Send a JSON request with an `Authorization: Bearer <SHORTCUTS_API_TOKEN>` header
 
 `date` may be used instead of `timestamp`. The category may be its name or ID. If omitted, Vault uses `Other & Unexpected`.
 
-On success, the endpoint returns HTTP 200 with `{ "ok": true, "transaction": ... }`. Invalid requests return HTTP 422; an invalid token returns HTTP 401.
+Tokens are stored as hashes and displayed only once when created. On success, the endpoint returns HTTP 200 with `{ "ok": true, "transaction": ... }`. Invalid requests return HTTP 422; an invalid or revoked token returns HTTP 401.

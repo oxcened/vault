@@ -60,6 +60,19 @@ model User {
   cashFlows             CashFlow[]
   TransactionTemplate   TransactionTemplate[]
   Envelope              Envelope[]
+  shortcutApiTokens     ShortcutApiToken[]
+}
+
+model ShortcutApiToken {
+  id          String   @id @default(cuid())
+  name        String
+  tokenHash   String   @unique
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([createdById])
 }
 
 model VerificationToken {
