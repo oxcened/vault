@@ -288,49 +288,6 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             )}
           />
 
-          {!fixedType && (
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      categoryWasManuallySelected.current = false;
-                      automaticallySelectedCategory.current = undefined;
-                      setCategorySuggestionSource(null);
-                      form.setValue("categoryId", "", {
-                        shouldDirty: true,
-                        shouldValidate: false,
-                      });
-                      field.onChange(value);
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="capitalize">
-                        <SelectValue placeholder="Select a type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.values(TransactionType).map((type) => (
-                        <SelectItem
-                          key={type}
-                          value={type}
-                          className="capitalize"
-                        >
-                          {type.toLocaleLowerCase()}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
           <FormField
             control={form.control}
             name="description"
@@ -507,6 +464,49 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                 </Popover>
               </div>
             </FormItem>
+          )}
+
+          {!fixedType && (
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      categoryWasManuallySelected.current = false;
+                      automaticallySelectedCategory.current = undefined;
+                      setCategorySuggestionSource(null);
+                      form.setValue("categoryId", "", {
+                        shouldDirty: true,
+                        shouldValidate: false,
+                      });
+                      field.onChange(value);
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="capitalize">
+                        <SelectValue placeholder="Select a type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(TransactionType).map((type) => (
+                        <SelectItem
+                          key={type}
+                          value={type}
+                          className="capitalize"
+                        >
+                          {type.toLocaleLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
         </form>
