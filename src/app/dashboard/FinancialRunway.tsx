@@ -89,10 +89,6 @@ export default function FinancialRunway() {
           className={cn(
             "text-3xl tabular-nums tracking-tight",
             hasLiquidAssets && hasExpenseHistory && mode !== "off" && "blur-md",
-            hasLiquidAssets &&
-              hasExpenseHistory &&
-              mode === "hoverToReveal" &&
-              "hover:blur-none",
           )}
         >
           {formattedRunwayDuration}

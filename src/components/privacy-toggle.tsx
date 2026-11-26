@@ -28,9 +28,6 @@ export function PrivacyToggle() {
         <DropdownMenuItem onClick={() => setMode("blur")}>
           Blur
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setMode("hoverToReveal")}>
-          Hover to reveal
-        </DropdownMenuItem>
       </DropdownMenuSubContent>
     </DropdownMenuSub>
   );

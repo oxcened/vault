@@ -247,13 +247,9 @@ const ChartTooltipContent = React.forwardRef<
                         <span
                           className={cn(
                             "font-mono font-medium tabular-nums text-foreground",
-                            mode === "hoverToReveal" && "blur-md",
-                            mode === "hoverToReveal" && "hover:blur-none",
                           )}
                         >
-                          {mode === "off" || mode === "hoverToReveal"
-                            ? item.value.toLocaleString()
-                            : "••••"}
+                          {mode === "off" ? item.value.toLocaleString() : "••••"}
                         </span>
                       )}
                     </div>

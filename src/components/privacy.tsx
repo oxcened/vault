@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type PrivacyMode = "off" | "blur" | "hoverToReveal";
+type PrivacyMode = "off" | "blur";
 
 const PrivacyCtx = createContext<{
   mode: PrivacyMode;
@@ -18,11 +18,11 @@ export function PrivacyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem(
-        "vaultPrivacyMode",
-      ) as PrivacyMode | null;
-      if (stored === "off" || stored === "blur" || stored === "hoverToReveal") {
+      const stored = window.localStorage.getItem("vaultPrivacyMode");
+      if (stored === "off" || stored === "blur") {
         setMode(stored);
+      } else if (stored === "hoverToReveal") {
+        setMode("blur");
       }
     } catch {
       // ignore access errors (e.g., disabled storage)
