@@ -453,11 +453,12 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                     <div className="border-t border-border p-3">
                       <TimePicker
                         date={watchTimestamp}
-                        setDate={(date) =>
+                        setDate={(date) => {
+                          if (!date) return;
                           form.setValue("timestamp", date, {
                             shouldDirty: true,
-                          })
-                        }
+                          });
+                        }}
                       />
                     </div>
                   </PopoverContent>
