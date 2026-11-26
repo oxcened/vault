@@ -5,12 +5,20 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { CalendarClock, ChevronDown, PlusIcon, ZapIcon } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  CalendarClock,
+  ChevronDown,
+  PlusIcon,
+  ZapIcon,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import NewTransactionDialog from "~/app/dashboard/transactions/NewTransactionDialog";
 import { useEffect, useState } from "react";
 import TransactionTemplateDialog from "~/app/dashboard/transactions/TransactionTemplateDialog";
 import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
+import { TransactionType } from "@prisma/client";
 
 export function AddTransactionDropdown({
   onSuccess,
@@ -18,6 +26,9 @@ export function AddTransactionDropdown({
   onSuccess: () => void;
 }) {
   const [isNewDialogOpen, setNewDialogOpen] = useState(false);
+  const [newTransactionType, setNewTransactionType] = useState<TransactionType>(
+    TransactionType.EXPENSE,
+  );
   const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
 
@@ -59,8 +70,23 @@ export function AddTransactionDropdown({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setNewDialogOpen(true)}>
-            Add transaction...
+          <DropdownMenuItem
+            onClick={() => {
+              setNewTransactionType(TransactionType.EXPENSE);
+              setNewDialogOpen(true);
+            }}
+          >
+            <ArrowUpRight />
+            Add expense...
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setNewTransactionType(TransactionType.INCOME);
+              setNewDialogOpen(true);
+            }}
+          >
+            <ArrowDownLeft />
+            Add income...
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => setTemplateDialogOpen(true)}>
@@ -76,10 +102,11 @@ export function AddTransactionDropdown({
       </DropdownMenu>
 
       <NewTransactionDialog
-        key={`new-transaction-dialog-${isNewDialogOpen}`}
+        key={`new-transaction-dialog-${isNewDialogOpen}-${newTransactionType}`}
         isOpen={isNewDialogOpen}
         onOpenChange={setNewDialogOpen}
         onSuccess={onSuccess}
+        type={newTransactionType}
       />
 
       <TransactionTemplateDialog

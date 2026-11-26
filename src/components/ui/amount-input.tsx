@@ -7,6 +7,7 @@ export type AmountInputProps = Omit<
   "inputMode" | "onChange" | "type" | "value"
 > & {
   currency?: string;
+  currencyAction?: React.ReactNode;
   maxFractionDigits: number;
   value?: number | string | null;
   onValueChange: (value: string) => void;
@@ -17,6 +18,7 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
     {
       className,
       currency,
+      currencyAction,
       maxFractionDigits,
       onFocus,
       onValueChange,
@@ -57,11 +59,15 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
           }}
           {...props}
         />
-        {currency && (
+        {currencyAction ? (
+          <div className="mr-1 flex items-center border-l border-border pl-1">
+            {currencyAction}
+          </div>
+        ) : currency ? (
           <span className="mr-3 border-l border-border pl-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {currency}
           </span>
-        )}
+        ) : null}
       </div>
     );
   },

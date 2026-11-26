@@ -29,6 +29,7 @@ type TransactionIconProps = {
   category: string;
   type: "INCOME" | "EXPENSE" | "TRANSFER";
   isRefund?: boolean;
+  size?: "sm" | "default";
 };
 
 type IconConfig = {
@@ -248,18 +249,22 @@ export function getTransactionAccent(props: TransactionIconProps) {
   return getIconConfig(props).accent;
 }
 
-export function TransactionIcon(props: TransactionIconProps) {
+export function TransactionIcon({
+  size = "default",
+  ...props
+}: TransactionIconProps) {
   const { icon: Icon, className } = getIconConfig(props);
 
   return (
     <span
       aria-hidden="true"
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-full",
+        "flex shrink-0 items-center justify-center rounded-full",
+        size === "sm" ? "size-7" : "size-9",
         className,
       )}
     >
-      <Icon className="size-4" />
+      <Icon className={size === "sm" ? "size-3.5" : "size-4"} />
     </span>
   );
 }

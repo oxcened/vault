@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { AmountInput } from "~/components/ui/amount-input";
 import { DescriptionAutocomplete } from "~/components/ui/description-autocomplete";
+import { TransactionIcon } from "~/components/transactionTable/transaction-icon";
 import { api } from "~/trpc/react";
 import { useForm } from "react-hook-form";
 import {
@@ -56,6 +57,7 @@ export type TransactionFormProps = {
   isEditing?: boolean;
   formId?: string;
   hideTimestamp?: boolean;
+  fixedType?: TransactionType;
   onSubmit: (data: CreateTransaction) => void;
 };
 
@@ -79,7 +81,6 @@ function getTimestampSuggestions(now: Date): TimestampSuggestion[] {
 
   suggestions.push(
     { label: "Yesterday", date: setTime(yesterday, hour, now.getMinutes()) },
-    { label: "Yesterday evening", date: setTime(yesterday, 18) },
   );
 
   return suggestions;
@@ -87,11 +88,23 @@ function getTimestampSuggestions(now: Date): TimestampSuggestion[] {
 
 const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
   function (
-    { initialData, isEditing = false, formId, hideTimestamp = false, onSubmit },
+    {
+      initialData,
+      isEditing = false,
+      formId,
+      hideTimestamp = false,
+      fixedType,
+      onSubmit,
+    },
     ref,
   ) {
-    const [showMoreOptions, setShowMoreOptions] = useState(isEditing);
+    const [showMoreOptions, setShowMoreOptions] = useState(
+      isEditing && !fixedType,
+    );
     const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+    const [isCustomDateSelected, setCustomDateSelected] = useState(
+      isEditing || !!initialData,
+    );
     const [currentTime, setCurrentTime] = useState(() => new Date());
     const [categorySuggestionSource, setCategorySuggestionSource] = useState<
       string | null
@@ -104,7 +117,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
         categoryId: "",
         description: "",
         timestamp: new Date(),
-        type: "EXPENSE" satisfies TransactionType,
+        type: (fixedType ?? "EXPENSE") satisfies TransactionType,
         status: "POSTED" satisfies TransactionStatus,
       },
       resolver: yupResolver(createTransactionSchema),
@@ -174,7 +187,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
     const isToday =
       watchTimestamp?.toDateString() === new Date().toDateString();
     const optionSummary = [
-      watchType.toLocaleLowerCase(),
+      !fixedType && watchType.toLocaleLowerCase(),
       watchCurrency.toUpperCase(),
       !hideTimestamp &&
         (isToday ? "today" : watchTimestamp?.toLocaleDateString()),
@@ -202,6 +215,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
         categoryWasManuallySelected.current = false;
         automaticallySelectedCategory.current = undefined;
         setCategorySuggestionSource(null);
+        setCustomDateSelected(false);
         form.reset();
         form.setFocus("amount");
       },
@@ -227,7 +241,50 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                     onBlur={field.onBlur}
                     onValueChange={field.onChange}
                     value={field.value ?? ""}
-                    currency={watchCurrency}
+                    currencyAction={
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex h-7 items-center gap-1 rounded px-1.5 text-xs font-medium uppercase text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            aria-label={`Change currency, currently ${watchCurrency}`}
+                          >
+                            {watchCurrency}
+                            <ChevronDown className="size-3" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 p-3" align="end">
+                          <div className="space-y-2">
+                            <label
+                              htmlFor={
+                                formId
+                                  ? `${formId}-currency`
+                                  : "transaction-currency"
+                              }
+                              className="text-sm font-medium"
+                            >
+                              Currency
+                            </label>
+                            <Input
+                              id={
+                                formId
+                                  ? `${formId}-currency`
+                                  : "transaction-currency"
+                              }
+                              placeholder="EUR"
+                              autoCapitalize="characters"
+                              aria-invalid={!!form.formState.errors.currency}
+                              {...form.register("currency")}
+                            />
+                            {form.formState.errors.currency?.message && (
+                              <p className="text-sm font-medium text-destructive">
+                                {form.formState.errors.currency.message}
+                              </p>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    }
                     maxFractionDigits={getCurrencyFractionDigits(watchCurrency)}
                     placeholder="0.00"
                     autoFocus={!isEditing}
@@ -300,7 +357,14 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                   <SelectContent>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
-                        {category.name}
+                        <span className="flex items-center gap-2">
+                          <TransactionIcon
+                            category={category.name}
+                            type={watchType}
+                            size="sm"
+                          />
+                          {category.name}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -317,180 +381,173 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
             )}
           />
 
-          {!isEditing && !hideTimestamp && (
+          {!hideTimestamp && (
             <FormItem className="col-span-full">
-              <FormLabel>When?</FormLabel>
+              <FormLabel>Date and time</FormLabel>
               <div className="flex flex-wrap gap-2">
-                {getTimestampSuggestions(currentTime).map((suggestion) => (
-                  <Button
-                    key={suggestion.label}
-                    type="button"
-                    variant={
-                      watchTimestamp?.getTime() === suggestion.date.getTime()
-                        ? "secondary"
-                        : "outline"
-                    }
-                    size="sm"
-                    onClick={() => form.setValue("timestamp", suggestion.date)}
-                  >
-                    {suggestion.label}
-                  </Button>
-                ))}
-                <span className="flex items-center px-1 text-sm text-muted-foreground">
-                  or
-                </span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowMoreOptions(true);
-                    setDatePickerOpen(true);
-                  }}
+                {!isEditing &&
+                  getTimestampSuggestions(currentTime).map((suggestion) => (
+                    <Button
+                      key={suggestion.label}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        watchTimestamp?.getTime() === suggestion.date.getTime() &&
+                          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                      )}
+                      onClick={() => {
+                        setCustomDateSelected(false);
+                        form.setValue("timestamp", suggestion.date);
+                      }}
+                    >
+                      {suggestion.label}
+                    </Button>
+                  ))}
+                <Popover
+                  open={isDatePickerOpen}
+                  onOpenChange={setDatePickerOpen}
                 >
-                  Custom date…
-                </Button>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "px-2 font-normal",
+                        isCustomDateSelected &&
+                          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                      )}
+                      aria-label={
+                        isCustomDateSelected && watchTimestamp
+                          ? `Change date and time, selected ${watchTimestamp.toLocaleString()}`
+                          : "Pick date and time"
+                      }
+                      title={
+                        isCustomDateSelected
+                          ? "Change date and time"
+                          : "Pick date and time"
+                      }
+                    >
+                      {isCustomDateSelected && watchTimestamp && (
+                        <span>
+                          {watchTimestamp.toLocaleString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      )}
+                      <CalendarIcon
+                        className={cn(
+                          "size-4 opacity-60",
+                          isCustomDateSelected && "ml-1",
+                        )}
+                      />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="single"
+                      selected={watchTimestamp}
+                      disabled={(date) => date > new Date()}
+                      defaultMonth={watchTimestamp}
+                      onSelect={(date) => {
+                        if (!date) return;
+                        setCustomDateSelected(true);
+                        form.setValue(
+                          "timestamp",
+                          mergeDateAndTime(date, watchTimestamp),
+                          { shouldDirty: true },
+                        );
+                      }}
+                    />
+                    <div className="border-t border-border p-3">
+                      <TimePicker
+                        date={watchTimestamp}
+                        setDate={(date) =>
+                          form.setValue("timestamp", date, {
+                            shouldDirty: true,
+                          })
+                        }
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </FormItem>
           )}
 
-          <Button
-            type="button"
-            variant="ghost"
-            className="col-span-full justify-start px-0 text-muted-foreground"
-            aria-expanded={showMoreOptions}
-            aria-label={
-              showMoreOptions
-                ? "Hide additional options"
-                : "Show additional options"
-            }
-            onClick={() => setShowMoreOptions((shown) => !shown)}
-          >
-            <ChevronDown
-              className={cn(
-                "transition-transform",
-                showMoreOptions && "rotate-180",
-              )}
-            />
-            <span className="font-normal capitalize">{optionSummary}</span>
-          </Button>
+          {!isEditing && !fixedType && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="col-span-full justify-start px-0 text-muted-foreground"
+              aria-expanded={showMoreOptions}
+              aria-label={
+                showMoreOptions
+                  ? "Hide additional options"
+                  : "Show additional options"
+              }
+              onClick={() => setShowMoreOptions((shown) => !shown)}
+            >
+              <ChevronDown
+                className={cn(
+                  "transition-transform",
+                  showMoreOptions && "rotate-180",
+                )}
+              />
+              <span className="font-normal capitalize">{optionSummary}</span>
+            </Button>
+          )}
 
-          {showMoreOptions && (
+          {showMoreOptions && !fixedType && (
             <>
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        categoryWasManuallySelected.current = false;
-                        automaticallySelectedCategory.current = undefined;
-                        setCategorySuggestionSource(null);
-                        form.setValue("categoryId", "", {
-                          shouldDirty: true,
-                          shouldValidate: false,
-                        });
-                        field.onChange(value);
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="capitalize">
-                          <SelectValue placeholder="Select a type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.values(TransactionType).map((type) => (
-                          <SelectItem
-                            key={type}
-                            value={type}
-                            className="capitalize"
-                          >
-                            {type.toLocaleLowerCase()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="currency"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Currency</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Currency (e.g., USD, EUR, BTC)"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {!hideTimestamp && (
+              {!fixedType && (
                 <FormField
                   control={form.control}
-                  name="timestamp"
+                  name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date</FormLabel>
-                      <Popover
-                        open={isDatePickerOpen}
-                        onOpenChange={setDatePickerOpen}
+                      <FormLabel>Type</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          categoryWasManuallySelected.current = false;
+                          automaticallySelectedCategory.current = undefined;
+                          setCategorySuggestionSource(null);
+                          form.setValue("categoryId", "", {
+                            shouldDirty: true,
+                            shouldValidate: false,
+                          });
+                          field.onChange(value);
+                        }}
                       >
-                        <PopoverTrigger asChild>
-                          <FormControl className="w-full">
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
+                        <FormControl>
+                          <SelectTrigger className="capitalize">
+                            <SelectValue placeholder="Select a type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(TransactionType).map((type) => (
+                            <SelectItem
+                              key={type}
+                              value={type}
+                              className="capitalize"
                             >
-                              {field.value ? (
-                                field.value.toLocaleDateString()
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            initialFocus
-                            mode="single"
-                            selected={field.value}
-                            disabled={(date) => date > new Date()}
-                            defaultMonth={field.value}
-                            onSelect={(date) =>
-                              date &&
-                              field.onChange(
-                                mergeDateAndTime(date, field.value),
-                              )
-                            }
-                          />
-                          <div className="border-t border-border p-3">
-                            <TimePicker
-                              date={field.value}
-                              setDate={field.onChange}
-                            />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                              {type.toLocaleLowerCase()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               )}
+
             </>
           )}
         </form>

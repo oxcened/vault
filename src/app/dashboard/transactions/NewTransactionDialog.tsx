@@ -14,12 +14,14 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import TransactionForm, { type TransactionFormRef } from "./TransactionForm";
 import { type CreateTransaction } from "~/trpc/schemas/transaction";
+import { TransactionType } from "@prisma/client";
 
 export type NewTransactionDialogProps = {
   isOpen: boolean;
   onOpenChange: (newOpen: boolean) => void;
   onSuccess: () => void;
   initialData?: CreateTransaction;
+  type?: TransactionType;
   title?: string;
 };
 
@@ -28,7 +30,13 @@ export default function NewTransactionDialog({
   onOpenChange,
   onSuccess,
   initialData,
-  title = "Add transaction",
+  type,
+  title =
+    type === TransactionType.INCOME
+      ? "Add income"
+      : type === TransactionType.EXPENSE
+        ? "Add expense"
+        : "Add transaction",
 }: NewTransactionDialogProps) {
   const createMoreRef = useRef(false);
   const formRef = useRef<TransactionFormRef>(null);
@@ -62,6 +70,7 @@ export default function NewTransactionDialog({
           ref={formRef}
           formId="new-transaction-dialog-form"
           initialData={initialData}
+          fixedType={type}
           onSubmit={mutate}
         />
         <DialogFooter className="gap-2">
