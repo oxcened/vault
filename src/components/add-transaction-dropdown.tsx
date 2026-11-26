@@ -8,7 +8,6 @@ import {
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  CalendarClock,
   ChevronDown,
   PlusIcon,
   ZapIcon,
@@ -17,7 +16,6 @@ import { Button } from "./ui/button";
 import NewTransactionDialog from "~/app/dashboard/transactions/NewTransactionDialog";
 import { useEffect, useState } from "react";
 import TransactionTemplateDialog from "~/app/dashboard/transactions/TransactionTemplateDialog";
-import { RecurringTransactionDialog } from "~/app/dashboard/transactions/RecurringTransactionDialog";
 import { TransactionType } from "@prisma/client";
 
 export function AddTransactionDropdown({
@@ -30,7 +28,6 @@ export function AddTransactionDropdown({
     TransactionType.EXPENSE,
   );
   const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
-  const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -94,10 +91,6 @@ export function AddTransactionDropdown({
             Quick add...
             <DropdownMenuShortcut>Q</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setScheduleDialogOpen(true)}>
-            <CalendarClock />
-            Add schedule...
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -116,12 +109,6 @@ export function AddTransactionDropdown({
         onSuccess={onSuccess}
       />
 
-      <RecurringTransactionDialog
-        key={`recurring-transaction-dialog-${isScheduleDialogOpen}`}
-        isOpen={isScheduleDialogOpen}
-        onOpenChange={setScheduleDialogOpen}
-        onSuccess={onSuccess}
-      />
     </>
   );
 }

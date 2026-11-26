@@ -60,6 +60,7 @@ export type RecurringTransactionRow = {
 };
 
 const frequencyLabels: Record<RecurrenceFrequency, string> = {
+  ONCE: "One time",
   DAILY: "Daily",
   WEEKLY: "Weekly",
   MONTHLY: "Monthly",
@@ -197,7 +198,11 @@ function ScheduleRow({
   const { confirm, modal } = useConfirmDelete();
   const skip = api.recurringTransaction.skip.useMutation({
     onSuccess: () => {
-      toast.success("Occurrence skipped.");
+      toast.success(
+        schedule.frequency === "ONCE"
+          ? "Scheduled transaction dismissed."
+          : "Occurrence skipped.",
+      );
       onChanged();
     },
   });
@@ -329,7 +334,10 @@ function ScheduleRow({
                     <DropdownMenuItem
                       onClick={() => skip.mutate({ id: schedule.id })}
                     >
-                      <SkipForward /> Skip occurrence
+                      <SkipForward />
+                      {schedule.frequency === "ONCE"
+                        ? "Dismiss schedule"
+                        : "Skip occurrence"}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem
@@ -411,6 +419,9 @@ function ScheduleRow({
 }
 
 function formatRecurrence(schedule: RecurringTransactionRow) {
+  if (schedule.frequency === "ONCE") {
+    return frequencyLabels[schedule.frequency];
+  }
   if (schedule.interval === 1) return frequencyLabels[schedule.frequency];
 
   const unit = {

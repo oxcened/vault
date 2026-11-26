@@ -8,6 +8,7 @@ import { useState } from "react";
 import { AmountInput } from "~/components/ui/amount-input";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
+import { TransactionIcon } from "~/components/transactionTable/transaction-icon";
 import {
   Form,
   FormControl,
@@ -41,22 +42,22 @@ import { cn } from "~/lib/utils";
 type RecurringTransactionFormProps = {
   formId: string;
   initialData?: RecurringTransactionInput;
+  type?: TransactionType;
   onSubmit: (data: RecurringTransactionInput) => void;
 };
 
-const frequencyUnits: Record<
-  RecurrenceFrequency,
-  { singular: string; plural: string }
-> = {
-  DAILY: { singular: "day", plural: "days" },
-  WEEKLY: { singular: "week", plural: "weeks" },
-  MONTHLY: { singular: "month", plural: "months" },
-  YEARLY: { singular: "year", plural: "years" },
+const frequencyUnits: Record<RecurrenceFrequency, string> = {
+  ONCE: "Does not repeat",
+  DAILY: "day",
+  WEEKLY: "week",
+  MONTHLY: "month",
+  YEARLY: "year",
 };
 
 export function RecurringTransactionForm({
   formId,
   initialData,
+  type,
   onSubmit,
 }: RecurringTransactionFormProps) {
   const form = useForm<RecurringTransactionInput>({
@@ -68,17 +69,17 @@ export function RecurringTransactionForm({
       frequency: RecurrenceFrequency.MONTHLY,
       interval: 1,
       nextDate: new Date(),
-      type: TransactionType.EXPENSE,
+      type: type ?? TransactionType.EXPENSE,
     },
     resolver: yupResolver(recurringTransactionSchema),
   });
-  const type = form.watch("type");
+  const watchedType = form.watch("type");
   const currency = form.watch("currency");
   const interval = form.watch("interval");
+  const frequency = form.watch("frequency");
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const { data: categories = [], isPending } =
-    api.transactionCategory.getByType.useQuery({ type: [type] });
+    api.transactionCategory.getByType.useQuery({ type: [watchedType] });
 
   return (
     <Form {...form}>
@@ -100,7 +101,42 @@ export function RecurringTransactionForm({
                   value={field.value ?? ""}
                   onBlur={field.onBlur}
                   onValueChange={field.onChange}
-                  currency={currency}
+                  currencyAction={
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex h-7 items-center gap-1 rounded px-1.5 text-xs font-medium uppercase text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          aria-label={`Change currency, currently ${currency}`}
+                        >
+                          {currency}
+                          <ChevronDown className="size-3" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 p-3" align="end">
+                        <div className="space-y-2">
+                          <label
+                            htmlFor={`${formId}-currency`}
+                            className="text-sm font-medium"
+                          >
+                            Currency
+                          </label>
+                          <Input
+                            id={`${formId}-currency`}
+                            placeholder="EUR"
+                            autoCapitalize="characters"
+                            aria-invalid={!!form.formState.errors.currency}
+                            {...form.register("currency")}
+                          />
+                          {form.formState.errors.currency?.message && (
+                            <p className="text-sm font-medium text-destructive">
+                              {form.formState.errors.currency.message}
+                            </p>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  }
                   maxFractionDigits={getCurrencyFractionDigits(currency)}
                   placeholder="0.00"
                   autoFocus
@@ -144,7 +180,14 @@ export function RecurringTransactionForm({
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
-                      {category.name}
+                      <span className="flex items-center gap-2">
+                        <TransactionIcon
+                          category={category.name}
+                          type={watchedType}
+                          size="sm"
+                        />
+                        {category.name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -199,28 +242,30 @@ export function RecurringTransactionForm({
         />
 
         <div>
-          <FormLabel>Repeats every</FormLabel>
+          <FormLabel>Repeat</FormLabel>
           <div className="mt-2 flex gap-2">
-            <FormField
-              control={form.control}
-              name="interval"
-              render={({ field }) => (
-                <FormItem className="w-20">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      min={1}
-                      max={99}
-                      onChange={(event) =>
-                        field.onChange(event.target.valueAsNumber)
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {frequency !== RecurrenceFrequency.ONCE && (
+              <FormField
+                control={form.control}
+                name="interval"
+                render={({ field }) => (
+                  <FormItem className="w-20">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        min={1}
+                        max={99}
+                        onChange={(event) =>
+                          field.onChange(event.target.valueAsNumber)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="frequency"
@@ -235,9 +280,11 @@ export function RecurringTransactionForm({
                     <SelectContent>
                       {Object.values(RecurrenceFrequency).map((frequency) => (
                         <SelectItem key={frequency} value={frequency}>
-                          {interval === 1
-                            ? frequencyUnits[frequency].singular
-                            : frequencyUnits[frequency].plural}
+                          {frequency === RecurrenceFrequency.ONCE
+                            ? frequencyUnits[frequency]
+                            : `${frequencyUnits[frequency]}${
+                                interval === 1 ? "" : "s"
+                              }`}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -248,82 +295,6 @@ export function RecurringTransactionForm({
             />
           </div>
         </div>
-
-        <Button
-          type="button"
-          variant="ghost"
-          className="col-span-full justify-start px-0 text-muted-foreground"
-          aria-expanded={showMoreOptions}
-          aria-label={
-            showMoreOptions
-              ? "Hide additional options"
-              : "Show additional options"
-          }
-          onClick={() => setShowMoreOptions((shown) => !shown)}
-        >
-          <ChevronDown
-            className={cn(
-              "transition-transform",
-              showMoreOptions && "rotate-180",
-            )}
-          />
-          <span className="font-normal capitalize">
-            {type.toLowerCase()} · {currency.toUpperCase()}
-          </span>
-        </Button>
-
-        {showMoreOptions && (
-          <>
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      form.setValue("categoryId", "");
-                      field.onChange(value);
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="capitalize">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.values(TransactionType).map((transactionType) => (
-                        <SelectItem
-                          key={transactionType}
-                          value={transactionType}
-                          className="capitalize"
-                        >
-                          {transactionType.toLowerCase()}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Currency</FormLabel>
-                  <FormControl>
-                    <Input {...field} maxLength={3} className="uppercase" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
       </form>
     </Form>
   );

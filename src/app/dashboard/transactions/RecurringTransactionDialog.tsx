@@ -14,6 +14,7 @@ import {
 import { api } from "~/trpc/react";
 import type { RecurringTransactionInput } from "~/trpc/schemas/recurring-transaction";
 import { RecurringTransactionForm } from "./RecurringTransactionForm";
+import type { TransactionType } from "@prisma/client";
 
 type RecurringTransactionDialogProps = {
   isOpen: boolean;
@@ -21,6 +22,7 @@ type RecurringTransactionDialogProps = {
   onSuccess: () => void;
   initialData?: RecurringTransactionInput;
   scheduleId?: string;
+  type?: TransactionType;
 };
 
 const formId = "recurring-transaction-form";
@@ -31,6 +33,7 @@ export function RecurringTransactionDialog({
   onSuccess,
   initialData,
   scheduleId,
+  type,
 }: RecurringTransactionDialogProps) {
   const create = api.recurringTransaction.create.useMutation({
     onSuccess: () => handleSuccess("Schedule created."),
@@ -38,6 +41,7 @@ export function RecurringTransactionDialog({
   const update = api.recurringTransaction.update.useMutation({
     onSuccess: () => handleSuccess("Schedule updated."),
   });
+  const transactionType = type ?? initialData?.type;
 
   const handleSuccess = (message: string) => {
     toast.success(message);
@@ -51,17 +55,24 @@ export function RecurringTransactionDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {scheduleId ? "Edit schedule" : "Add schedule"}
+            {scheduleId
+              ? "Edit schedule"
+              : transactionType === "INCOME"
+                ? "Add income schedule"
+                : "Add expense schedule"}
           </DialogTitle>
           <DialogDescription>
             {scheduleId
-              ? "Changes apply to future occurrences."
-              : "Set it once, then record each occurrence when it happens."}
+              ? initialData?.frequency === "ONCE"
+                ? "Changes apply to this scheduled transaction."
+                : "Changes apply to future occurrences."
+              : "Choose when to record it and whether it should repeat."}
           </DialogDescription>
         </DialogHeader>
         <RecurringTransactionForm
           formId={formId}
           initialData={initialData}
+          type={transactionType}
           onSubmit={(data) =>
             scheduleId
               ? update.mutate({ id: scheduleId, ...data })

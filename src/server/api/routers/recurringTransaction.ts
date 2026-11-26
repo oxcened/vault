@@ -14,6 +14,8 @@ function getNextDate(
   interval: number,
 ) {
   switch (frequency) {
+    case RecurrenceFrequency.ONCE:
+      return date;
     case RecurrenceFrequency.DAILY:
       return addDays(date, interval);
     case RecurrenceFrequency.WEEKLY:
@@ -125,16 +127,20 @@ export const recurringTransactionRouter = createTRPCRouter({
             createdById: ctx.session.user.id,
           },
         });
-        await tx.recurringTransaction.update({
-          where: { id: schedule.id },
-          data: {
-            nextDate: getNextDate(
-              schedule.nextDate,
-              schedule.frequency,
-              schedule.interval,
-            ),
-          },
-        });
+        if (schedule.frequency === RecurrenceFrequency.ONCE) {
+          await tx.recurringTransaction.delete({ where: { id: schedule.id } });
+        } else {
+          await tx.recurringTransaction.update({
+            where: { id: schedule.id },
+            data: {
+              nextDate: getNextDate(
+                schedule.nextDate,
+                schedule.frequency,
+                schedule.interval,
+              ),
+            },
+          });
+        }
         return transaction;
       });
 
@@ -151,6 +157,12 @@ export const recurringTransactionRouter = createTRPCRouter({
       const schedule = await ctx.db.recurringTransaction.findFirstOrThrow({
         where: { id: input.id, createdById: ctx.session.user.id },
       });
+      if (schedule.frequency === RecurrenceFrequency.ONCE) {
+        return ctx.db.recurringTransaction.delete({
+          where: { id: schedule.id },
+        });
+      }
+
       return ctx.db.recurringTransaction.update({
         where: { id: schedule.id },
         data: {

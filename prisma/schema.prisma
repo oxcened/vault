@@ -239,6 +239,7 @@ model TransactionCategory {
 }
 
 enum RecurrenceFrequency {
+  ONCE
   DAILY
   WEEKLY
   MONTHLY

@@ -13,14 +13,23 @@ import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "../ui/button";
 import {
+  ArrowDownLeft,
+  ArrowUpRight,
   CalendarClock,
   CalendarPlus,
+  ChevronDown,
   ChevronRight,
   FolderInput,
   Loader2,
   Trash2,
   XIcon,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { useTable } from "~/hooks/useTable";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
@@ -54,6 +63,9 @@ export function TransactionTable() {
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [scheduleType, setScheduleType] = useState<TransactionType>(
+    TransactionType.EXPENSE,
+  );
   const [isBulkCategoryDialogOpen, setBulkCategoryDialogOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: schedules = [] } = api.recurringTransaction.getAll.useQuery();
@@ -239,14 +251,35 @@ export function TransactionTable() {
               <AddTransactionDropdown onSuccess={handleCreated} />
             </div>
           ) : (
-            <Button
-              type="button"
-              className="w-full md:w-auto"
-              onClick={() => setScheduleDialogOpen(true)}
-            >
-              <CalendarPlus />
-              New schedule
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" className="w-full md:w-auto">
+                  <CalendarPlus />
+                  Add
+                  <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setScheduleType(TransactionType.EXPENSE);
+                    setScheduleDialogOpen(true);
+                  }}
+                >
+                  <ArrowUpRight />
+                  Expense
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setScheduleType(TransactionType.INCOME);
+                    setScheduleDialogOpen(true);
+                  }}
+                >
+                  <ArrowDownLeft />
+                  Income
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>
@@ -416,10 +449,11 @@ export function TransactionTable() {
       />
 
       <RecurringTransactionDialog
-        key={`header-schedule-dialog-${isScheduleDialogOpen}`}
+        key={`header-schedule-dialog-${isScheduleDialogOpen}-${scheduleType}`}
         isOpen={isScheduleDialogOpen}
         onOpenChange={setScheduleDialogOpen}
         onSuccess={handleCreated}
+        type={scheduleType}
       />
       {confirmDeleteModal}
     </div>

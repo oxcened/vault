@@ -42,6 +42,7 @@ import {
 import { differenceInCalendarDays, format } from "date-fns";
 
 const frequencyLabels: Record<RecurrenceFrequency, string> = {
+  ONCE: "One time",
   DAILY: "Daily",
   WEEKLY: "Weekly",
   MONTHLY: "Monthly",
@@ -49,6 +50,9 @@ const frequencyLabels: Record<RecurrenceFrequency, string> = {
 };
 
 function formatRecurrence(schedule: RecurringTransactionRow) {
+  if (schedule.frequency === "ONCE") {
+    return frequencyLabels[schedule.frequency];
+  }
   if (schedule.interval === 1) return frequencyLabels[schedule.frequency];
 
   const unit = {
@@ -174,7 +178,9 @@ export function RecurringTransactionDetailDialog({
             </div>
             <div className="flex items-center gap-3 border-b px-4 py-3">
               <Repeat2 className="size-4 text-muted-foreground" />
-              <dt className="text-muted-foreground">Repeats</dt>
+              <dt className="text-muted-foreground">
+                {schedule.frequency === "ONCE" ? "Schedule" : "Repeats"}
+              </dt>
               <dd className="ml-auto font-medium">
                 {formatRecurrence(schedule)}
               </dd>
@@ -205,7 +211,10 @@ export function RecurringTransactionDetailDialog({
               )}
               {!schedule.isPaused && (
                 <DropdownMenuItem onClick={onSkip}>
-                  <SkipForward /> Skip occurrence
+                  <SkipForward />
+                  {schedule.frequency === "ONCE"
+                    ? "Dismiss schedule"
+                    : "Skip occurrence"}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={onTogglePaused}>
