@@ -10,6 +10,9 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { AmountInput } from "~/components/ui/amount-input";
+import { APP_CURRENCY } from "~/constants";
+import { getCurrencyFractionDigits } from "~/utils/currency";
 import {
   normalizeReserveIcon,
   reserveIconOptions,
@@ -101,11 +104,14 @@ export function EnvelopeForm({
             <FormItem>
               <FormLabel>Target amount</FormLabel>
               <FormControl>
-                <Input
+                <AmountInput
+                  ref={field.ref}
+                  name={field.name}
+                  onBlur={field.onBlur}
+                  onValueChange={field.onChange}
                   placeholder="Optional"
-                  type="number"
-                  step="any"
-                  {...field}
+                  currency={APP_CURRENCY}
+                  maxFractionDigits={getCurrencyFractionDigits(APP_CURRENCY)}
                   value={field.value ?? ""}
                 />
               </FormControl>
@@ -124,11 +130,14 @@ export function EnvelopeForm({
             <FormItem>
               <FormLabel>Reserved amount</FormLabel>
               <FormControl>
-                <Input
+                <AmountInput
+                  ref={field.ref}
+                  name={field.name}
+                  onBlur={field.onBlur}
+                  onValueChange={field.onChange}
                   placeholder="0.00"
-                  type="number"
-                  step="any"
-                  {...field}
+                  currency={APP_CURRENCY}
+                  maxFractionDigits={getCurrencyFractionDigits(APP_CURRENCY)}
                   value={field.value ?? ""}
                 />
               </FormControl>

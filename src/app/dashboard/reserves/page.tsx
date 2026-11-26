@@ -51,8 +51,14 @@ function ReserveCard({
   const remaining = target?.minus(allocated);
 
   return (
-    <article className="group rounded-xl border bg-card p-4 transition-colors hover:border-muted-foreground/30">
-      <div className="flex items-center gap-3">
+    <article className="group relative rounded-xl border bg-card p-4 transition-colors hover:border-muted-foreground/30">
+      <button
+        type="button"
+        aria-label={`Edit ${reserve.name}`}
+        onClick={() => onEdit(reserve)}
+        className="absolute inset-0 w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      />
+      <div className="pointer-events-none relative flex items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-500">
           <ReserveIcon name={reserve.icon} className="size-4" />
         </div>
@@ -62,27 +68,29 @@ function ReserveCard({
             {target ? `${progressLabel}% funded` : "No target"}
           </p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="-mr-2 size-8">
-              <MoreHorizontal />
-              <span className="sr-only">Reserve actions</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(reserve)}>
-              <Pencil /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(reserve)}
-            >
-              <Trash2 /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="pointer-events-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="-mr-2 size-8">
+                <MoreHorizontal />
+                <span className="sr-only">Reserve actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(reserve)}>
+                <Pencil /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDelete(reserve)}
+              >
+                <Trash2 /> Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
-      <div className="mt-4 flex items-baseline justify-between gap-4">
+      <div className="pointer-events-none relative mt-4 flex items-baseline justify-between gap-4">
         <RoundedCurrency value={allocated} className="text-xl font-semibold" />
         {target && (
           <p className="shrink-0 text-right text-xs text-muted-foreground">
@@ -91,7 +99,7 @@ function ReserveCard({
         )}
       </div>
       {target && (
-        <div className="mt-3 space-y-1.5">
+        <div className="pointer-events-none relative mt-3 space-y-1.5">
           <Progress
             value={progress}
             className="h-1.5 bg-blue-500/15"
