@@ -5,6 +5,6 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = { distDir: process.env.TEST_NEXT_DIST_DIR ?? ".next" };
 
 export default config;

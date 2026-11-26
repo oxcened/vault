@@ -92,7 +92,7 @@ export const netWorthDebtRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const deleted = await ctx.db.netWorthDebt.delete({
-        where: { id: input.id },
+        where: { id: input.id, createdById: ctx.session.user.id },
         include: {
           quantities: {
             orderBy: {
@@ -136,6 +136,12 @@ export const netWorthDebtRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
+      const holding = await ctx.db.netWorthDebt.findFirst({
+        where: { id: input.debtId, createdById: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!holding)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Debt not found." });
       const rows = await getDebtValueHistory({
         db: ctx.db,
         userId: ctx.session.user.id,
@@ -158,7 +164,7 @@ export const netWorthDebtRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.$transaction(async (tx) => {
         const asset = await tx.netWorthDebt.findFirst({
-          where: { id: input.id },
+          where: { id: input.id, createdById: ctx.session.user.id },
           include: {
             quantities: {
               orderBy: {
@@ -205,7 +211,7 @@ export const netWorthDebtRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { id, categoryId, ...data } = input;
       const updatedAsset = await ctx.db.netWorthDebt.update({
-        where: { id: input.id },
+        where: { id: input.id, createdById: ctx.session.user.id },
         data: {
           ...data,
           category: categoryId ? { connect: { id: categoryId } } : undefined,
@@ -284,6 +290,7 @@ export const netWorthDebtRouter = createTRPCRouter({
       return ctx.db.netWorthDebtQuantity.findMany({
         where: {
           netWorthDebtId: input.debtId,
+          netWorthDebt: { createdById: ctx.session.user.id },
         },
         orderBy: {
           timestamp: "desc",
@@ -355,6 +362,7 @@ export const netWorthDebtRouter = createTRPCRouter({
       const updatedQuantity = await ctx.db.netWorthDebtQuantity.update({
         where: {
           id: input.id,
+          netWorthDebtId: input.debtId,
         },
         data: {
           quantity: parsedQuantity,

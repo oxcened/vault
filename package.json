@@ -25,7 +25,9 @@
     "preview": "next build && next start",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "bash scripts/test-integration.sh",
+    "test:e2e": "bash scripts/test-integration.sh --browser"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
@@ -88,6 +90,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/eslint": "^8.56.10",
     "@types/luxon": "^3.6.2",
     "@types/next-pwa": "^5.6.9",

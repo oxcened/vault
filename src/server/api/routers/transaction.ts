@@ -232,7 +232,7 @@ export const transactionRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const deleted = await ctx.db.transaction.delete({
-        where: { id: input.id },
+        where: { id: input.id, createdById: ctx.session.user.id },
       });
 
       appEmitter.emit("transaction:updated", {

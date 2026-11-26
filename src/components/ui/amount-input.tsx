@@ -64,7 +64,9 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
               /^-?\d*(?:[.,]\d*)?$/.test(nextValue) &&
               (fraction?.length ?? 0) <= maxFractionDigits
             ) {
-              onValueChange(nextValue.replace(",", "."));
+              onValueChange(
+                nextValue.replace(",", ".").replace(/^(-?)0+(?=\d)/, "$1"),
+              );
             }
           }}
           onFocus={(event) => {

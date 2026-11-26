@@ -119,7 +119,7 @@ export const netWorthAssetRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const deletedAsset = await ctx.db.netWorthAsset.delete({
-        where: { id: input.id },
+        where: { id: input.id, createdById: ctx.session.user.id },
         select: {
           quantities: {
             orderBy: { timestamp: "asc" },
@@ -174,6 +174,12 @@ export const netWorthAssetRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
+      const holding = await ctx.db.netWorthAsset.findFirst({
+        where: { id: input.assetId, createdById: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!holding)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Asset not found." });
       const rows = await getAssetValueHistory({
         db: ctx.db,
         userId: ctx.session.user.id,
@@ -196,7 +202,7 @@ export const netWorthAssetRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.$transaction(async (tx) => {
         const asset = await tx.netWorthAsset.findFirst({
-          where: { id: input.id },
+          where: { id: input.id, createdById: ctx.session.user.id },
           include: {
             ticker: {
               include: {
@@ -366,6 +372,7 @@ export const netWorthAssetRouter = createTRPCRouter({
       return ctx.db.netWorthAssetQuantity.findMany({
         where: {
           netWorthAssetId: input.assetId,
+          netWorthAsset: { createdById: ctx.session.user.id },
         },
         orderBy: {
           timestamp: "desc",
@@ -437,6 +444,7 @@ export const netWorthAssetRouter = createTRPCRouter({
       const updatedQuantity = await ctx.db.netWorthAssetQuantity.update({
         where: {
           id: input.id,
+          netWorthAssetId: input.assetId,
         },
         data: {
           quantity: parsedQuantity,

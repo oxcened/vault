@@ -51,3 +51,7 @@ public/sw.js
 public/workbox-*.js
 
 .vscode
+# Browser test artifacts
+.next-e2e/
+test-results/
+playwright-report/
