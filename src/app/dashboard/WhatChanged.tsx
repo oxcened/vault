@@ -25,7 +25,14 @@ export function WhatChanged() {
         </h2>
       </div>
 
-      <Card className="grid overflow-hidden shadow-none md:grid-cols-2 md:divide-x">
+      <Card
+        className={cn(
+          "grid overflow-hidden shadow-none",
+          holdingChanges.length > 0 &&
+            cashFlowChanges.length > 0 &&
+            "md:grid-cols-2 md:divide-x",
+        )}
+      >
         {holdingChanges.length > 0 && (
           <div>
             <div className="border-b px-4 py-3">
@@ -65,7 +72,7 @@ export function WhatChanged() {
         )}
 
         {cashFlowChanges.length > 0 && (
-          <div className={cn(holdingChanges.length === 0 && "md:col-span-2")}>
+          <div>
             <div className="border-b px-4 py-3">
               <p className="text-xs font-medium text-muted-foreground">
                 This month&apos;s biggest movements
