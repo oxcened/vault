@@ -32,7 +32,7 @@ declare module "next-auth" {
  */
 export const authConfig = {
   providers: [
-    DiscordProvider,
+    DiscordProvider({ issuer: "https://discord.com" }),
     /**
      * ...add more providers here.
      *
