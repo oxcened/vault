@@ -90,8 +90,6 @@ interface MultiSelectOption {
     badgeColor?: string;
     /** Custom icon color */
     iconColor?: string;
-    /** Gradient background for badge */
-    gradient?: string;
   };
 }
 
@@ -851,10 +849,6 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                           ...(customStyle?.badgeColor && {
                             backgroundColor: customStyle.badgeColor,
                           }),
-                          ...(customStyle?.gradient && {
-                            background: customStyle.gradient,
-                            color: "white",
-                          }),
                         };
                         return (
                           <Badge
@@ -862,8 +856,6 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                             className={cn(
                               getBadgeAnimationClass(),
                               multiSelectVariants({ variant }),
-                              customStyle?.gradient &&
-                                "border-transparent text-white",
                               responsiveSettings.compactMode &&
                                 "px-1.5 py-0.5 text-xs",
                               screenSize === "mobile" &&

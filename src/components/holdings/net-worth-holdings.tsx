@@ -130,14 +130,7 @@ export default function NetWorthHoldings<T extends Holding>({
           <TableSkeleton />
         ) : (
           <>
-            <section
-              className={cn(
-                "rounded-xl border bg-gradient-to-br p-4 sm:p-5",
-                type === "asset"
-                  ? "from-blue-500/[0.08] via-card to-card"
-                  : "from-rose-500/[0.08] via-card to-card",
-              )}
-            >
+            <section className="rounded-xl border bg-card p-4 sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div className="flex min-w-0 items-center gap-3">
                   <div

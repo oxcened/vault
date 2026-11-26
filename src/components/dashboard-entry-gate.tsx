@@ -64,7 +64,7 @@ export function DashboardEntryGate({
           <div className="w-full max-w-md rounded-3xl border bg-card p-6 shadow-2xl shadow-black/10 sm:p-8">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-                <div className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <ShieldCheck className="size-4" />
                 </div>
                 Vault

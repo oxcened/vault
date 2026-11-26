@@ -29,9 +29,8 @@ export function NetWorthCard() {
 
   return (
     <Link href="/dashboard/net-worth" className="group block">
-      <Card className="relative h-full overflow-hidden bg-gradient-to-br from-card via-card to-blue-500/[0.06] transition-colors group-hover:border-blue-500/30">
-        <div className="pointer-events-none absolute -right-10 -top-12 size-36 rounded-full bg-blue-500/10 blur-3xl" />
-        <CardHeader className="relative flex-row items-center justify-between space-y-0 p-5 pb-0">
+      <Card className="h-full bg-card transition-colors group-hover:border-blue-500/30">
+        <CardHeader className="flex-row items-center justify-between space-y-0 p-5 pb-0">
           <div className="flex items-center gap-2.5">
             <span className="flex size-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 ring-1 ring-inset ring-blue-500/15">
               <WalletCards className="size-4" />
@@ -46,7 +45,7 @@ export function NetWorthCard() {
           </div>
         </CardHeader>
 
-        <CardContent className="relative p-5 pt-4">
+        <CardContent className="p-5 pt-4">
           <CardTitle className="text-3xl tracking-tight">
             <RoundedCurrency value={data.netWorth?.netValue} />
           </CardTitle>

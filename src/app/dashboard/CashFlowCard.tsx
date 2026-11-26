@@ -27,9 +27,8 @@ export function CashFlowCard() {
 
   return (
     <Link href="/dashboard/cash-flow" className="group block">
-      <Card className="relative h-full overflow-hidden bg-gradient-to-br from-card via-card to-emerald-500/[0.06] transition-colors group-hover:border-emerald-500/30">
-        <div className="pointer-events-none absolute -right-10 -top-12 size-36 rounded-full bg-emerald-500/10 blur-3xl" />
-        <CardHeader className="relative flex-row items-center justify-between space-y-0 p-5 pb-0">
+      <Card className="h-full bg-card transition-colors group-hover:border-emerald-500/30">
+        <CardHeader className="flex-row items-center justify-between space-y-0 p-5 pb-0">
           <div className="flex items-center gap-2.5">
             <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 ring-1 ring-inset ring-emerald-500/15">
               <ArrowDownUp className="size-4" />
@@ -50,7 +49,7 @@ export function CashFlowCard() {
           </div>
         </CardHeader>
 
-        <CardContent className="relative p-5 pt-4">
+        <CardContent className="p-5 pt-4">
           <CardTitle
             className={cn(
               "text-3xl tracking-tight",

@@ -15,7 +15,6 @@ import {
   Vault,
   Wallet,
   WalletCards,
-  Zap,
 } from "lucide-react";
 
 import { NavMain } from "~/components/nav-main";
@@ -38,57 +37,57 @@ const navigation = {
       title: "Overview",
       url: "/dashboard",
       icon: LayoutDashboard,
-      iconClassName: "text-blue-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-blue-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
     {
       title: "Cash flow",
       url: "/dashboard/cash-flow",
       icon: ArrowLeftRight,
-      iconClassName: "text-emerald-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-emerald-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
     {
       title: "Transactions",
       url: "/dashboard/transactions",
       icon: ReceiptText,
-      iconClassName: "text-violet-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-violet-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
     {
       title: "Reserves",
       url: "/dashboard/reserves",
       icon: WalletCards,
-      iconClassName: "text-amber-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-amber-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
     {
       title: "Net worth",
       url: "/dashboard/net-worth",
       icon: Wallet,
-      iconClassName: "text-indigo-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-indigo-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
     {
       title: "Assets",
       url: "/dashboard/assets",
       icon: TrendingUp,
-      iconClassName: "text-teal-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-teal-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
     {
       title: "Debts",
       url: "/dashboard/debts",
       icon: CreditCard,
-      iconClassName: "text-rose-500",
+      iconClassName: "text-sidebar-foreground",
       activeClassName:
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-rose-500",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
     },
   ],
 };
@@ -113,18 +112,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenuButton
           asChild
           size="lg"
-          className="h-12 rounded-xl px-2 hover:bg-sidebar-accent/60 data-[state=open]:bg-sidebar-accent group-data-[collapsible=icon]:rounded-lg"
+          className="h-12 rounded-md px-2 hover:bg-sidebar-accent/60 data-[state=open]:bg-sidebar-accent group-data-[collapsible=icon]:rounded-md"
         >
           <Link href="/dashboard">
-            <div className="relative flex aspect-square size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-[0_8px_24px_-10px_rgba(59,130,246,0.9)] group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:shadow-none">
+            <div className="relative flex aspect-square size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-sidebar-border bg-sidebar-accent text-sidebar-foreground group-data-[collapsible=icon]:size-8">
               <Vault className="size-[18px]" strokeWidth={2.2} />
             </div>
             <div className="grid flex-1 text-left leading-tight">
               <span className="truncate text-[15px] font-semibold tracking-tight">
                 Vault
               </span>
-              <span className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-sidebar-foreground/50">
-                <Zap className="size-2.5 fill-current" /> Personal finance
+              <span className="mt-0.5 truncate text-[11px] text-sidebar-foreground/50">
+                Personal finance
               </span>
             </div>
           </Link>
@@ -140,8 +139,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             href="/dashboard/monthly-update"
             icon={RefreshCw}
             isActive={monthlyUpdateIsActive}
-            iconClassName="text-blue-400"
-            activeClassName="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-blue-500"
+            iconClassName="text-sidebar-foreground"
+            activeClassName="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
             onNavigate={() => isMobile && setOpenMobile(false)}
           />
           <SidebarNavLink
@@ -149,8 +148,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             href="/dashboard/settings"
             icon={SettingsIcon}
             isActive={settingsIsActive}
-            iconClassName="text-slate-300"
-            activeClassName="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-slate-400"
+            iconClassName="text-sidebar-foreground"
+            activeClassName="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
             onNavigate={() => isMobile && setOpenMobile(false)}
           />
         </SidebarMenu>

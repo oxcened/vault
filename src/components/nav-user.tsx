@@ -45,11 +45,11 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="h-14 rounded-xl border border-sidebar-border/80 bg-sidebar-accent/35 px-2.5 shadow-sm transition-colors hover:bg-sidebar-accent/70 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:shadow-none"
+              className="h-14 rounded-md border border-transparent bg-transparent px-2.5 transition-colors hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:border-0"
             >
-              <Avatar className="h-9 w-9 rounded-xl ring-1 ring-sidebar-border group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:rounded-lg">
+              <Avatar className="h-9 w-9 rounded-md ring-1 ring-sidebar-border group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-xs font-semibold text-blue-600 dark:text-blue-300">
+                <AvatarFallback className="rounded-md bg-sidebar-accent text-xs font-semibold text-sidebar-foreground">
                   {initials || "V"}
                 </AvatarFallback>
               </Avatar>

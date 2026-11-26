@@ -95,7 +95,7 @@ function SummaryCard({ data }: { data: Overview }) {
     : latest.netFlow.div(latest.income);
 
   return (
-    <Card className="overflow-hidden border-emerald-500/20 bg-gradient-to-br from-card via-card to-emerald-500/10 shadow-none">
+    <Card className="overflow-hidden border-emerald-500/20 bg-card shadow-none">
       <CardContent className="p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -514,7 +514,7 @@ function CategoryCard({
                     className="absolute inset-y-0 left-0 transition-[width] duration-500"
                     style={{
                       width: `${percentage}%`,
-                      background: `linear-gradient(90deg, color-mix(in srgb, ${accent} 18%, transparent), color-mix(in srgb, ${accent} 9%, transparent))`,
+                      backgroundColor: `color-mix(in srgb, ${accent} 12%, transparent)`,
                     }}
                   />
                   <div className="relative flex items-center gap-3 px-3 py-2.5">

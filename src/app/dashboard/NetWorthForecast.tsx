@@ -25,9 +25,8 @@ export default function NetWorthForecast() {
   if (!data?.netWorth) return null;
 
   return (
-    <Card className="relative h-full overflow-hidden bg-gradient-to-br from-card via-card to-violet-500/[0.06] shadow-none">
-      <div className="pointer-events-none absolute -right-12 -top-14 size-40 rounded-full bg-violet-500/10 blur-3xl" />
-      <CardHeader className="relative flex flex-row items-center gap-3 space-y-0 p-5 pb-0">
+    <Card className="h-full bg-card shadow-none">
+      <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-5 pb-0">
         <span className="flex size-9 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500 ring-1 ring-inset ring-violet-500/15">
           <ChartNoAxesCombined className="size-4" />
         </span>
@@ -39,7 +38,7 @@ export default function NetWorthForecast() {
         </div>
       </CardHeader>
 
-      <CardContent className="relative p-5 pt-5">
+      <CardContent className="p-5 pt-5">
         <CardTitle className="text-3xl tracking-tight">
           <RoundedCurrency value={netWorthForecast} />
         </CardTitle>

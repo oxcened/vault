@@ -51,7 +51,7 @@ function ReserveCard({
   const remaining = target?.minus(allocated);
 
   return (
-    <article className="group rounded-xl border bg-gradient-to-br from-card to-muted/10 p-4 transition-colors hover:border-muted-foreground/30">
+    <article className="group rounded-xl border bg-card p-4 transition-colors hover:border-muted-foreground/30">
       <div className="flex items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-500">
           <ReserveIcon name={reserve.icon} className="size-4" />
@@ -185,7 +185,7 @@ export default function EnvelopesPage() {
           <>
             <section
               className={cn(
-                "overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/[0.06] via-card to-card p-5",
+                "overflow-hidden rounded-2xl border bg-card p-5",
                 data.remaining.isNegative()
                   ? "border-destructive/30"
                   : "border-primary/20",

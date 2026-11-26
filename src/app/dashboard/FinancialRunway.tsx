@@ -68,9 +68,8 @@ export default function FinancialRunway() {
   const runwayProgress = Math.min((monthsOfRunway.toNumber() / 24) * 100, 100);
 
   return (
-    <Card className="relative h-full overflow-hidden bg-gradient-to-br from-card via-card to-amber-500/[0.06] shadow-none">
-      <div className="pointer-events-none absolute -right-12 -top-14 size-40 rounded-full bg-amber-500/10 blur-3xl" />
-      <CardHeader className="relative flex flex-row items-center gap-3 space-y-0 p-5 pb-0">
+    <Card className="h-full bg-card shadow-none">
+      <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-5 pb-0">
         <span className="flex size-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 ring-1 ring-inset ring-amber-500/15">
           <ShieldCheck className="size-4" />
         </span>
@@ -84,7 +83,7 @@ export default function FinancialRunway() {
         </div>
       </CardHeader>
 
-      <CardContent className="relative p-5 pt-5">
+      <CardContent className="p-5 pt-5">
         <CardTitle
           className={cn(
             "text-3xl tabular-nums tracking-tight",

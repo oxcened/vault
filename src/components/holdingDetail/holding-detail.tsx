@@ -181,8 +181,8 @@ export function HoldingDetail({
               className={cn(
                 "overflow-hidden shadow-none",
                 type === "asset"
-                  ? "border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-500/10"
-                  : "border-rose-500/20 bg-gradient-to-br from-card via-card to-rose-500/10",
+                  ? "border-blue-500/20 bg-card"
+                  : "border-rose-500/20 bg-card",
               )}
             >
               <CardContent className="p-5 sm:p-6">

@@ -52,7 +52,7 @@ export default function StockTickersPage() {
           </p>
         </div>
 
-        <section className="rounded-2xl border bg-gradient-to-br from-blue-500/[0.07] via-card to-card p-4 sm:p-5">
+        <section className="rounded-2xl border bg-card p-4 sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="min-w-0 flex-1">
               <span className="mb-3 flex size-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500 ring-1 ring-inset ring-blue-500/20">
