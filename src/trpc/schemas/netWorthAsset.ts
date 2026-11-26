@@ -12,6 +12,7 @@ export const createNetWorthAssetSchema = yup.object({
     .test((value) => safeEvaluate(value) != null),
   tickerId: yup.string().label("Stock ticker"),
   isLiquid: yup.boolean().default(false),
+  includeInFire: yup.boolean().default(false),
 });
 
 export const updateNetWorthAssetSchema = yup.object({
@@ -21,6 +22,7 @@ export const updateNetWorthAssetSchema = yup.object({
   currency: yup.string().label("Currency").required(),
   tickerId: yup.string().label("Stock ticker"),
   isLiquid: yup.boolean().required(),
+  includeInFire: yup.boolean().required(),
 });
 
 export const createQuantitySchema = yup.object({

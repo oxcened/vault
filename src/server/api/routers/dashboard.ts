@@ -70,6 +70,18 @@ export const dashboardRouter = createTRPCRouter({
         userId,
         startDate: latestNetWorth?.timestamp ?? now,
       });
+      const fireAssets = await transaction.netWorthAsset.findMany({
+        where: { createdById: userId, includeInFire: true, archivedAt: null },
+        select: { id: true },
+      });
+      const fireAssetIds = new Set(fireAssets.map((asset) => asset.id));
+      const firePortfolio = assetValues.reduce(
+        (total, asset) =>
+          fireAssetIds.has(asset.assetId)
+            ? total.plus(asset.valueInTarget)
+            : total,
+        new Prisma.Decimal(0),
+      );
       const liquidAssets = assetValues.reduce(
         (total, asset) =>
           asset.isLiquid ? total.plus(asset.valueInTarget) : total,
@@ -241,6 +253,7 @@ export const dashboardRouter = createTRPCRouter({
       return {
         netWorth: latestNetWorth,
         liquidAssets,
+        firePortfolio,
         previousNetWorthTimestamp: previousNetWorth?.timestamp,
         netWorthChange: previousNetWorth
           ? latestNetWorth?.netValue.minus(previousNetWorth.netValue)

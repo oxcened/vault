@@ -47,6 +47,7 @@ export type Holding = {
   tickerId?: string | null;
   archivedAt: Date | null;
   isLiquid?: boolean | null;
+  includeInFire?: boolean | null;
 };
 
 export type NetWorthHoldingsProps<T> = {

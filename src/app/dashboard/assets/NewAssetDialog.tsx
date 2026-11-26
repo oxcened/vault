@@ -69,6 +69,7 @@ export default function NewAssetDialog({
       tickerId: "",
       initialQuantity: "",
       isLiquid: false,
+      includeInFire: false,
     },
     resolver: yupResolver(createNetWorthAssetSchema),
   });
@@ -232,13 +233,34 @@ export default function NewAssetDialog({
 
               <FormField
                 control={form.control}
+                name="includeInFire"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-3 md:col-span-2">
+                    <div>
+                      <FormLabel>Include in FIRE portfolio</FormLabel>
+                      <FormDescription>
+                        Count this asset toward your FIRE starting portfolio.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="isLiquid"
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-3 md:col-span-2">
                     <div>
                       <FormLabel>Liquid holding</FormLabel>
                       <FormDescription>
-                        Can be readily used to cover your expenses.
+                        Include this asset in the dashboard cash runway and the
+                        pool available for reserves.
                       </FormDescription>
                     </div>
                     <FormControl>

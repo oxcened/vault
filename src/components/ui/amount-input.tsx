@@ -21,12 +21,26 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
       currencyAction,
       maxFractionDigits,
       onFocus,
+      onBlur,
       onValueChange,
       value,
       ...props
     },
     ref,
   ) => {
+    const [focused, setFocused] = React.useState(false);
+    const rawValue = String(value ?? "");
+    const completeNumber = /^-?\d+(?:\.\d*)?$/.test(rawValue);
+    const [integer, fraction = ""] = rawValue.split(".");
+    const minimumDigits = Math.min(2, maxFractionDigits);
+    const groupedInteger = integer?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const displayValue =
+      !focused && completeNumber
+        ? minimumDigits > 0 || fraction.length > 0
+          ? `${groupedInteger}.${fraction.padEnd(minimumDigits, "0")}`
+          : (groupedInteger ?? rawValue)
+        : rawValue;
+
     return (
       <div
         className={cn(
@@ -41,7 +55,7 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
           inputMode="decimal"
           autoComplete="off"
           className="h-full min-w-0 flex-1 bg-transparent px-3 text-base tabular-nums outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed md:text-sm"
-          value={value ?? ""}
+          value={displayValue}
           onChange={(event) => {
             const nextValue = event.currentTarget.value;
             const fraction = nextValue.split(/[.,]/)[1];
@@ -54,8 +68,13 @@ const AmountInput = React.forwardRef<HTMLInputElement, AmountInputProps>(
             }
           }}
           onFocus={(event) => {
+            setFocused(true);
             if (event.currentTarget.value) event.currentTarget.select();
             onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setFocused(false);
+            onBlur?.(event);
           }}
           {...props}
         />

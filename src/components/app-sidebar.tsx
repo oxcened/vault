@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   ArrowLeftRight,
   CreditCard,
+  Flame,
   LayoutDashboard,
   ReceiptText,
   RefreshCw,
@@ -77,6 +78,14 @@ const navigation = {
       title: "Assets",
       url: "/dashboard/assets",
       icon: TrendingUp,
+      iconClassName: "text-sidebar-foreground",
+      activeClassName:
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+    },
+    {
+      title: "FIRE simulator",
+      url: "/dashboard/fire",
+      icon: Flame,
       iconClassName: "text-sidebar-foreground",
       activeClassName:
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",

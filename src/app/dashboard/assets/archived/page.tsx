@@ -11,9 +11,10 @@ import EditAssetDialog from "../EditAssetDialog";
 
 export default function ArchivedAssetsPage() {
   const [date] = useState(() => new Date());
-  const { data = [], isPending } = api.netWorthAsset.getAll.useQuery({
-    date,
-  });
+  const { data = [], isFetching } = api.netWorthAsset.getAll.useQuery(
+    { date },
+    { refetchOnMount: "always" },
+  );
   const utils = api.useUtils();
   const [editingAsset, setEditingAsset] = useState<Holding>();
   const { confirm, modal } = useConfirmDelete();
@@ -51,7 +52,7 @@ export default function ArchivedAssetsPage() {
     <>
       <NetWorthHoldings
         holdings={holdings}
-        isFetching={isPending}
+        isFetching={isFetching}
         holdingLabel="Asset"
         holdingLabelPlural="Assets"
         type="asset"

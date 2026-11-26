@@ -1,0 +1,1 @@
+ALTER TABLE "NetWorthAsset" ADD COLUMN "includeInFire" BOOLEAN NOT NULL DEFAULT false;

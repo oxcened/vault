@@ -171,6 +171,7 @@ export default function AssetDetailPage() {
                 currency: data.currency,
                 tickerId: data.tickerId,
                 isLiquid: data.isLiquid,
+                includeInFire: data.includeInFire,
               }
             : undefined
         }

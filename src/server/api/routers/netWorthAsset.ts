@@ -37,6 +37,7 @@ export const netWorthAssetRouter = createTRPCRouter({
             name: input.name,
             currency: input.currency,
             isLiquid: input.isLiquid,
+            includeInFire: input.includeInFire,
             category: { connect: { id: input.categoryId } },
             ticker: tickerId ? { connect: { id: tickerId } } : undefined,
             createdBy: { connect: { id: ctx.session.user.id } },
@@ -145,11 +146,24 @@ export const netWorthAssetRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return getAssetValuesForUserMonth({
-        db: ctx.db,
-        startDate: input.date,
-        userId: ctx.session.user.id,
-      });
+      const [values, assets] = await Promise.all([
+        getAssetValuesForUserMonth({
+          db: ctx.db,
+          startDate: input.date,
+          userId: ctx.session.user.id,
+        }),
+        ctx.db.netWorthAsset.findMany({
+          where: { createdById: ctx.session.user.id },
+          select: { id: true, includeInFire: true },
+        }),
+      ]);
+      const flags = new Map(
+        assets.map((asset) => [asset.id, asset.includeInFire]),
+      );
+      return values.map((value) => ({
+        ...value,
+        includeInFire: flags.get(value.assetId) ?? false,
+      }));
     }),
   getValueHistory: protectedProcedure
     .input(
@@ -240,6 +254,7 @@ export const netWorthAssetRouter = createTRPCRouter({
         tickerId: yup.string(),
         currency: yup.string(),
         isLiquid: yup.boolean().optional(),
+        includeInFire: yup.boolean().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

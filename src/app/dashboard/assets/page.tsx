@@ -21,9 +21,10 @@ export default function AssetsPage() {
       ),
     ),
   );
-  const { data = [], isPending } = api.netWorthAsset.getAll.useQuery({
-    date,
-  });
+  const { data = [], isFetching } = api.netWorthAsset.getAll.useQuery(
+    { date },
+    { refetchOnMount: "always" },
+  );
 
   const { mutate: deleteAsset } = api.netWorthAsset.delete.useMutation({
     onSuccess: () => {
@@ -89,7 +90,7 @@ export default function AssetsPage() {
     <>
       <NetWorthHoldings
         holdings={mappedData}
-        isFetching={isPending}
+        isFetching={isFetching}
         holdingLabel="Asset"
         holdingLabelPlural="Assets"
         type="asset"

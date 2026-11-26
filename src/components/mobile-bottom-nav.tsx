@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ArrowLeftRight,
   CreditCard,
+  Flame,
   LayoutDashboard,
   Menu,
   ReceiptText,
@@ -82,6 +83,7 @@ function getMoreActiveClassName(pathname: string) {
 export function MobileBottomNav() {
   const pathname = usePathname();
   const moreIsActive =
+    pathname.startsWith("/dashboard/fire") ||
     pathname.startsWith("/dashboard/reserves") ||
     pathname.startsWith("/dashboard/monthly-update") ||
     pathname.startsWith("/dashboard/assets") ||
@@ -147,6 +149,7 @@ export function MobileBottomNav() {
             className="min-w-48 rounded-xl p-1.5"
           >
             {[
+              { title: "FIRE simulator", href: "/dashboard/fire", icon: Flame },
               {
                 title: "Monthly update",
                 href: "/dashboard/monthly-update",
