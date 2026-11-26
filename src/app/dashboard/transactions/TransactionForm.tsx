@@ -184,17 +184,6 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
       }
     }, [categorySuggestion, debouncedDescription, form, isEditing]);
 
-    const isToday =
-      watchTimestamp?.toDateString() === new Date().toDateString();
-    const optionSummary = [
-      !fixedType && watchType.toLocaleLowerCase(),
-      watchCurrency.toUpperCase(),
-      !hideTimestamp &&
-        (isToday ? "today" : watchTimestamp?.toLocaleDateString()),
-    ]
-      .filter(Boolean)
-      .join(" · ");
-
     const { data: categories = [], isPending: isFetchingCategories } =
       api.transactionCategory.getByType.useQuery(
         {
@@ -499,7 +488,7 @@ const TransactionForm = forwardRef<TransactionFormRef, TransactionFormProps>(
                   showMoreOptions && "rotate-180",
                 )}
               />
-              <span className="font-normal capitalize">{optionSummary}</span>
+              <span className="font-normal">More options</span>
             </Button>
           )}
 
