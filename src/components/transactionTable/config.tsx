@@ -84,6 +84,7 @@ export function TransactionActions({
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionRow>();
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [isDuplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [isOppositeDialogOpen, setOppositeDialogOpen] = useState(false);
   const [isScheduleDialogOpen, setScheduleDialogOpen] = useState(false);
 
@@ -142,6 +143,9 @@ export function TransactionActions({
         <DropdownMenuItem onClick={() => setScheduleDialogOpen(true)}>
           Make recurring
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setDuplicateDialogOpen(true)}>
+          Duplicate
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setOppositeDialogOpen(true)}>
           {transaction.type === "EXPENSE" && transaction.amount.isPos()
             ? "Add refund"
@@ -170,6 +174,22 @@ export function TransactionActions({
         isOpen={isEditDialogOpen}
         transaction={editingTransaction}
         onOpenChange={setEditDialogOpen}
+        onSuccess={handleEdited}
+      />
+      <NewTransactionDialog
+        key={`duplicate-transaction-dialog-${isDuplicateDialogOpen}`}
+        isOpen={isDuplicateDialogOpen}
+        initialData={{
+          amount: transaction.amount.toNumber(),
+          type: transaction.type,
+          categoryId: transaction.categoryId,
+          currency: transaction.currency,
+          description: transaction.description,
+          timestamp: transaction.timestamp,
+          status: transaction.status,
+        }}
+        title="Duplicate transaction"
+        onOpenChange={setDuplicateDialogOpen}
         onSuccess={handleEdited}
       />
       <NewTransactionDialog
